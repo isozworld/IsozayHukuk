@@ -1,0 +1,234 @@
+﻿@page "/clients"
+@attribute [Authorize(HukukPermissions.Clients.Default)]
+@using Isozay.Hukuk.Permissions
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.Application.Dtos
+@using Isozay.Hukuk.Clients
+@using Isozay.Hukuk.Localization
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.AspNetCore.Components.Web
+@inject IStringLocalizer<HukukResource> L
+@inject AbpBlazorMessageLocalizerHelper<HukukResource> LH
+@inherits  AbpCrudPageBase<IClientService,ClientDto, long, PagedAndSortedResultRequestDto, CreateUpdateClientDto>
+
+<Card>
+    <CardHeader>
+        <Row Class="justify-content-between">
+            <Column ColumnSize="ColumnSize.IsAuto">
+                <h2>Müşteriler - Müvekkiler</h2>
+            </Column>
+            <Column ColumnSize="ColumnSize.IsAuto">
+                @if (HasCreatePermission)
+                {
+                    <Button Color="Color.Primary"
+                            Clicked="OpenCreateModalAsync">Yeni</Button>
+                }
+            </Column>
+        </Row>
+    </CardHeader>
+    <CardBody>
+        <DataGrid TItem="ClientDto"
+                  Data="Entities"
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  PageSize="PageSize">
+            <DataGridColumns>
+                <DataGridEntityActionsColumn TItem="ClientDto" @ref="@EntityActionsColumn">
+                    <DisplayTemplate>
+                        <EntityActions TItem="ClientDto" EntityActionsColumn="@EntityActionsColumn">
+                            <EntityAction TItem="ClientDto"
+                                          Text="Güncelle"
+                                          RequiredPolicy="@UpdatePolicyName"
+                                          Clicked="() => OpenEditModalAsync(context)" />
+                            <EntityAction TItem="ClientDto"
+                                          Text="Sil"
+                                          RequiredPolicy="@DeletePolicyName"
+                                          Clicked="() => DeleteEntityAsync(context)"
+                                          ConfirmationMessage="()=>GetDeleteConfirmationMessage(context)" />
+                        </EntityActions>
+                    </DisplayTemplate>
+                </DataGridEntityActionsColumn>
+                <DataGridColumn TItem="ClientDto"
+                                Field="@nameof(ClientDto.Name)"
+                                Caption="Ad Soyad/Unvan"></DataGridColumn>
+                <DataGridColumn TItem="ClientDto"
+                                Field="@nameof(ClientDto.Phone)"
+                                Caption="Telefon"></DataGridColumn>
+                <DataGridColumn TItem="ClientDto"
+                                Field="@nameof(ClientDto.Fax)"
+                                Caption="Faks"></DataGridColumn>
+                <DataGridColumn TItem="ClientDto"
+                                Field="@nameof(ClientDto.Address)"
+                                Caption="Adres"></DataGridColumn>
+                <DataGridColumn TItem="ClientDto"
+                                Field="@nameof(ClientDto.TaxDep)"
+                                Caption="V.Dairesi"></DataGridColumn>
+                <DataGridColumn TItem="ClientDto"
+                                Field="@nameof(ClientDto.TaxNumber)"
+                                Caption="V.No"></DataGridColumn>
+                <DataGridColumn TItem="ClientDto"
+                                Field="@nameof(ClientDto.ClientType)"
+                                Caption="Tip">
+                    <DisplayTemplate>
+                          @context.ClientType.GetDisplayName() 
+                    </DisplayTemplate>                            
+                            </DataGridColumn>
+                <DataGridColumn TItem="ClientDto"
+                                Field="@nameof(ClientDto.CreationTime)"
+                                Caption="Kayıt Tarihi">
+                    <DisplayTemplate>
+                          @context.CreationTime.ToString("dd.MM.yyyy") 
+                    </DisplayTemplate>                              
+                            </DataGridColumn>
+            </DataGridColumns>
+        </DataGrid>
+    </CardBody>
+</Card>
+ 
+<Modal @ref="@CreateModal">
+    
+    <ModalContent IsCentered="true">
+        <Form>
+            <ModalHeader>
+                <ModalTitle>@L["New"]</ModalTitle>
+                <CloseButton Clicked="CloseCreateModalAsync"/>
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@CreateValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>Ad Soyad/Unvan</FieldLabel>
+                            <TextEdit @bind-Text="@NewEntity.Name">
+                                <Feedback>
+                                    <ValidationError/>
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+                    <Field>
+                        <FieldLabel>Telefon</FieldLabel>
+                        <TextEdit   @bind-Text="NewEntity.Phone"/>
+                    </Field>
+                    <Field>
+                        <FieldLabel>Faks</FieldLabel>
+                        <TextEdit   @bind-Text="NewEntity.Fax"/>
+                    </Field>
+                    <Field>
+                        <FieldLabel>Adres</FieldLabel>
+                        <MemoEdit   @bind-Text="NewEntity.Address"/>
+                    </Field>
+                    <Field>
+                        <FieldLabel>V.Dairesi</FieldLabel>
+                        <TextEdit   @bind-Text="NewEntity.TaxDep"/>
+                    </Field>
+                    <Field>
+                        <FieldLabel>V.No</FieldLabel>
+                        <TextEdit   @bind-Text="NewEntity.TaxNumber"/>
+                    </Field>
+                    <Field>
+                        <FieldLabel>Tip</FieldLabel>
+                        <Select TValue="ClientType" @bind-SelectedValue="@NewEntity.ClientType">
+                            @foreach (ClientType ClientTypeValue in Enum.GetValues(typeof(ClientType)))
+                            {
+                                <SelectItem TValue="ClientType" Value="@((ClientType) ClientTypeValue)">
+                                     @ClientTypeValue.GetDisplayName()
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Blazorise.Color.Secondary"
+                        Clicked="CloseCreateModalAsync">İptal</Button>
+                <Button Color="Blazorise.Color.Primary"
+                        Type="@Blazorise.ButtonType.Submit"
+                        PreventDefaultOnSubmit="true"
+                        Clicked="CreateEntityAsync">Kaydet</Button>
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>
+
+
+
+<Modal @ref="@EditModal">
+ 
+    <ModalContent IsCentered="true">
+        <Form>
+            <ModalHeader>
+                <ModalTitle>@EditingEntity.Name</ModalTitle>
+                <CloseButton Clicked="CloseEditModalAsync"/>
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@EditValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>Ad Soyad/Unvan</FieldLabel>
+                            <TextEdit @bind-Text="@EditingEntity.Name">
+                                <Feedback>
+                                    <ValidationError/>
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+                    <Field>
+                        <FieldLabel>Telefon</FieldLabel>
+                        <TextEdit @bind-Text="EditingEntity.Phone"/>
+                    </Field>
+                    <Field>
+                        <FieldLabel>Faks</FieldLabel>
+                        <TextEdit @bind-Text="EditingEntity.Fax"/>
+                    </Field>
+                    <Field>
+                        <FieldLabel>Adres</FieldLabel>
+                        <MemoEdit @bind-Text="EditingEntity.Address"/>
+                    </Field>
+                    <Field>
+                        <FieldLabel>V.Dairesi</FieldLabel>
+                        <TextEdit   @bind-Text="EditingEntity.TaxDep"/>
+                    </Field>
+                    <Field>
+                        <FieldLabel>V.No</FieldLabel>
+                        <TextEdit   @bind-Text="EditingEntity.TaxNumber"/>
+                    </Field>
+                    <Field>
+                        <FieldLabel>Tip</FieldLabel>
+                        <Select TValue="ClientType" @bind-SelectedValue="@EditingEntity.ClientType">
+                            @foreach (ClientType ClientTypeValue in Enum.GetValues(typeof(ClientType)))
+                            {
+                                <SelectItem TValue="ClientType" Value="@((ClientType) ClientTypeValue)">
+                                     @ClientTypeValue.GetDisplayName()
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Blazorise.Color.Secondary"
+                        Clicked="CloseEditModalAsync">İptal</Button>
+                <Button Color="Blazorise.Color.Primary"
+                        Type="@Blazorise.ButtonType.Submit"
+                        PreventDefaultOnSubmit="true"
+                        Clicked="UpdateEntityAsync">Kaydet</Button>
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>
+@code
+{
+
+    public Clients() // Constructor
+    {
+        CreatePolicyName = HukukPermissions.Clients.Create;
+        UpdatePolicyName = HukukPermissions.Clients.Edit;
+        DeletePolicyName = HukukPermissions.Clients.Delete;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+}

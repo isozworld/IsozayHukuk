@@ -1,0 +1,195 @@
+﻿@page "/safes"
+@attribute [Authorize(HukukPermissions.Safes.Default)]
+@using Isozay.Hukuk.Permissions
+@using Isozay.Hukuk.Currencies
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.Application.Dtos
+@using Isozay.Hukuk.Safes
+@using Isozay.Hukuk.Localization
+@using Volo.Abp.AspNetCore.Components.Web
+@inject Currencies.ICurrencyService currencyService
+@inherits  AbpCrudPageBase<ISafeService,SafeDto, long, PagedAndSortedResultRequestDto, CreateUpdateSafeDto>
+
+<Card>
+    <CardHeader>
+        <Row Class="justify-content-between">
+            <Column ColumnSize="ColumnSize.IsAuto">
+                <h2>Kasa - Banka Tanımları</h2>
+            </Column>
+            <Column ColumnSize="ColumnSize.IsAuto">
+                @if (HasCreatePermission)
+                {
+                    <Button Color="Color.Primary"
+                            Clicked="OpenCreateModalAsync">Yeni</Button>
+                }
+            </Column>
+        </Row>
+    </CardHeader>
+    <CardBody>
+        <DataGrid TItem="SafeDto"
+                  Data="Entities"
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  PageSize="PageSize">
+            <DataGridColumns>
+                <DataGridEntityActionsColumn TItem="SafeDto" @ref="@EntityActionsColumn">
+                    <DisplayTemplate>
+                        <EntityActions TItem="SafeDto" EntityActionsColumn="@EntityActionsColumn">
+                            <EntityAction TItem="SafeDto"
+                                          Text="Güncelle"
+                                          RequiredPolicy="@UpdatePolicyName"
+                                          Clicked="() => OpenEditModalAsync(context)" />
+                            <EntityAction TItem="SafeDto"
+                                          Text="Sil"
+                                          RequiredPolicy="@DeletePolicyName"
+                                          Clicked="() => DeleteEntityAsync(context)"
+                                          ConfirmationMessage="()=>GetDeleteConfirmationMessage(context)" />
+                        </EntityActions>
+                    </DisplayTemplate>
+                </DataGridEntityActionsColumn>
+                <DataGridColumn TItem="SafeDto"
+                                Field="@nameof(SafeDto.Name)"
+                                Caption="Kasa Adı"></DataGridColumn>
+                <DataGridColumn TItem="SafeDto"
+                                Field="@nameof(SafeDto.Description)"
+                                Caption="Açıklama"></DataGridColumn>
+              <DataGridColumn TItem="SafeDto"
+                                Field="@nameof(SafeDto.CurrencyId)"
+                                Caption="Dövit Tipi">
+                    <DisplayTemplate>
+                          @context.Currency.Name
+                    </DisplayTemplate>                              
+                            </DataGridColumn>
+                <DataGridColumn TItem="SafeDto"
+                                Field="@nameof(SafeDto.CreationTime)"
+                                Caption="Kayıt Tarihi">
+                    <DisplayTemplate>
+                          @context.CreationTime.ToString("dd.MM.yyyy") 
+                    </DisplayTemplate>                              
+                            </DataGridColumn>
+            </DataGridColumns>
+        </DataGrid>
+    </CardBody>
+</Card>
+ 
+<Modal @ref="@CreateModal">
+    
+    <ModalContent IsCentered="true">
+        <Form>
+            <ModalHeader>
+                <ModalTitle>Yeni</ModalTitle>
+                <Text>@NewEntity.CurrencyId.ToString()</Text>
+                <CloseButton Clicked="CloseCreateModalAsync"/>
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@CreateValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
+                    <Validation >
+                        <Field>
+                            <FieldLabel>Kasa Adı</FieldLabel>
+                            <TextEdit @bind-Text="@NewEntity.Name">
+                                <Feedback>
+                                    <ValidationError/>
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+                    <Field>
+                        <FieldLabel>Açıklama</FieldLabel>
+                        <TextEdit   @bind-Text="NewEntity.Description"/>
+                    </Field>
+                    <Field>
+                        <FieldLabel>Döviz Tipi</FieldLabel>
+
+                        <Select TValue="long" @bind-SelectedValue="@NewEntity.CurrencyId">
+                            @foreach (var author in currencies)
+                            {
+                                <SelectItem TValue="long" Value="@author.Id">
+                                    @author.Name
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Blazorise.Color.Secondary"
+                        Clicked="CloseCreateModalAsync">İptal</Button>
+                <Button Color="Blazorise.Color.Primary"
+                        Type="@Blazorise.ButtonType.Submit"
+                        PreventDefaultOnSubmit="true"
+                        Clicked="CreateEntityAsync">Kaydet</Button>
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>
+
+
+
+<Modal @ref="@EditModal">
+ 
+    <ModalContent IsCentered="true">
+        <Form>
+            <ModalHeader>
+                <ModalTitle>@EditingEntity.Name</ModalTitle>
+                <Text>@EditingEntity.CurrencyId.ToString()</Text> - <Text>@NewEntity.CurrencyId.ToString()</Text>
+                <CloseButton Clicked="CloseEditModalAsync"/>
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@EditValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
+                    <Validation>
+                        <Field>
+                            <FieldLabel>Kasa Adı</FieldLabel>
+                            <TextEdit @bind-Text="@EditingEntity.Name">
+                                <Feedback>
+                                    <ValidationError/>
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+                    <Field>
+                        <FieldLabel>Açıklama</FieldLabel>
+                        <TextEdit @bind-Text="EditingEntity.Description"/>
+                    </Field>
+                    <Field>
+                        <FieldLabel>Döviz Tipi</FieldLabel>
+                        <Select TValue="long" @bind-SelectedValue="@EditingEntity.CurrencyId">
+                            @foreach (var author in currencies)
+                            {
+                                <SelectItem TValue="long" Value="@author.Id">
+                                    @author.Name
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field> 
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Blazorise.Color.Secondary"
+                        Clicked="CloseEditModalAsync">İptal</Button>
+                <Button Color="Blazorise.Color.Primary"
+                        Type="@Blazorise.ButtonType.Submit"
+                        PreventDefaultOnSubmit="true"
+                        Clicked="UpdateEntityAsync">Kaydet</Button>
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>
+@code
+{
+    IReadOnlyList<CurrencyDto> currencies = Array.Empty<CurrencyDto>();
+    public Safes() // Constructor
+    {
+        CreatePolicyName = HukukPermissions.Safes.Create;
+        UpdatePolicyName = HukukPermissions.Safes.Edit;
+        DeletePolicyName = HukukPermissions.Safes.Delete;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        currencies = (await currencyService.GetListAsync());
+
+    }
+ 
+}

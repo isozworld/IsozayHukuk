@@ -1,0 +1,69 @@
+﻿@using Volo.Abp.UI.Navigation
+@using Kaledar.HudutGecis.Menu 
+@{
+    var elementId = MenuItem.ElementId ?? "MenuItem_" + MenuItem.Name.Replace(".", "_");
+    var cssClass = string.IsNullOrEmpty(MenuItem.CssClass) ? string.Empty : MenuItem.CssClass;
+    var disabled = MenuItem.IsDisabled ? "disabled" : string.Empty;
+    var url = MenuItem.Url == null ? "#" : MenuItem.Url.TrimStart('/');
+    var customData = MenuItem.CustomData.As<HudutMenuCustomData>();
+}
+@if (MenuItem.IsLeaf)
+{
+    if (MenuItem.Url != null)
+    {
+        <li class="menu-item @cssClass @disabled" id="@elementId" aria-haspopup="true">
+            <a href="@url" target="@MenuItem.Target" class="menu-link">
+                <span class="svg-icon menu-icon">
+                    @if (MenuItem.Icon != null)
+                    {
+                        if (MenuItem.Icon.StartsWith("fa"))
+                        {
+                            <i class="@MenuItem.Icon mr-1"></i>
+                        }
+                        else
+                        {
+                            @((MarkupString)MenuItem.Icon)
+                        }
+                    }
+                </span>
+                <span class="menu-text">@MenuItem.DisplayName</span>
+            </a>
+        </li>
+    }
+}
+else
+{
+    <li class="menu-item menu-item-submenu" aria-haspopup="true" data-menu-toggle="hover">
+        <a href="javascript:;" class="menu-link menu-toggle">
+            <span class="svg-icon menu-icon">
+                @if (MenuItem.Icon != null)
+                {
+                    if (MenuItem.Icon.StartsWith("fa"))
+                    {
+                        <i class="@MenuItem.Icon mr-1"></i>
+                    }
+                    else
+                    {
+                        @((MarkupString)MenuItem.Icon)
+                    }
+                }
+            </span>
+            <span class="menu-text">@MenuItem.DisplayName</span>
+            <i class="menu-arrow"></i>
+        </a>
+        <div class="menu-submenu">
+            <i class="menu-arrow"></i>
+            <ul class="menu-subnav">
+                <li class="menu-item menu-item-parent" aria-haspopup="true">
+                    <span class="menu-link">
+                        <span class="menu-text">@MenuItem.DisplayName</span>
+                    </span>
+                </li>           
+                @foreach (var childMenuItem in MenuItem.Items)
+                {
+                    <SecondLevelNavMenuItem MenuItem="childMenuItem" />
+                }
+            </ul>
+        </div>
+    </li>
+}

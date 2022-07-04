@@ -1,0 +1,46 @@
+﻿@using Volo.Abp.UI.Navigation
+@{
+    var elementId = MenuItem.ElementId ?? "MenuItem_" + MenuItem.Name.Replace(".", "_");
+    var cssClass = string.IsNullOrEmpty(MenuItem.CssClass) ? string.Empty : MenuItem.CssClass;
+    var disabled = MenuItem.IsDisabled ? "disabled" : string.Empty;
+    var url = MenuItem.Url == null ? "#" : MenuItem.Url.TrimStart('/');
+}
+@if (MenuItem.IsLeaf)
+{
+    if (MenuItem.Url != null)
+    {
+<li class="menu-item  @cssClass @disabled" aria-haspopup="true">
+    <a href="@url" target="@MenuItem.Target" id="@elementId" class="menu-link">
+        <i class="menu-bullet menu-bullet-dot">
+            <span></span>
+        </i>
+        <span class="menu-text">@MenuItem.DisplayName</span>
+    </a>
+</li>
+    }
+}
+else
+{
+    
+<li class="menu-item menu-item-submenu" aria-haspopup="true" data-menu-toggle="hover">
+    <a href="javascript:;" class="menu-link menu-toggle">
+        <i class="menu-bullet menu-bullet-dot">
+            <span></span>
+        </i>
+        <span class="menu-text">@MenuItem.DisplayName</span>
+        <i class="menu-arrow"></i>
+    </a>
+    <div class="menu-submenu">
+        <i class="menu-arrow"></i>
+        <ul class="menu-subnav">
+            @foreach (var childMenuItem in MenuItem.Items)
+            {
+                <SecondLevelNavMenuItem MenuItem="@childMenuItem" />
+            }
+            </ul>
+        </div>
+    </li>
+        
+}
+@code {
+}

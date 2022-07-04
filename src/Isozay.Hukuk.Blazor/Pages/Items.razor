@@ -1,0 +1,165 @@
+﻿@page "/items"
+@attribute [Authorize(HukukPermissions.Items.Default)]
+@using Isozay.Hukuk.Permissions
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.Application.Dtos
+@using Isozay.Hukuk.Items
+@using Isozay.Hukuk.Localization
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.AspNetCore.Components.Web
+@using Volo.Abp.BlazoriseUI
+@inject IStringLocalizer<HukukResource> L
+@inject AbpBlazorMessageLocalizerHelper<HukukResource> LH
+@inherits AbpCrudPageBase<IItemService,ItemDto, long, PagedAndSortedResultRequestDto, ItemDto>
+
+
+<Card>
+    <CardHeader>
+        <Row Class="justify-content-between">
+            <Column ColumnSize="ColumnSize.IsAuto">
+                <h2>Stoklar - Davalar</h2>
+            </Column>
+            <Column ColumnSize="ColumnSize.IsAuto">
+                @if (HasCreatePermission)
+                {
+                    <Button Color="Color.Primary"
+                            Clicked="OpenCreateModalAsync">Yeni</Button>
+                }
+            </Column>
+        </Row>
+    </CardHeader>
+    <CardBody>
+        <DataGrid TItem="ItemDto"
+                  Data="Entities"
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  PageSize="PageSize">
+            <DataGridColumns>
+                <DataGridEntityActionsColumn TItem="ItemDto" @ref="@EntityActionsColumn">
+                    <DisplayTemplate>
+                        <EntityActions TItem="ItemDto" EntityActionsColumn="@EntityActionsColumn">
+                            <EntityAction TItem="ItemDto"
+                                          Text="Güncelle"
+                                          RequiredPolicy="@UpdatePolicyName"
+                                          Clicked="() => OpenEditModalAsync(context)" />
+                            <EntityAction TItem="ItemDto"
+                                          Text="Sil"
+                                          RequiredPolicy="@DeletePolicyName"
+                                          Clicked="() => DeleteEntityAsync(context)"
+                                          ConfirmationMessage="()=>GetDeleteConfirmationMessage(context)" />
+                        </EntityActions>
+                    </DisplayTemplate>
+                </DataGridEntityActionsColumn>
+                <DataGridColumn TItem="ItemDto"
+                                Field="@nameof(ItemDto.Code)"
+                                Caption="Stok Kodu"></DataGridColumn>
+                <DataGridColumn TItem="ItemDto"
+                                Field="@nameof(ItemDto.Name)"
+                                Caption="Stok Adı"></DataGridColumn>
+
+            </DataGridColumns>
+        </DataGrid>
+    </CardBody>
+</Card>
+ 
+<Modal @ref="@CreateModal">
+    
+    <ModalContent IsCentered="true">
+        <Form>
+            <ModalHeader>
+                <ModalTitle>@L["New"]</ModalTitle>
+                <CloseButton Clicked="CloseCreateModalAsync"/>
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@CreateValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>Stok Kodu</FieldLabel>
+                            <TextEdit @bind-Text="@NewEntity.Code">
+                                <Feedback>
+                                    <ValidationError/>
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                        <Field>
+                            <FieldLabel>Stok Adı</FieldLabel>
+                            <TextEdit @bind-Text="@NewEntity.Name">
+                                <Feedback>
+                                    <ValidationError/>
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Blazorise.Color.Secondary"
+                        Clicked="CloseCreateModalAsync">İptal</Button>
+                <Button Color="Blazorise.Color.Primary"
+                        Type="@Blazorise.ButtonType.Submit"
+                        PreventDefaultOnSubmit="true"
+                        Clicked="CreateEntityAsync">Kaydet</Button>
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>
+
+
+
+<Modal @ref="@EditModal">
+ 
+    <ModalContent IsCentered="true">
+        <Form>
+            <ModalHeader>
+                <ModalTitle>@EditingEntity.Name</ModalTitle>
+                <CloseButton Clicked="CloseEditModalAsync"/>
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@EditValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>Stok Kodu</FieldLabel>
+                            <TextEdit @bind-Text="@EditingEntity.Code">
+                                <Feedback>
+                                    <ValidationError/>
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                        <Field>
+                            <FieldLabel>Stok Adı</FieldLabel>
+                            <TextEdit @bind-Text="@EditingEntity.Name">
+                                <Feedback>
+                                    <ValidationError/>
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Blazorise.Color.Secondary"
+                        Clicked="CloseEditModalAsync">İptal</Button>
+                <Button Color="Blazorise.Color.Primary"
+                        Type="@Blazorise.ButtonType.Submit"
+                        PreventDefaultOnSubmit="true"
+                        Clicked="UpdateEntityAsync">Kaydet</Button>
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>
+@code
+{
+
+ 
+    public Items() // Constructor
+    {
+        CreatePolicyName = HukukPermissions.Items.Create;
+        UpdatePolicyName = HukukPermissions.Items.Edit;
+        DeletePolicyName = HukukPermissions.Items.Delete;
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+}
