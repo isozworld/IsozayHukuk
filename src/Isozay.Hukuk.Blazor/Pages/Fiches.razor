@@ -301,21 +301,23 @@
     }
     private void clientSelectedChanged(ClientDto dto)
     {
+        string title = "Müşteri/Müvekkil Bilgisi";
         selectedClient = dto;
         NewEntity.ClientId = dto.Id;
         if(EditingEntity != null)
-        EditingEntity.ClientId = dto.Id;
+            EditingEntity.ClientId = dto.Id;
 
-        if(dto == null)Message.Info("info","dto null"); 
+        if(dto == null)
+            Message.Warn("Müşteri/Müvekkil bilgisi bulunamadı",title);
         else
-            Message.Info("info",dto.Name);   
+            Message.Info(dto.Name, title);
     }
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         currencies = (await currencyService.GetListAsync());
     }
-    public async Task OnEdidModalOpening() 
+    public async Task OnEdidModalOpening()
     {
         //if(EditingEntity != null)
         selectedClient = await clientService.GetAsync(EditingEntity.ClientId);
