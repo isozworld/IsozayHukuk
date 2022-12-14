@@ -1,0 +1,91 @@
+﻿@using Volo.Abp.Application.Dtos
+@using Isozay.Hukuk.Clients
+@using Isozay.Hukuk.Localization
+@inject AbpBlazorMessageLocalizerHelper<HukukResource> LH
+@inherits AbpCrudPageBase<IClientService, ClientDto, long, PagedAndSortedResultRequestDto, CreateUpdateClientDto>
+
+<Modal @ref="CreateModal" class="modal fade show" id="ClientCreate" style="display: block; background-color:rgba(10,10,10,.8)">
+    <ModalContent IsCentered="true">
+        <Form class="modal-content">
+            <ModalHeader>
+                <ModalTitle>@L["Yeni Müşteri/Müvekkil"]</ModalTitle>
+                <CloseButton @onclick="ModalCancel" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@CreateValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>Ad Soyad/Unvan</FieldLabel>
+                            <TextEdit @bind-Text="@NewEntity.Name">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+                    <Field>
+                        <FieldLabel>Telefon</FieldLabel>
+                        <TextEdit @bind-Text="NewEntity.Phone" />
+                    </Field>
+                    <Field>
+                        <FieldLabel>Faks</FieldLabel>
+                        <TextEdit @bind-Text="NewEntity.Fax" />
+                    </Field>
+                    <Field>
+                        <FieldLabel>Adres</FieldLabel>
+                        <MemoEdit @bind-Text="NewEntity.Address" />
+                    </Field>
+                    <Field>
+                        <FieldLabel>V.Dairesi</FieldLabel>
+                        <TextEdit @bind-Text="NewEntity.TaxDep" />
+                    </Field>
+                    <Field>
+                        <FieldLabel>V.No</FieldLabel>
+                        <TextEdit @bind-Text="NewEntity.TaxNumber" />
+                    </Field>
+                    <Field>
+                        <FieldLabel>Tip</FieldLabel>
+                        <Select TValue="ClientType" @bind-SelectedValue="@NewEntity.ClientType">
+                            @foreach (ClientType ClientTypeValue in Enum.GetValues(typeof(ClientType)))
+                            {
+                                <SelectItem TValue="ClientType" Value="@((ClientType) ClientTypeValue)">
+                                    @ClientTypeValue.GetDisplayName()
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+                </Validations>
+            </ModalBody>
+            <ModalFooter class="modal-footer">
+                <Button Color="Blazorise.Color.Secondary"
+                        @onclick="ModalCancel">
+                    İptal
+                </Button>
+                <Button Color="Blazorise.Color.Primary"
+                        Type="@Blazorise.ButtonType.Submit"
+                        PreventDefaultOnSubmit="true"
+                        @onclick="ModalOk">
+                    Kaydet
+                </Button>
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>
+
+
+@code {
+    [Parameter]
+    public EventCallback<bool> OnClose { get; set; }
+
+    private Task ModalCancel()
+    {
+        return OnClose.InvokeAsync(false);
+    }
+
+    private Task ModalOk()
+    {
+        CreateEntityAsync();
+        return ModalCancel();
+    }
+}
+
