@@ -37,7 +37,7 @@ namespace Isozay.Hukuk.Fiches
 	: base(repository)
 		{
 			_ficheLineRepository = ficheLineRepository;
-            GetPolicyName = HukukPermissions.Fiches.Default;
+			GetPolicyName = HukukPermissions.Fiches.Default;
 			GetListPolicyName = HukukPermissions.Fiches.Default;
 			CreatePolicyName = HukukPermissions.Fiches.Create;
 			UpdatePolicyName = HukukPermissions.Fiches.Edit;

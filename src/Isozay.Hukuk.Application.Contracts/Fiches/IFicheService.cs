@@ -14,7 +14,7 @@ namespace Isozay.Hukuk.Fiches
             PagedAndSortedResultRequestDto, //Used for paging/sorting
             CreateUpdateFicheDto> //Used to create/update a book
     {
-                Task<PagedResultDto<FicheLineDto>> GetListFichLineAsync(long FicheId, PagedAndSortedResultRequestDto input);
-                Task<List<FicheLineDto>> GetListFichLineAsync(long FicheId);
+        Task<PagedResultDto<FicheLineDto>> GetListFichLineAsync(long FicheId, PagedAndSortedResultRequestDto input);
+        Task<List<FicheLineDto>> GetListFichLineAsync(long FicheId);
     }
 }
