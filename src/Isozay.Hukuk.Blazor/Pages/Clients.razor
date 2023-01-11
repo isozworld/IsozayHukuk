@@ -29,6 +29,7 @@
             </Column>
         </Row>
     </CardHeader>
+   
     <CardBody>
         <TextEdit TextChanged="filterResults" Placeholder="Search" />
         <DataGrid TItem="ClientDto"
@@ -224,6 +225,7 @@
         </Form>
     </ModalContent>
 </Modal>
+
 @code
 {
     public Clients() // Constructor
@@ -247,5 +249,4 @@
         StateHasChanged();
     }
     //*********
-
 }
