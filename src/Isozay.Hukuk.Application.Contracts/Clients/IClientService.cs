@@ -14,6 +14,7 @@ namespace Isozay.Hukuk.Clients
             CreateUpdateClientDto> //Used to create/update a book
            
     {
-        public Task<IReadOnlyList<ClientDto>>  Search(string searchText);
+        public Task<IReadOnlyList<ClientDto>> Search(string searchText);
+        public Task<IReadOnlyList<ClientDto>> GetListSearchAsync(string searchText);
     }
 }

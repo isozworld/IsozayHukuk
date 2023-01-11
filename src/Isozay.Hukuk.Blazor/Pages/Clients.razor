@@ -21,12 +21,16 @@
                 @if (HasCreatePermission)
                 {
                     <Button Color="Color.Primary"
-                            Clicked="OpenCreateModalAsync">Yeni</Button>
+                            Clicked="OpenCreateModalAsync">
+                        Yeni
+                    </Button>
                 }
             </Column>
         </Row>
     </CardHeader>
+   
     <CardBody>
+        <TextEdit TextChanged="filterResults" Placeholder="Search" />
         <DataGrid TItem="ClientDto"
                   Data="Entities"
                   ReadData="OnDataGridReadAsync"
@@ -71,16 +75,16 @@
                                 Field="@nameof(ClientDto.ClientType)"
                                 Caption="Tip">
                     <DisplayTemplate>
-                          @context.ClientType.GetDisplayName() 
-                    </DisplayTemplate>                            
-                            </DataGridColumn>
+                        @context.ClientType.GetDisplayName()
+                    </DisplayTemplate>
+                </DataGridColumn>
                 <DataGridColumn TItem="ClientDto"
                                 Field="@nameof(ClientDto.CreationTime)"
                                 Caption="Kayıt Tarihi">
                     <DisplayTemplate>
-                          @context.CreationTime.ToString("dd.MM.yyyy") 
-                    </DisplayTemplate>                              
-                            </DataGridColumn>
+                        @context.CreationTime.ToString("dd.MM.yyyy")
+                    </DisplayTemplate>
+                </DataGridColumn>
             </DataGridColumns>
         </DataGrid>
     </CardBody>
@@ -231,4 +235,14 @@
     {
         await base.OnInitializedAsync();
     }
+
+    //SearchBox
+    public string searchText { get; set; }
+
+    public async void filterResults(string text)
+    {
+        Entities = await AppService.GetListSearchAsync(text);
+        StateHasChanged();
+    }
+    //*********
 }
