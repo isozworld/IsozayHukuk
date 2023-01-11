@@ -1,52 +1,72 @@
 ﻿@using Blazored.Typeahead;
+@using Blazorise.Components;
 @using Isozay.Hukuk.Clients
 @inject IClientService clientService
-@inherits Volo.Abp.AspNetCore.Components.AbpComponentBase
+@inherits AbpCrudPageBase<IClientService, ClientDto, long, PagedAndSortedResultRequestDto, CreateUpdateClientDto>
+
 <div class="input-group">
     <div class="form-control inp-g" style="padding:0">
-        <strong class="mr-2 text-plaka">@Selected?.ClientType.GetDisplayName()</strong> <span>@Selected?.Name</span> 
-        <BlazoredTypeahead SearchMethod="SearchClient"
-                            
-                           TItem="ClientDto"
-                           TValue="ClientDto"
-                           Value="Selected"
-                            
-                            ValueChanged="@( (ClientDto c) => SelectedResultChanged(c) )"
-                            ValueExpression="@( () => Selected )"                            
-               
-                           class="form-control"
-                           type="text"
-                           Placeholder="Müşteri / Müvekkil"
-                           Debounce="500">
-            <SelectedTemplate >
-                <strong class="mr-2 text-plaka">@Selected?.ClientType.GetDisplayName()</strong> <span>@Selected?.Name</span> 
-            </SelectedTemplate>
-            <ResultTemplate>
-                <strong class="mr-2 text-plaka">@context.ClientType.GetDisplayName()</strong> @context.Name
-            </ResultTemplate>
-            <NotFoundTemplate>
-               Müşteri / Müvekkil Bulunamadı.
-            </NotFoundTemplate>
-        </BlazoredTypeahead>
-    </div>
-    <div class="input-group-append">
+        @if (Selected == null)
+        {
+            <BlazoredTypeahead SearchMethod="SearchClient"
+                               TItem="ClientDto"
+                               TValue="ClientDto"
+                               Value="Selected"
+                               DisableClear
+                               ValueChanged="@( (ClientDto c) => SelectedResultChanged(c) )"
+                               ValueExpression="@( () => Selected )"
+                               class="form-control"
+                               type="text"
+                               Placeholder="Müşteri / Müvekkil"
+                               Debounce="500">
 
-        <Button title="Yeni Oluştur" class="btn btn-icon btn-light-info" @onclick="() => OpenCreateDialog()">
-            <span class="svg-icon">
-                <svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
-                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                        <rect fill="#000000" x="4" y="10" width="16" height="4" rx="1.5" />
-                        <rect fill="#000000" x="10" y="4" width="4" height="16" rx="1.5" />
-                    </g>
-                </svg>
-            </span>
-        </Button>
+                <SelectedTemplate>
+                    <Validation>
+
+                    </Validation>
+                </SelectedTemplate>
+                <ResultTemplate>
+                    <strong class="mr-2 text-plaka">@context.ClientType.GetDisplayName()</strong> @context.Name*
+                </ResultTemplate>
+                <NotFoundTemplate>
+                    Müşteri / Müvekkil Bulunamadı.
+                </NotFoundTemplate>
+            </BlazoredTypeahead>
+        }
+
+        @if (Selected != null)
+        {
+            <div class="form-control inp-g">
+                <strong>@Selected?.ClientType.GetDisplayName()</strong> <span>@Selected?.Name</span>
+            </div>
+        }
+
+    </div>
+    @if (Selected == null)
+    {
+        <div class="input-group-append">
+            <Button title="Yeni Oluştur" class="btn btn-icon btn-light-info" @onclick="() => OpenCreateDialog()">
+                <span class="svg-icon">
+                    <svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <rect fill="#000000" x="4" y="10" width="16" height="4" rx="1.5" />
+                            <rect fill="#000000" x="10" y="4" width="4" height="16" rx="1.5" />
+                        </g>
+                    </svg>
+                </span>
+            </Button>
+        </div>
         @if (CreateDialogOpen)
         {
             <AddClient OnClose="@OnCreateDialogClose"></AddClient>
         }
-        
-    </div>
+    }
+    @if (Selected != null)
+    {
+        <Button Position="Position.Absolute.Top.Is50.End.Is0.Translate.MiddleY" Color="Color.Danger" @onclick="clickHandler"> X </Button>
+    }
+
+
 </div>
 
 @code {
@@ -57,6 +77,13 @@
     public Task ShowList() => Task.CompletedTask;
 
     public bool CreateDialogOpen { get; set; }
+
+    public async void clickHandler()
+    {
+        Selected = null;
+        await SelectedChanged.InvokeAsync(Selected);
+        StateHasChanged();
+    }
 
     private void OnCreateDialogClose(bool accepted)
     {
@@ -75,11 +102,12 @@
         if (result == null) return;
         Selected = result;
         await SelectedChanged.InvokeAsync(Selected);
+        StateHasChanged();
     }
+
     private async Task<IEnumerable<ClientDto>> SearchClient(string searchText)
     {
-        return   await clientService.Search(searchText);
-
+        return await clientService.Search(searchText);
     }
 
 }

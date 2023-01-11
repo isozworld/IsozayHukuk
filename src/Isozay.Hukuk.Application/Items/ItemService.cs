@@ -32,6 +32,14 @@ namespace Isozay.Hukuk.Items
             DeletePolicyName = HukukPermissions.Items.Create;
         }
 
- 
+        public async Task<IReadOnlyList<ItemDto>> Search(string searchText)
+        {
+            var r = await Repository.GetQueryableAsync();
+            var q = from item in r where item.Name.Contains(searchText) select item;
+            var results = await AsyncExecuter.ToListAsync(q);
+            return ObjectMapper.Map<List<Item>, List<ItemDto>>(results);
+        }
+
+
     }
 }

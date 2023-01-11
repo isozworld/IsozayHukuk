@@ -26,7 +26,11 @@ namespace Isozay.Hukuk
             CreateMap<Item, ItemDto>().ReverseMap();
 
             CreateMap<Fiche, FicheDto>().ReverseMap();
+
             CreateMap<CreateUpdateFicheDto, Fiche>();
+
+            CreateMap<FicheLine, FicheLineDto>().ReverseMap();
+
         }
     }
 }

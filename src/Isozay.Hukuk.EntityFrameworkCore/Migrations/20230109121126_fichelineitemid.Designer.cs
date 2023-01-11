@@ -3,6 +3,7 @@ using System;
 using Isozay.Hukuk.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -11,9 +12,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Isozay.Hukuk.Migrations
 {
     [DbContext(typeof(HukukDbContext))]
-    partial class HukukDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230109121126_fichelineitemid")]
+    partial class fichelineitemid
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -339,8 +341,6 @@ namespace Isozay.Hukuk.Migrations
                     b.HasIndex("CurrencyId");
 
                     b.HasIndex("FicheId");
-
-                    b.HasIndex("ItemId");
 
                     b.ToTable("HuFicheLines", (string)null);
                 });
@@ -2491,15 +2491,7 @@ namespace Isozay.Hukuk.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Isozay.Hukuk.Items.Item", "Item")
-                        .WithMany()
-                        .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Currency");
-
-                    b.Navigation("Item");
                 });
 
             modelBuilder.Entity("Isozay.Hukuk.Safes.Safe", b =>

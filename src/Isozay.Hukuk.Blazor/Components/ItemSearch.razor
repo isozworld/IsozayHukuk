@@ -1,0 +1,54 @@
+﻿@using Blazored.Typeahead;
+@using Blazorise.Components;
+@using Isozay.Hukuk.Items;
+@inject IItemService itemService
+@inherits AbpCrudPageBase<IItemService, ItemDto, long, PagedAndSortedResultRequestDto, ItemDto>
+
+<div class="input-group">
+    <div class="form-control inp-g" style="padding:0">
+        <BlazoredTypeahead SearchMethod="SearchItem"
+                           TItem="ItemDto"
+                           TValue="ItemDto"
+                           Value="Selected"
+                           ValueChanged="@( (ItemDto i) => SelectedResultChanged(i) )"
+                           ValueExpression="@( () => Selected )"
+                           class="form-control"
+                           type="text"
+                           Placeholder="Stok / Dava"
+                           Debounce="500">
+            <SelectedTemplate>
+                <Validation>
+                    <strong class="mr-2 text-plaka">@Selected?.Name </strong>
+                </Validation>
+            </SelectedTemplate>
+            <ResultTemplate>
+                @context.Name*
+            </ResultTemplate>
+            <NotFoundTemplate>
+                Stok / Dava Bulunamadı.
+            </NotFoundTemplate>
+        </BlazoredTypeahead>
+
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public ItemDto Selected { get; set; } = new ItemDto();
+    [Parameter]
+    public EventCallback<ItemDto> SelectedChanged { get; set; }
+    public Task ShowList() => Task.CompletedTask;
+
+    private async Task SelectedResultChanged(ItemDto result)
+    {
+        if (result == null) return;
+        Selected = result;
+        await SelectedChanged.InvokeAsync(Selected);
+    }
+
+    private async Task<IEnumerable<ItemDto>> SearchItem(string searchText)
+    {
+        return await itemService.Search(searchText);
+    }
+}
+

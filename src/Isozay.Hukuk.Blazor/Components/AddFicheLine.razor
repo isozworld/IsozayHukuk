@@ -1,0 +1,122 @@
+﻿
+@using Isozay.Hukuk.Clients
+@using Isozay.Hukuk.Permissions
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.Application.Dtos
+@using Isozay.Hukuk.Fiches
+@using Isozay.Hukuk.Currencies
+@using Isozay.Hukuk.Items
+@inject Currencies.ICurrencyService currencyService
+@inject IClientService clientService
+@inject Volo.Abp.AspNetCore.Components.Messages.IUiMessageService Messages
+@using Volo.Abp.BlazoriseUI
+@inject IJSRuntime JSRuntime
+
+<Modal class="modal fade show" id="ClientCreate" style="display: block; background-color:rgba(10,10,10,.8)">
+    <ModalContent IsCentered="true">
+        <Form class="modal-content">
+            <ModalHeader>
+                <ModalTitle>Yeni FisheLine</ModalTitle>
+                <CloseButton @onclick="ModalCancel" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations Model="@FicheLine" ValidateOnLoad="false">
+                    <Field>
+                        <FieldLabel>FicheQuantity</FieldLabel>
+                        <NumericEdit @bind-Value="@FicheQuantity"> </NumericEdit>
+                    </Field>
+                    <Field>
+                        <FieldLabel>UnitPrice</FieldLabel>
+                        <NumericEdit @bind-Value="@UnitPrice" />
+                    </Field>
+                    <Field>
+                        <FieldLabel>FicheAmount</FieldLabel>
+                        <NumericEdit @bind-Value="@FicheAmount" />
+                    </Field>
+                    <Field>
+                        <FieldLabel>Vat</FieldLabel>
+                        <NumericEdit @bind-Value="@Vat" />
+                    </Field>
+                    <Field>
+                        <FieldLabel>VatTotal</FieldLabel>
+                        <NumericEdit @bind-Value="@VatTotal" />
+                    </Field>
+                    <Field>
+                        <FieldLabel>Stok / Dava</FieldLabel>
+                        <ItemSearch Selected="@selectedItem" SelectedChanged="selectedItemChange"/>
+                    </Field>
+                </Validations>
+            </ModalBody>
+            <ModalFooter class="modal-footer">
+                <Button Color="Blazorise.Color.Secondary"
+                        @onclick="ModalCancel">
+                    İptal
+                </Button>
+                <Button Color="Blazorise.Color.Primary"
+                        Type="@Blazorise.ButtonType.Submit"
+                        PreventDefaultOnSubmit="true"
+                        @onclick="@ModalOk">
+                    Kaydet
+                </Button>
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>
+
+@code {
+    public FicheLineDto FicheLine;
+    [Parameter] public EventCallback<bool> OnClose { get; set; }
+    [Parameter] public EventCallback<FicheLineDto> OnClick { get; set; }
+    private ItemDto selectedItem { get; set; }
+
+    [Parameter]
+    public FicheDto fiche { get; set; }
+    private decimal FicheQuantity { get; set; }
+    private decimal UnitPrice { get; set; }
+    private decimal FicheAmount { get; set; }
+    private decimal Vat { get; set; }
+    private decimal VatTotal { get; set; }
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        FicheLine = new FicheLineDto();
+        if (fiche == null)
+        {
+           // await Messages.Warn("Fish boş olamaz","Warning");
+        }
+        Console.WriteLine("test");
+    }
+
+    private Task ModalCancel()
+    {
+        return OnClose.InvokeAsync(false);
+    }
+    private void selectedItemChange (ItemDto i)
+{
+        selectedItem = i;
+}
+    private Task ModalOk()
+    {
+        if(selectedItem == null)
+        {
+            Messages.Warn ("Item seçimi boş olamaz", "Warning");
+            return null;
+        }
+        FicheLine.FicheQuantity = FicheQuantity;
+        FicheLine.FicheAmount = FicheAmount;
+        FicheLine.Vat = Vat;
+        FicheLine.VatTotal = VatTotal;
+        FicheLine.UnitPrice = UnitPrice;
+        FicheLine.ItemId = selectedItem.Id;
+        FicheLine.Item = selectedItem;
+        FicheLine.CurrencyId = 1;
+        FicheLine.FicheType = FicheType.Buying;
+        FicheLine.TrCurr = 0;
+
+        return OnClick.InvokeAsync(FicheLine);
+    }
+}
+

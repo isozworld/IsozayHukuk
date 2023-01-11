@@ -1,4 +1,5 @@
-﻿using Isozay.Hukuk.Clients;
+﻿
+using Isozay.Hukuk.Clients;
 using Isozay.Hukuk.Currencies;
 using System;
 using Volo.Abp.Domain.Entities.Auditing;
@@ -20,6 +21,7 @@ namespace Isozay.Hukuk.Fiches
         public Currency Currency { get; set; }
         public FicheType FicheType { get; set; }
         public char IO { get; set; }
-
+        public long ItemId { get; set; }
+                public Items.Item Item { get; set; }
     }
 }

@@ -21,7 +21,7 @@
 				@if (HasCreatePermission)
 				{
 					<Button Color="Color.Primary"
-							Clicked="OpenCreateModalAsync">
+							Clicked="OpenCreateModal">
 						Yeni
 					</Button>
 				}
@@ -35,51 +35,54 @@
 				  TotalItems="TotalCount"
 				  ShowPager="true"
 				  PageSize="PageSize">
-			<DataGridColumns>
-				<DataGridEntityActionsColumn TItem="FicheDto" @ref="@EntityActionsColumn">
-					<DisplayTemplate>
-						<EntityActions TItem="FicheDto" EntityActionsColumn="@EntityActionsColumn">
-							<EntityAction TItem="FicheDto"
-										  Text="Güncelle"
-										  RequiredPolicy="@UpdatePolicyName"
-										  Clicked="() => OpenEditModalAsync(context)" />
-							<EntityAction TItem="FicheDto"
-										  Text="Sil"
-										  RequiredPolicy="@DeletePolicyName"
-										  Clicked="() => DeleteEntityAsync(context)"
-										  ConfirmationMessage="()=>GetDeleteConfirmationMessage(context)" />
-						</EntityActions>
-					</DisplayTemplate>
-				</DataGridEntityActionsColumn>
-				<DataGridColumn TItem="FicheDto"
-								Field="@nameof(FicheDto.FicheNo)"
-								Caption="Fiş No - Dava No"></DataGridColumn>
-				<DataGridColumn TItem="FicheDto"
-								Field="@nameof(FicheDto.FicheNo)"
-								Caption="Müşteri - Müvekkil">
-					<DisplayTemplate>
-						@context.Client.Id.ToString() - @context.Client.Name
-					</DisplayTemplate>
-				</DataGridColumn>
-				<DataGridColumn TItem="FicheDto"
-								Field="@nameof(FicheDto.Description)"
-								Caption="Açıklama"></DataGridColumn>
-				<DataGridColumn TItem="FicheDto"
-								Field="@nameof(FicheDto.CurrencyId)"
-								Caption="Döviz Tip">
-					<DisplayTemplate>
-						@context.Currency.Name
-					</DisplayTemplate>
-				</DataGridColumn>
-				<DataGridColumn TItem="FicheDto"
-								Field="@nameof(FicheDto.FicheDate)"
-								Caption="Fiş Tarihi">
-					<DisplayTemplate>
-						@context.FicheDate.ToString("dd.MM.yyyy");
-					</DisplayTemplate>
-				</DataGridColumn>
+            <DataGridColumns>
+                <DataGridEntityActionsColumn TItem="FicheDto" @ref="@EntityActionsColumn">
+                    <DisplayTemplate>
+                        <EntityActions TItem="FicheDto" EntityActionsColumn="@EntityActionsColumn">
+                            <EntityAction TItem="FicheDto"
+                                          Text="Güncelle"
+                                          RequiredPolicy="@UpdatePolicyName"
+                                          Clicked="() => OpenEditModalAsync(context)" />
+                            <EntityAction TItem="FicheDto"
+                                          Text="Sil"
+                                          RequiredPolicy="@DeletePolicyName"
+                                          Clicked="() => DeleteEntityAsync(context)"
+                                          ConfirmationMessage="()=>GetDeleteConfirmationMessage(context)" />
+                        </EntityActions>
+                    </DisplayTemplate>
+                </DataGridEntityActionsColumn>
+                <DataGridColumn TItem="FicheDto"
+                                Field="@nameof(FicheDto.Id)"
+                                Caption="Program No"></DataGridColumn>
+                <DataGridColumn TItem="FicheDto"
+                                Field="@nameof(FicheDto.FicheNo)"
+                                Caption="Fiş No - Dava No"></DataGridColumn>
+                <DataGridColumn TItem="FicheDto"
+                                Field="@nameof(FicheDto.FicheNo)"
+                                Caption="Müşteri - Müvekkil">
+                    <DisplayTemplate>
+                        @context.Client.Id.ToString() - @context.Client.Name
+                    </DisplayTemplate>
+                </DataGridColumn>
+                <DataGridColumn TItem="FicheDto"
+                                Field="@nameof(FicheDto.Description)"
+                                Caption="Açıklama"></DataGridColumn>
+                <DataGridColumn TItem="FicheDto"
+                                Field="@nameof(FicheDto.CurrencyId)"
+                                Caption="Döviz Tip">
+                    <DisplayTemplate>
+                        @context.Currency.Name
+                    </DisplayTemplate>
+                </DataGridColumn>
+                <DataGridColumn TItem="FicheDto"
+                                Field="@nameof(FicheDto.FicheDate)"
+                                Caption="Fiş Tarihi">
+                    <DisplayTemplate>
+                        @context.FicheDate.ToString("dd.MM.yyyy");
+                    </DisplayTemplate>
+                </DataGridColumn>
 
-			</DataGridColumns>
+            </DataGridColumns>
 		</DataGrid>
 	</CardBody>
 </Card>
@@ -94,8 +97,8 @@
             <ModalBody>
                 <Tabs SelectedTab="@selectedTab" SelectedTabChanged="@OnSelectedTabChanged">
                     <Items>
-                        <Tab Name="home">Home</Tab>
-                        <Tab Name="profile">Profile</Tab>
+                        <Tab Name="home">Fiş</Tab>
+                        <Tab Name="detay">Detay</Tab>
                     </Items>
                     <Content>
                         <TabPanel Name="home">
@@ -107,11 +110,11 @@
                                             <div class="col-9">
                                                 <Select TValue="FicheType" @bind-SelectedValue="@NewEntity.FicheType">
                                                     @foreach (FicheType TypeValue in Enum.GetValues(typeof(FicheType)))
-                                                    {
-                                                        <SelectItem TValue="FicheType" Value="@((FicheType) TypeValue)">
+                                                        {
+                                                        <SelectItem TValue="FicheType" Value="@((FicheType)TypeValue)">
                                                             @TypeValue.GetDisplayName()
                                                         </SelectItem>
-                                                    }
+                                                        }
                                                 </Select>
                                             </div>
                                         </div>
@@ -130,7 +133,9 @@
                                         <div class="form-group row">
                                             <label class="col-form-label col-3 text-lg-right text-left">Müşteri - Müvekkil</label>
                                             <div class="col-9">
-                                                <ClientSearch Selected="selectedClient" SelectedChanged="@clientSelectedChanged" />
+                                                <Validation>
+                                                    <ClientSearch Selected="selectedClient" SelectedChanged="@clientSelectedChanged" />
+                                                </Validation>
                                             </div>
                                         </div>
                                     </Alert>
@@ -160,8 +165,47 @@
                                 </Column>
                             </Row>
                         </TabPanel>
-                        <TabPanel Name="Detay">
-                            Content for profile.
+                        <TabPanel Name="detay">
+                            <Row Class="justify-content-between">
+                                <Alert Color="Color.Primary" Visible>
+                                    <Row Class="justify-content-between">
+                                        <Column ColumnSize="ColumnSize.IsAuto">
+                                            <h3>FicheLines</h3>
+                                        </Column>
+                                        <Column ColumnSize="ColumnSize.IsAuto">
+                                            <Button Color="Color.Primary" @onclick="() => OpenCreateFisheLineDialog()">Yeni</Button>
+                                        </Column>
+                                    </Row>
+                                    <Row>
+                                        <DataGrid Data="NewEntity.FicheLine"
+                                                  TotalItems="TotalCount"
+                                                  ShowPager="true"
+                                                  PageSize="PageSize">
+                                            <DataGridColumns>
+                                                <DataGridColumn TItem="FicheLineDto"
+                                                                Field="@nameof(FicheLineDto.FicheQuantity)"
+                                                                Caption="Item">
+                                                    <DisplayTemplate>
+                                                        @context.Item.Name
+                                                    </DisplayTemplate>
+
+                                                </DataGridColumn>
+                                                <DataGridColumn TItem="FicheLineDto"
+                                                                Field="@nameof(FicheLineDto.FicheQuantity)"
+                                                                Caption="Fiche Quantity"></DataGridColumn>
+                                                <DataGridColumn TItem="FicheLineDto"
+                                                                Field="@nameof(FicheLineDto.Vat)"
+                                                                Caption="Fiche VAT"></DataGridColumn>
+                                            </DataGridColumns>
+                                        </DataGrid>
+                                    </Row>
+                                </Alert>
+                            </Row>
+                            
+                            @if (CreateFisheLineDialogOpen)
+                            {
+                                <AddFicheLine OnClick="ClickHandler" OnClose="@OnCreateFisheLineDialogClose"></AddFicheLine>
+                            }
                         </TabPanel>
                     </Content>
                 </Tabs>
@@ -174,7 +218,7 @@
                 <Button Color="Blazorise.Color.Primary"
                         Type="@Blazorise.ButtonType.Submit"
                         PreventDefaultOnSubmit="true"
-                        Clicked="CreateEntityAsync">
+                        Clicked="CreateFiche">
                     Kaydet
                 </Button>
             </ModalFooter>
@@ -194,7 +238,7 @@
 				<Tabs SelectedTab="@selectedTab" SelectedTabChanged="@OnSelectedTabChanged">
 					<Items>
 						<Tab Name="home">Home</Tab>
-						<Tab Name="profile">Profile</Tab>
+						<Tab Name="gDetay">Güncelleme :: Detaylar</Tab>
 					</Items>
 					<Content>
 						<TabPanel Name="home">
@@ -229,7 +273,9 @@
 										<div class="form-group row">
 											<label class="col-form-label col-3 text-lg-right text-left">Müşteri - Müvekkil</label>
 											<div class="col-9">
-												<ClientSearch Selected="@selectedClient" SelectedChanged="@clientSelectedChanged" />
+                                                <Validation >
+                                                    <ClientSearch Selected="@selectedClient" SelectedChanged="@clientSelectedChanged" />
+                                                </Validation>
 											</div>
 										</div>
 									</Alert>
@@ -259,16 +305,30 @@
 								</Column>
 							</Row>
 						</TabPanel>
-						<TabPanel Name="Detay">
-							<Row>
-								<DataGrid TItem="FicheDto"
-										  Data="Entities"
-										  ReadData="OnDataGridReadAsync"
-										  TotalItems="TotalCount"
-										  ShowPager="true"
-										  PageSize="PageSize">
-								</DataGrid>
-							</Row>
+						<TabPanel Name="gDetay">
+                            <Row>
+                                <DataGrid Data="EditingEntity.FicheLine"
+                                          TotalItems="TotalCount"
+                                          ShowPager="true"
+                                          PageSize="PageSize">
+                                    <DataGridColumns>
+                                        <DataGridColumn TItem="FicheLineDto"
+                                                        Field="@nameof(FicheLineDto.FicheQuantity)"
+                                                        Caption="Item">
+                                            <DisplayTemplate>
+                                                @context.Item.Name
+                                            </DisplayTemplate>
+
+                                        </DataGridColumn>
+                                        <DataGridColumn TItem="FicheLineDto"
+                                                        Field="@nameof(FicheLineDto.FicheQuantity)"
+                                                        Caption="Fiche Quantity"></DataGridColumn>
+                                        <DataGridColumn TItem="FicheLineDto"
+                                                        Field="@nameof(FicheLineDto.Vat)"
+                                                        Caption="Fiche VAT"></DataGridColumn>
+                                    </DataGridColumns>
+                                </DataGrid>
+                            </Row>
 						</TabPanel>
 					</Content>
 				</Tabs>
@@ -291,44 +351,85 @@
 
 @code
 {
-	IReadOnlyList<CurrencyDto> currencies = Array.Empty<CurrencyDto>();
-	private  string selectedTab = "home";
-	private ClientDto selectedClient { get; set; }
-	private Task OnSelectedTabChanged( string name )
-	{
-		selectedTab = name;
 
-		return Task.CompletedTask;
-	}
+    IReadOnlyList<CurrencyDto> currencies = Array.Empty<CurrencyDto>();
+    private  string selectedTab = "home";
+    private ClientDto selectedClient { get; set; }
+    public List<FicheLineDto> FicheLineList { get; set; }
+    private Task OnSelectedTabChanged( string name )
+    {
+        selectedTab = name;
+        return Task.CompletedTask;
+    }
 
-	public Fiches() // Constructor
-	{
-		CreatePolicyName = HukukPermissions.Fiches.Create;
-		UpdatePolicyName = HukukPermissions.Fiches.Edit;
-		DeletePolicyName = HukukPermissions.Fiches.Delete;
-	}
-	private void clientSelectedChanged(ClientDto dto)
-	{
-		string title = "Müşteri/Müvekkil Bilgisi";
-		selectedClient = dto;
-		NewEntity.ClientId = dto.Id;
-		if(EditingEntity != null)
-			EditingEntity.ClientId = dto.Id;
+    public Fiches() // Constructor
+    {
+        CreatePolicyName = HukukPermissions.Fiches.Create;
+        UpdatePolicyName = HukukPermissions.Fiches.Edit;
+        DeletePolicyName = HukukPermissions.Fiches.Delete;
+    }
 
-		if(dto == null)
-			Message.Warn("Müşteri/Müvekkil bilgisi bulunamadı",title);
-		else
-			Message.Info(dto.Name, title);
-	}
-	protected override async Task OnInitializedAsync()
-	{
-		await base.OnInitializedAsync();
-		currencies = (await currencyService.GetListAsync());
-	}
-	public async Task OnEdidModalOpening()
-	{
-		//if(EditingEntity != null)
-		selectedClient = await clientService.GetAsync(EditingEntity.ClientId);
+    private void clientSelectedChanged(ClientDto dto)
+    {
+        selectedClient = dto;
+    }
 
-	}
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        currencies = (await currencyService.GetListAsync());
+    }
+
+    public async Task OnEdidModalOpening()
+    {
+        //if(EditingEntity != null)
+        selectedClient = await clientService.GetAsync(EditingEntity.ClientId);
+        FicheLineList = await AppService.GetListFichLineAsync(EditingEntity.Id);
+        await Message.Warn ($"line count:{FicheLineList.Count()}", "Warning");
+    }
+
+    public bool CreateFisheLineDialogOpen { get; set; }
+
+    private void OnCreateFisheLineDialogClose(bool accepted)
+    {
+        CreateFisheLineDialogOpen = false;
+        StateHasChanged();
+    }
+
+    private void OpenCreateFisheLineDialog()
+    {
+        CreateFisheLineDialogOpen = true;
+        StateHasChanged();
+    }
+
+    public void ClickHandler(FicheLineDto f)
+    {
+        CreateFisheLineDialogOpen = false;
+        Console.WriteLine("success");
+
+        if (NewEntity.FicheLine == null) NewEntity.FicheLine = new List<FicheLineDto>();
+        NewEntity.FicheLine.Add(f);
+        StateHasChanged();
+    }
+
+    private void OpenCreateModal()
+    {
+        selectedTab = "home";
+
+        OpenCreateModalAsync();
+        FicheLineDto temp = new FicheLineDto();
+        Console.WriteLine(NewEntity.Id);
+        StateHasChanged();
+    }
+
+    private void CreateFiche()
+    {
+        if (selectedClient != null)
+        {
+            NewEntity.ClientId = selectedClient.Id;
+        }
+        CreateEntityAsync();
+    }
+
 }

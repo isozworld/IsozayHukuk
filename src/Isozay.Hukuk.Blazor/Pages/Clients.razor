@@ -9,7 +9,7 @@
 @using Volo.Abp.AspNetCore.Components.Web
 @inject IStringLocalizer<HukukResource> L
 @inject AbpBlazorMessageLocalizerHelper<HukukResource> LH
-@inherits  AbpCrudPageBase<IClientService,ClientDto, long, PagedAndSortedResultRequestDto, CreateUpdateClientDto>
+@inherits AbpCrudPageBase<IClientService, ClientDto, long, PagedAndSortedResultRequestDto, CreateUpdateClientDto>
 
 <Card>
     <CardHeader>
@@ -18,18 +18,21 @@
                 <h2>Müşteriler - Müvekkiler</h2>
             </Column>
             <Column ColumnSize="ColumnSize.IsAuto">
-                @if (HasCreatePermission)
+                @*TODO: Fix permissions*@
+                @if (true)
                 {
                     <Button Color="Color.Primary"
-                            Clicked="OpenCreateModalAsync">Yeni</Button>
+                            Clicked="OpenCreateModalAsync">
+                        Yeni
+                    </Button>
                 }
             </Column>
         </Row>
     </CardHeader>
     <CardBody>
+        <TextEdit TextChanged="filterResults" Placeholder="Search" />
         <DataGrid TItem="ClientDto"
                   Data="Entities"
-                  ReadData="OnDataGridReadAsync"
                   TotalItems="TotalCount"
                   ShowPager="true"
                   PageSize="PageSize">
@@ -71,28 +74,27 @@
                                 Field="@nameof(ClientDto.ClientType)"
                                 Caption="Tip">
                     <DisplayTemplate>
-                          @context.ClientType.GetDisplayName() 
-                    </DisplayTemplate>                            
-                            </DataGridColumn>
+                        @context.ClientType.GetDisplayName()
+                    </DisplayTemplate>
+                </DataGridColumn>
                 <DataGridColumn TItem="ClientDto"
                                 Field="@nameof(ClientDto.CreationTime)"
                                 Caption="Kayıt Tarihi">
                     <DisplayTemplate>
-                          @context.CreationTime.ToString("dd.MM.yyyy") 
-                    </DisplayTemplate>                              
-                            </DataGridColumn>
+                        @context.CreationTime.ToString("dd.MM.yyyy")
+                    </DisplayTemplate>
+                </DataGridColumn>
             </DataGridColumns>
         </DataGrid>
     </CardBody>
 </Card>
- 
+
 <Modal @ref="@CreateModal">
-    
     <ModalContent IsCentered="true">
         <Form>
             <ModalHeader>
-                <ModalTitle>@L["New"]</ModalTitle>
-                <CloseButton Clicked="CloseCreateModalAsync"/>
+                <ModalTitle>@L["Yeni Müşteri/Müvekkil"]</ModalTitle>
+                <CloseButton Clicked="CloseCreateModalAsync" />
             </ModalHeader>
             <ModalBody>
                 <Validations @ref="@CreateValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
@@ -101,30 +103,30 @@
                             <FieldLabel>Ad Soyad/Unvan</FieldLabel>
                             <TextEdit @bind-Text="@NewEntity.Name">
                                 <Feedback>
-                                    <ValidationError/>
+                                    <ValidationError />
                                 </Feedback>
                             </TextEdit>
                         </Field>
                     </Validation>
                     <Field>
                         <FieldLabel>Telefon</FieldLabel>
-                        <TextEdit   @bind-Text="NewEntity.Phone"/>
+                        <TextEdit @bind-Text="NewEntity.Phone" />
                     </Field>
                     <Field>
                         <FieldLabel>Faks</FieldLabel>
-                        <TextEdit   @bind-Text="NewEntity.Fax"/>
+                        <TextEdit @bind-Text="NewEntity.Fax" />
                     </Field>
                     <Field>
                         <FieldLabel>Adres</FieldLabel>
-                        <MemoEdit   @bind-Text="NewEntity.Address"/>
+                        <MemoEdit @bind-Text="NewEntity.Address" />
                     </Field>
                     <Field>
                         <FieldLabel>V.Dairesi</FieldLabel>
-                        <TextEdit   @bind-Text="NewEntity.TaxDep"/>
+                        <TextEdit @bind-Text="NewEntity.TaxDep" />
                     </Field>
                     <Field>
                         <FieldLabel>V.No</FieldLabel>
-                        <TextEdit   @bind-Text="NewEntity.TaxNumber"/>
+                        <TextEdit @bind-Text="NewEntity.TaxNumber" />
                     </Field>
                     <Field>
                         <FieldLabel>Tip</FieldLabel>
@@ -132,7 +134,7 @@
                             @foreach (ClientType ClientTypeValue in Enum.GetValues(typeof(ClientType)))
                             {
                                 <SelectItem TValue="ClientType" Value="@((ClientType) ClientTypeValue)">
-                                     @ClientTypeValue.GetDisplayName()
+                                    @ClientTypeValue.GetDisplayName()
                                 </SelectItem>
                             }
                         </Select>
@@ -141,25 +143,26 @@
             </ModalBody>
             <ModalFooter>
                 <Button Color="Blazorise.Color.Secondary"
-                        Clicked="CloseCreateModalAsync">İptal</Button>
+                        Clicked="CloseCreateModalAsync">
+                    İptal
+                </Button>
                 <Button Color="Blazorise.Color.Primary"
                         Type="@Blazorise.ButtonType.Submit"
                         PreventDefaultOnSubmit="true"
-                        Clicked="CreateEntityAsync">Kaydet</Button>
+                        Clicked="CreateEntityAsync">
+                    Kaydet
+                </Button>
             </ModalFooter>
         </Form>
     </ModalContent>
 </Modal>
 
-
-
 <Modal @ref="@EditModal">
- 
     <ModalContent IsCentered="true">
         <Form>
             <ModalHeader>
                 <ModalTitle>@EditingEntity.Name</ModalTitle>
-                <CloseButton Clicked="CloseEditModalAsync"/>
+                <CloseButton Clicked="CloseEditModalAsync" />
             </ModalHeader>
             <ModalBody>
                 <Validations @ref="@EditValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
@@ -168,30 +171,30 @@
                             <FieldLabel>Ad Soyad/Unvan</FieldLabel>
                             <TextEdit @bind-Text="@EditingEntity.Name">
                                 <Feedback>
-                                    <ValidationError/>
+                                    <ValidationError />
                                 </Feedback>
                             </TextEdit>
                         </Field>
                     </Validation>
                     <Field>
                         <FieldLabel>Telefon</FieldLabel>
-                        <TextEdit @bind-Text="EditingEntity.Phone"/>
+                        <TextEdit @bind-Text="EditingEntity.Phone" />
                     </Field>
                     <Field>
                         <FieldLabel>Faks</FieldLabel>
-                        <TextEdit @bind-Text="EditingEntity.Fax"/>
+                        <TextEdit @bind-Text="EditingEntity.Fax" />
                     </Field>
                     <Field>
                         <FieldLabel>Adres</FieldLabel>
-                        <MemoEdit @bind-Text="EditingEntity.Address"/>
+                        <MemoEdit @bind-Text="EditingEntity.Address" />
                     </Field>
                     <Field>
                         <FieldLabel>V.Dairesi</FieldLabel>
-                        <TextEdit   @bind-Text="EditingEntity.TaxDep"/>
+                        <TextEdit @bind-Text="EditingEntity.TaxDep" />
                     </Field>
                     <Field>
                         <FieldLabel>V.No</FieldLabel>
-                        <TextEdit   @bind-Text="EditingEntity.TaxNumber"/>
+                        <TextEdit @bind-Text="EditingEntity.TaxNumber" />
                     </Field>
                     <Field>
                         <FieldLabel>Tip</FieldLabel>
@@ -199,7 +202,7 @@
                             @foreach (ClientType ClientTypeValue in Enum.GetValues(typeof(ClientType)))
                             {
                                 <SelectItem TValue="ClientType" Value="@((ClientType) ClientTypeValue)">
-                                     @ClientTypeValue.GetDisplayName()
+                                    @ClientTypeValue.GetDisplayName()
                                 </SelectItem>
                             }
                         </Select>
@@ -208,18 +211,21 @@
             </ModalBody>
             <ModalFooter>
                 <Button Color="Blazorise.Color.Secondary"
-                        Clicked="CloseEditModalAsync">İptal</Button>
+                        Clicked="CloseEditModalAsync">
+                    İptal
+                </Button>
                 <Button Color="Blazorise.Color.Primary"
                         Type="@Blazorise.ButtonType.Submit"
                         PreventDefaultOnSubmit="true"
-                        Clicked="UpdateEntityAsync">Kaydet</Button>
+                        Clicked="UpdateEntityAsync">
+                    Kaydet
+                </Button>
             </ModalFooter>
         </Form>
     </ModalContent>
 </Modal>
 @code
 {
-
     public Clients() // Constructor
     {
         CreatePolicyName = HukukPermissions.Clients.Create;
@@ -229,6 +235,17 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await base.OnInitializedAsync();
+        Entities = await AppService.GetListSearchAsync(searchText);
     }
+
+    //SearchBox
+    public string searchText { get; set; }
+
+    public async void filterResults(string text)
+    {
+        Entities = await AppService.GetListSearchAsync(text);
+        StateHasChanged();
+    }
+    //*********
+
 }

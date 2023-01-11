@@ -52,8 +52,16 @@ namespace Isozay.Hukuk.Clients
 
                     select client;
 
-            q = q.OrderByDescending(x => x.CreationTime).Take(10);
+            //q = q.OrderByDescending(x => x.CreationTime).Take(10);
             var results = await AsyncExecuter.ToListAsync(q);
+            return ObjectMapper.Map<List<Client>, List<ClientDto>>(results);
+        }
+
+        public async Task<IReadOnlyList<ClientDto>> GetListSearchAsync(string searchText)
+        {
+            var r = await Repository.GetQueryableAsync();
+            if (!String.IsNullOrEmpty(searchText)) r = r.Where(x => x.Name.Contains(searchText));
+            var results = await AsyncExecuter.ToListAsync(r);
             return ObjectMapper.Map<List<Client>, List<ClientDto>>(results);
         }
     }

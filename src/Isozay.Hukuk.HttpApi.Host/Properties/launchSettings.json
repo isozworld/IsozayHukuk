@@ -18,11 +18,10 @@
     "Isozay.Hukuk.HttpApi.Host": {
       "commandName": "Project",
       "launchBrowser": true,
+      "applicationUrl": "https://localhost:44365",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "hotReloadEnabled": false,
-      "applicationUrl": "https://localhost:44365"
+      }
     }
   }
 }
