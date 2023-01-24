@@ -353,104 +353,104 @@
 								</Column>
 							</Row>
 						</TabPanel>
-                        <TabPanel Name="gDetay">
-                            <Row>
-                                <Alert Color="Color.Primary" Visible>
-                                    <Row Class="justify-content-between">
-                                        <Column ColumnSize="ColumnSize.IsAuto">
-                                            <h3>FicheLines</h3>
-                                        </Column>
-                                        <Column ColumnSize="ColumnSize.IsAuto">
-                                            <Button Color="Color.Primary" @onclick="() => OpenCreateFisheLineDialog()">Yeni</Button>
-                                        </Column>
-                                    </Row>
-                                    <Row>
-                                        <DataGrid Data="FicheLineList"
-                                                  TotalItems="TotalCount"
-                                                  ShowPager="true"
-                                                  Editable="true"
-                                                  Responsive="true"
-                                                  PageSize="PageSize">
-                                            <DataGridColumns>
-                                                <DataGridEntityActionsColumn TItem="FicheLineDto">
-                                                    <DisplayTemplate>
-                                                        <EntityActions TItem="FicheLineDto">
-                                                            @*<EntityAction TItem="FicheLineDto"
-                                        Text="Güncelle"
-                                        RequiredPolicy="@UpdatePolicyName"
-                                        Clicked="() => UpdateFicheLine(context)" />*@
-                                                            <EntityAction TItem="FicheLineDto"
-                                                                          Text="Sil"
-                                                                          Clicked="() => DeleteFicheLine(context)" />
-                                                        </EntityActions>
-                                                    </DisplayTemplate>
-                                                </DataGridEntityActionsColumn>
-                                                <DataGridColumn TItem="FicheLineDto"
-                                                                Caption="Item">
-                                                    <DisplayTemplate>
-                                                        @context.Item.Name
-                                                    </DisplayTemplate>
-                                                </DataGridColumn>
-                                                <DataGridColumn TItem="FicheLineDto"
-                                                                Caption="Fiche Quantity"
-                                                                Editable>
-                                                    <DisplayTemplate>
-                                                        @context.FicheQuantity.ToString("G29")
-                                                    </DisplayTemplate>
-                                                    <EditTemplate>
-                                                        <NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
-                                                    </EditTemplate>
-                                                </DataGridColumn>
-                                                <DataGridColumn TItem="FicheLineDto"
-                                                                Caption="Fiche Amount"
-                                                                Editable>
-                                                    <DisplayTemplate>
-                                                        @context.FicheAmount.ToString("G29")
-                                                    </DisplayTemplate>
-                                                    <EditTemplate>
-                                                        <NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
-                                                    </EditTemplate>
-                                                </DataGridColumn>
-                                                <DataGridColumn TItem="FicheLineDto"
-                                                                Caption="Unit Price"
-                                                                Editable>
-                                                    <DisplayTemplate>
-                                                        @context.UnitPrice.ToString("G29")
-                                                    </DisplayTemplate>
-                                                    <EditTemplate>
-                                                        <NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
-                                                    </EditTemplate>
-                                                </DataGridColumn>
-                                                <DataGridColumn TItem="FicheLineDto"
-                                                                Caption="VAT"
-                                                                Editable>
-                                                    <DisplayTemplate>
-                                                        @context.Vat.ToString("G29")
-                                                    </DisplayTemplate>
-                                                    <EditTemplate>
-                                                        <NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
-                                                    </EditTemplate>
-                                                </DataGridColumn>
-                                                <DataGridColumn TItem="FicheLineDto"
-                                                                Caption="VAT Total"
-                                                                Editable>
-                                                    <DisplayTemplate>
-                                                        @context.VatTotal.ToString("G29")
-                                                    </DisplayTemplate>
-                                                    <EditTemplate>
-                                                        <NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
-                                                    </EditTemplate>
-                                                </DataGridColumn>
-                                            </DataGridColumns>
-                                        </DataGrid>
-                                    </Row>
-                                </Alert>
-                            </Row>
-                            @if (CreateFisheLineDialogOpen)
-                            {
-                                <AddFicheLine OnClick="ClickHandler" OnClose="@OnCreateFisheLineDialogClose"></AddFicheLine>
-                            }
-                        </TabPanel>
+						<TabPanel Name="gDetay">
+							<Row>
+								<Alert Color="Color.Primary" Visible>
+									<Row Class="justify-content-between">
+										<Column ColumnSize="ColumnSize.IsAuto">
+											<h3>FicheLines</h3>
+										</Column>
+										<Column ColumnSize="ColumnSize.IsAuto">
+											<Button Color="Color.Primary" @onclick="() => OpenCreateFisheLineDialog()">Yeni</Button>
+										</Column>
+									</Row>
+									<Row>
+										<DataGrid Data="FicheLineList"
+												  TotalItems="TotalCount"
+												  ShowPager="true"
+												  Editable="true"
+												  Responsive="true"
+												  PageSize="PageSize">
+											<DataGridColumns>
+												<DataGridEntityActionsColumn TItem="FicheLineDto">
+													<DisplayTemplate>
+														<EntityActions TItem="FicheLineDto">
+															@*<EntityAction TItem="FicheLineDto"
+																			Text="Güncelle"
+																			RequiredPolicy="@UpdatePolicyName"
+																			Clicked="() => UpdateFicheLine(context)"/>*@
+															<EntityAction TItem="FicheLineDto"
+																			Text="Sil"
+																			Clicked="() => DeleteFicheLine(context)" />
+														</EntityActions>
+													</DisplayTemplate>
+												</DataGridEntityActionsColumn>
+												<DataGridColumn TItem="FicheLineDto"
+																Caption="Item">
+													<DisplayTemplate>
+														@context.Item.Name
+													</DisplayTemplate>
+												</DataGridColumn>
+												<DataGridColumn TItem="FicheLineDto"
+																Caption="Fiche Quantity"
+																Editable>
+													<DisplayTemplate>
+														@context.FicheQuantity.ToString("G29")
+													</DisplayTemplate>
+													<EditTemplate>
+														<NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
+													</EditTemplate>
+												</DataGridColumn>
+												<DataGridColumn TItem="FicheLineDto"
+																Caption="Fiche Amount"
+																Editable>
+													<DisplayTemplate>
+														@context.FicheAmount.ToString("G29")
+													</DisplayTemplate>
+													<EditTemplate>
+														<NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
+													</EditTemplate>
+												</DataGridColumn>
+												<DataGridColumn TItem="FicheLineDto"
+																Caption="Unit Price"
+																Editable>
+													<DisplayTemplate>
+														@context.UnitPrice.ToString("G29")
+													</DisplayTemplate>
+													<EditTemplate>
+														<NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
+													</EditTemplate>
+												</DataGridColumn>
+												<DataGridColumn TItem="FicheLineDto"
+																Caption="VAT"
+																Editable>
+													<DisplayTemplate>
+														@context.Vat.ToString("G29")
+													</DisplayTemplate>
+													<EditTemplate>
+														<NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
+													</EditTemplate>
+												</DataGridColumn>
+												<DataGridColumn TItem="FicheLineDto"
+																Caption="VAT Total"
+																Editable>
+													<DisplayTemplate>
+														@context.VatTotal.ToString("G29")
+													</DisplayTemplate>
+													<EditTemplate>
+														<NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
+													</EditTemplate>
+												</DataGridColumn>
+											</DataGridColumns>
+										</DataGrid>
+									</Row>
+								</Alert>
+							</Row>
+							@if (CreateFisheLineDialogOpen)
+							{
+								<AddFicheLine OnClick="ClickHandler" OnClose="@OnCreateFisheLineDialogClose"></AddFicheLine>
+							}
+						</TabPanel>
 					</Content>
 				</Tabs>
 			</ModalBody>
@@ -479,10 +479,20 @@
     private List<long> ToBeDeletedFicheLineList { get; set; }
     private bool Editing { get; set; }
 
-    private Task OnSelectedTabChanged( string name )
+
+    // ---------- Page functionality and tools ----------
+
+    private Task OnSelectedTabChanged (string name)
     {
         selectedTab = name;
         return Task.CompletedTask;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Editing = false;
+        currencies = (await currencyService.GetListAsync());
+        await base.OnInitializedAsync();
     }
 
     public Fiches() // Constructor
@@ -492,18 +502,10 @@
         DeletePolicyName = HukukPermissions.Fiches.Delete;
     }
 
-    private void clientSelectedChanged(ClientDto dto)
-    {
-        selectedClient = dto;
-    }
+    private void clientSelectedChanged(ClientDto dto) { selectedClient = dto; }
 
-    protected override async Task OnInitializedAsync()
-    {
-        await base.OnInitializedAsync();
-        Editing = false;
-        currencies = (await currencyService.GetListAsync());
-    }
 
+	// ---------- Edit and deletion of ficheLines ----------
     public async void OnEdidModalOpening()
     {
         Editing = true;
@@ -523,8 +525,7 @@
 
             if (!FicheLineList.IsNullOrEmpty())
             {
-                FicheLineList.ForEach(x =>
-                {
+                FicheLineList.ForEach(x => {
                     if (x.FicheId != 0)
                     {
                         x.FicheId = EditingEntity.Id;
@@ -532,23 +533,41 @@
                     }
                 });
             }
-
             UpdateEntityAsync();
             StateHasChanged();
         }
 
-        else
+        else Message.Warn("Lütfen bir müşteri/müvekkil seçiniz", "Hata");
+    }
+
+    private async void DeleteFicheLine(FicheLineDto input)
+    {
+        if (await Message.Confirm("Silmek istediğinize emin misiniz?", "Confirmation"))
         {
-            Message.Warn("Lütfen bir müşteri/müvekkil seçiniz", "Hata");
+            FicheLineList.Remove(input);
+            ToBeDeletedFicheLineList.Add(input.Id);
+            StateHasChanged();
         }
     }
 
-    public void OnCreateModalOpening () {
+
+    // ---------- FicheLine creation for editFiche and createFiche ----------
+    public bool CreateFisheLineDialogOpen { get; set; }
+
+    public void OnCreateModalOpening()
+    {
         selectedTab = "home";
         selectedClient = null;
     }
 
-    public bool CreateFisheLineDialogOpen { get; set; }
+    private void OpenCreateModal()
+    {
+        selectedTab = "home";
+        selectedClient = null;
+        OpenCreateModalAsync();
+        FicheLineDto temp = new FicheLineDto();
+        StateHasChanged();
+    }
 
     private void OnCreateFisheLineDialogClose(bool accepted)
     {
@@ -566,44 +585,31 @@
         if (Editing) {
             f.FicheId = EditingEntity.Id;
             CreateFisheLineDialogOpen = false;
-            if (FicheLineList == null) FicheLineList = new List<FicheLineDto>();
+            if (FicheLineList == null)
+                FicheLineList = new List<FicheLineDto>();
             FicheLineList.Add(f);
             StateHasChanged();
-        } else {
-            CreateFisheLineDialogOpen = false;
-            if (NewEntity.FicheLine == null) NewEntity.FicheLine = new List<FicheLineDto> ();
-            NewEntity.FicheLine.Add (f);
-            StateHasChanged ();
         }
-    }
 
-    private void OpenCreateModal()
-    {
-        selectedTab = "home";
-        selectedClient = null;
-        OpenCreateModalAsync();
-        FicheLineDto temp = new FicheLineDto();
-        StateHasChanged();
-    }
-
-    private async void DeleteFicheLine(FicheLineDto input)
-    {
-        if (await Message.Confirm ("Silmek istediğinize emin misiniz?", "Confirmation")) {
-            FicheLineList.Remove (input);
-            ToBeDeletedFicheLineList.Add (input.Id);
+        else {
+            CreateFisheLineDialogOpen = false;
+            if (NewEntity.FicheLine == null)
+                NewEntity.FicheLine = new List<FicheLineDto> ();
+            NewEntity.FicheLine.Add (f);
             StateHasChanged ();
         }
     }
 
     private void CreateFiche()
     {
-        if (selectedClient == null) Message.Warn ("Lütfen bir müşteri/müvekkil seçiniz", "Hata");
+        if (selectedClient == null) Message.Warn("Lütfen bir müşteri/müvekkil seçiniz", "Hata");
 
-        else if (NewEntity.FicheLine.Count() == 0) Message.Warn ("Lütfen fiş detayı ekleyiniz", "Hata");
+        else if (NewEntity.FicheLine.Count() == 0) Message.Warn("Lütfen fiş detayı ekleyiniz", "Hata");
 
-        else {
+        else
+        {
             NewEntity.ClientId = selectedClient.Id;
-            CreateEntityAsync ();
+            CreateEntityAsync();
         }
     }
 
