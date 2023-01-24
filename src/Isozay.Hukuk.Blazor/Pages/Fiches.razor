@@ -365,7 +365,7 @@
                                         </Column>
                                     </Row>
                                     <Row>
-                                        <DataGrid Data="EditingEntity.FicheLine"
+                                        <DataGrid Data="FicheLineList"
                                                   TotalItems="TotalCount"
                                                   ShowPager="true"
                                                   Editable="true"
@@ -509,7 +509,7 @@
         Editing = true;
         selectedTab = "home";
         selectedClient = await clientService.GetAsync(EditingEntity.ClientId);
-        EditingEntity.FicheLine = await AppService.GetListFichLineAsync (EditingEntity.Id);
+        FicheLineList = await AppService.GetListFichLineAsync (EditingEntity.Id);
         ToBeDeletedFicheLineList = new List<long>();
     }
 
@@ -519,18 +519,20 @@
         {
             Editing = false;
             EditingEntity.ClientId = selectedClient.Id;
-            ToBeDeletedFicheLineList.ForEach(x => { AppService.DeleteFicheLineAsync(x); });
-			if (!FicheLineList.IsNullOrEmpty())
-			{
-					FicheLineList.ForEach(x =>
-					{
-						if (x.FicheId != 0)
-						{
-							x.FicheId = EditingEntity.Id;
-							AppService.CreateFicheLineAsync(x);
-						}
-					});
-			}
+            ToBeDeletedFicheLineList.ForEach(x => { AppService.DeleteFicheLine(x); });
+
+            if (!FicheLineList.IsNullOrEmpty())
+            {
+                FicheLineList.ForEach(x =>
+                {
+                    if (x.FicheId != 0)
+                    {
+                        x.FicheId = EditingEntity.Id;
+                        AppService.CreateFicheLineAsync(x);
+                    }
+                });
+            }
+
             UpdateEntityAsync();
             StateHasChanged();
         }
@@ -562,10 +564,9 @@
     public void ClickHandler(FicheLineDto f)
     {
         if (Editing) {
-			f.FicheId = EditingEntity.Id;
+            f.FicheId = EditingEntity.Id;
             CreateFisheLineDialogOpen = false;
-			EditingEntity.FicheLine.Add(f);
-			if (FicheLineList == null) FicheLineList = new List<FicheLineDto>();
+            if (FicheLineList == null) FicheLineList = new List<FicheLineDto>();
             FicheLineList.Add(f);
             StateHasChanged();
         } else {
@@ -588,7 +589,7 @@
     private async void DeleteFicheLine(FicheLineDto input)
     {
         if (await Message.Confirm ("Silmek istediğinize emin misiniz?", "Confirmation")) {
-            EditingEntity.FicheLine.Remove (input);
+            FicheLineList.Remove (input);
             ToBeDeletedFicheLineList.Add (input.Id);
             StateHasChanged ();
         }

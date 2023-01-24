@@ -43,10 +43,9 @@ namespace Isozay.Hukuk.Fiches {
 
 		public override async Task<PagedResultDto<FicheDto>> GetListAsync (
 			PagedAndSortedResultRequestDto input) {
-			//Get the IQueryable<Book> from the repository
+
 			var queryable = await Repository.GetQueryableAsync ();
 
-			//Paging
 			queryable = queryable
 				.Include (x => x.Client)
 				.Include (x => x.FicheLine).ThenInclude (y => y.Item)
@@ -56,18 +55,14 @@ namespace Isozay.Hukuk.Fiches {
 				.Skip (input.SkipCount)
 				.Take (input.MaxResultCount);
 
-			//Execute the query and get a list
 			var queryResult = await AsyncExecuter.ToListAsync (queryable);
 
-			//Convert the query result to a list of BookDto objects
 			var Dtos = queryResult.Select (x => {
 				var dto = ObjectMapper.Map<Fiche, FicheDto> (x);
 				dto.Client = ObjectMapper.Map<Client, ClientDto> (x.Client);
 				dto.ClientTran = ObjectMapper.Map<ClientTran, ClientTranDto> (x.ClientTran);
 				dto.FicheLine = ObjectMapper.Map<List<FicheLine>, List<FicheLineDto>> (x.FicheLine);
-				Console.WriteLine ($"Line Count :::::::::FicheId {dto.Id}::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::{dto.FicheLine.Count ()}");
 				return dto;
-
 			}).ToList ();
 
 			//Get the total count with another query
@@ -99,7 +94,7 @@ namespace Isozay.Hukuk.Fiches {
 
 		[Authorize (Permissions.HukukPermissions.Fiches.Edit)]
 		public async Task<List<FicheLineDto>> GetListFichLineAsync(long FicheId) {
-			Console.WriteLine("-------------------------------------------------");
+
 			var queryable = await _ficheLineRepository.GetQueryableAsync ();
 
 			queryable = queryable
@@ -127,10 +122,11 @@ namespace Isozay.Hukuk.Fiches {
 
 
 		[Authorize (Permissions.HukukPermissions.Fiches.Edit)]
-		public Task CreateFicheLineAsync(FicheLineDto f)
+		public async Task<Task> CreateFicheLineAsync(FicheLineDto f)
 		{
+			f.Item = null;
 			var ficheLine = ObjectMapper.Map<FicheLineDto, FicheLine>(f);
-			_ficheLineRepository.InsertAsync(ficheLine, true);
+			await _ficheLineRepository.InsertAsync(ficheLine, true);
 			return Task.CompletedTask;
 		}
 	}
