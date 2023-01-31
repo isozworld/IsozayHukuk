@@ -16,7 +16,7 @@
 	<CardHeader>
 		<Row Class="justify-content-between">
 			<Column ColumnSize="ColumnSize.IsAuto">
-				<h2>Fişler - Davalar vs.</h2>
+				<h2>Makbuzlar</h2>
 			</Column>
 			<Column ColumnSize="ColumnSize.IsAuto">
 				@if (HasCreatePermission)
@@ -52,12 +52,13 @@
 						</EntityActions>
 					</DisplayTemplate>
 				</DataGridEntityActionsColumn>
-				<DataGridColumn TItem="FicheDto"
-								Field="@nameof(FicheDto.Id)"
-								Caption="Program No"></DataGridColumn>
+                <DataGridColumn TItem="FicheDto"
+                                Field="@nameof(FicheDto.FicheType)"
+                                Caption="Makbuz Türü">
+                </DataGridColumn>
 				<DataGridColumn TItem="FicheDto"
 								Field="@nameof(FicheDto.FicheNo)"
-								Caption="Fiş No - Dava No"></DataGridColumn>
+								Caption="Makbuz No"></DataGridColumn>
 				<DataGridColumn TItem="FicheDto"
 								Field="@nameof(FicheDto.FicheNo)"
 								Caption="Müşteri - Müvekkil">
@@ -67,17 +68,17 @@
 				</DataGridColumn>
 				<DataGridColumn TItem="FicheDto"
 								Field="@nameof(FicheDto.Description)"
-								Caption="Açıklama"></DataGridColumn>
+								Caption="Ek Bilgi"></DataGridColumn>
 				<DataGridColumn TItem="FicheDto"
 								Field="@nameof(FicheDto.CurrencyId)"
-								Caption="Döviz Tip">
+								Caption="Döviz Tipi">
 					<DisplayTemplate>
 						@context.Currency.Name
 					</DisplayTemplate>
 				</DataGridColumn>
 				<DataGridColumn TItem="FicheDto"
 								Field="@nameof(FicheDto.FicheDate)"
-								Caption="Fiş Tarihi">
+								Caption="Makbuz Tarihi">
 					<DisplayTemplate>
 						@context.FicheDate.ToString("dd.MM.yyyy");
 					</DisplayTemplate>
@@ -89,64 +90,67 @@
 </Card>
  
 <Modal @ref="@CreateModal" Opened="OnCreateModalOpening">
-	<ModalContent IsCentered="true" Size="ModalSize.ExtraLarge">
+	<ModalContent Centered Size="ModalSize.ExtraLarge">
 		<Form>
 			<ModalHeader>
-				<ModalTitle>Yeni</ModalTitle>
+				<ModalTitle>Yeni Makbuz</ModalTitle>
 				<CloseButton Clicked="CloseCreateModalAsync" />
 			</ModalHeader>
 			<ModalBody>
 				<Tabs SelectedTab="@selectedTab" SelectedTabChanged="@OnSelectedTabChanged">
 					<Items>
-						<Tab Name="home">Fiş</Tab>
+						<Tab Name="home">Bilgi</Tab>
 						<Tab Name="detay">Detay</Tab>
 					</Items>
 					<Content>
 						<TabPanel Name="home">
 							<Row>
 								<Column ColumnSize="ColumnSize.IsHalf">
-									<Alert Color="Color.Primary" Visible>
-										<div class="form-group row">
-											<label class="col-form-label col-3 text-lg-right text-left">Evrak Tarihi</label>
-											<div class="col-9">
-												<Select TValue="FicheType" @bind-SelectedValue="@NewEntity.FicheType">
-													@foreach (FicheType TypeValue in Enum.GetValues(typeof(FicheType)))
-														{
-														<SelectItem TValue="FicheType" Value="@((FicheType)TypeValue)">
-															@TypeValue.GetDisplayName()
-														</SelectItem>
-														}
-												</Select>
-											</div>
+                                    <Alert Color="Color.Primary" Visible>
+                                        <div class="form-group row">
+                                            <label class="col-form-label col-3 text-lg-right text-left">Makbuz Çeşidi</label>
+                                            <div class="col-9">
+                                                <Select Size="Size.Medium" TValue="FicheType" @bind-SelectedValue="@NewEntity.FicheType">
+                                                    @foreach (FicheType TypeValue in Enum.GetValues(typeof(FicheType)))
+                                                    {
+                                                        <SelectItem TValue="FicheType" Value="@((FicheType)TypeValue)">
+                                                            @TypeValue.GetDisplayName()
+                                                        </SelectItem>
+                                                    }
+                                                </Select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row">
+                                            <label class="col-form-label col-3 text-lg-right text-left">Ek Bilgi</label>
+                                            <div class="col-9">
+                                                <TextEdit Size="Size.Medium" @bind-Text="NewEntity.Description" Class="form-control-lg form-control-solid" />
+                                            </div>
 										</div>
-										<div class="form-group row">
-											<label class="col-form-label col-3 text-lg-right text-left">Fiş No</label>
-											<div class="col-9">
-												<TextEdit @bind-Text="NewEntity.FicheNo" Class="form-control-lg form-control-solid" />
-											</div>
-										</div>
-										<div class="form-group row">
-											<label class="col-form-label col-3 text-lg-right text-left">Fiş Tarihi</label>
-											<div class="col-9">
-												<DateEdit TValue="DateTime" @bind-Date="NewEntity.FicheDate" Class="form-control-lg form-control-solid" />
-											</div>
-										</div>
-										<div class="form-group row">
-											<label class="col-form-label col-3 text-lg-right text-left">Müşteri - Müvekkil</label>
-											<div class="col-9">
-												<Validation>
-													<ClientSearch Selected="selectedClient" SelectedChanged="@clientSelectedChanged" />
-												</Validation>
-											</div>
-										</div>
-									</Alert>
+
+                                        <div class="form-group row">
+                                            <label class="col-form-label col-3 text-lg-right text-left">Makbuz No</label>
+                                            <div class="col-9">
+                                                <TextEdit Size="Size.Medium" @bind-Text="NewEntity.FicheNo" Class="form-control-lg form-control-solid" />
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row">
+                                            <label class="col-form-label col-3 text-lg-right text-left">Müşteri - Müvekkil</label>
+                                            <div class="col-9">
+                                                <Validation>
+                                                    <ClientSearch Selected="selectedClient" SelectedChanged="@clientSelectedChanged" />
+                                                </Validation>
+                                            </div>
+                                        </div>
+                                    </Alert>
 								</Column>
 								<Column ColumnSize="ColumnSize.IsHalf">
 									<Alert Color="Color.Primary" Visible>
 										<div class="form-group row">
 											<label class="col-form-label col-3 text-lg-right text-left">Döviz Tipi</label>
 											<div class="col-9">
-												<Select TValue="long" @bind-SelectedValue="@NewEntity.CurrencyId" Class="form-control-lg form-control-solid">
+												<Select Size="Size.Medium" TValue="long" @bind-SelectedValue="@NewEntity.CurrencyId" Class="form-control-lg form-control-solid">
 													@foreach (var author in currencies)
 													{
 														<SelectItem TValue="long" Value="@author.Id">
@@ -157,9 +161,9 @@
 											</div>
 										</div>
 										<div class="form-group row">
-											<label class="col-form-label col-3 text-lg-right text-left">Açıklama</label>
+											<label class="col-form-label col-3 text-lg-right text-left">Makbuz Tarihi</label>
 											<div class="col-9">
-												<TextEdit @bind-Text="NewEntity.Description" Class="form-control-lg form-control-solid" />
+												<DateEdit Size="Size.Medium" TValue="DateTime" @bind-Date="NewEntity.FicheDate" Class="form-control-lg form-control-solid" />
 											</div>
 										</div>
 									</Alert>
@@ -321,7 +325,7 @@
 										<div class="form-group row">
 											<label class="col-form-label col-3 text-lg-right text-left">Müşteri - Müvekkil</label>
 											<div class="col-9">
-												<Validation >
+												<Validation>
 													<ClientSearch Selected="@selectedClient" SelectedChanged="@clientSelectedChanged" />
 												</Validation>
 											</div>
@@ -505,14 +509,15 @@
     private void clientSelectedChanged(ClientDto dto) { selectedClient = dto; }
 
 
-	// ---------- Edit and deletion of ficheLines ----------
+    // ---------- Edit and deletion of ficheLines ----------
     public async void OnEdidModalOpening()
     {
         Editing = true;
         selectedTab = "home";
+        FicheLineList = await AppService.GetListFichLineAsync(EditingEntity.Id);
         selectedClient = await clientService.GetAsync(EditingEntity.ClientId);
-        FicheLineList = await AppService.GetListFichLineAsync (EditingEntity.Id);
         ToBeDeletedFicheLineList = new List<long>();
+        StateHasChanged();
     }
 
     public void EditModalConfirmed()
@@ -542,7 +547,7 @@
 
     private async void DeleteFicheLine(FicheLineDto input)
     {
-        if (await Message.Confirm("Silmek istediğinize emin misiniz?", "Confirmation"))
+        if (await Message.Confirm("Silmek istediğinize emin misiniz?", "Dikkat"))
         {
             FicheLineList.Remove(input);
             ToBeDeletedFicheLineList.Add(input.Id);

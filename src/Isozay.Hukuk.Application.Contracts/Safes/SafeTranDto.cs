@@ -10,9 +10,9 @@ namespace Isozay.Hukuk.Safes
         public Guid? TenantId { get; set; }
         public SafeDto Safe { get; set; }
         public long SafeId { get; set; }
-        public DateTime TransactionDate { get; set; }
+        public DateTime TransactionDate { get; set; } = DateTime.Now;
         public decimal Amount { get; set; }
-        public long CurrencyId { get; set; }
+        public long CurrencyId { get; set; } = 1;
         public CurrencyDto Currency { get; set; }
         public decimal TrRate { get; set; }
         public string Description { get; set; }

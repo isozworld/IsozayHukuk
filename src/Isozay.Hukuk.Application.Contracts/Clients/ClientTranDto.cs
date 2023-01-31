@@ -1,5 +1,6 @@
 ﻿using Isozay.Hukuk.Currencies;
 using Isozay.Hukuk.Safes;
+using Isozay.Hukuk.Fiches;
 using System;
 using Volo.Abp.Application.Dtos;
 
@@ -8,7 +9,7 @@ namespace Isozay.Hukuk.Clients
     public class ClientTranDto : AuditedEntityDto<long>
     {
         public Guid? TenantId { get; set; }
-        public Fiches.FicheType FicheType { get; set; }
+        public FicheType FicheType { get; set; }
         public long FicheId { get; set; }
         public long ClientId { get; set; }
         public long? SafeId { get; set; }

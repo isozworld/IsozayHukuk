@@ -6,13 +6,13 @@ namespace Isozay.Hukuk.Fiches
     {
         [Display(Name = "Tanımsız")]
         Undefined,
-        [Display(Name = "Alış")]
-        Buying,
-        [Display(Name = "Satış")]
-        Selling,
-        [Display(Name = "Alış İade")]
-        BuyReturn,
-        [Display(Name = "Satış İade")]
-        SelesReturn,
+	[Display (Name = "Müşavirlik")]
+	Consultancy,
+	[Display (Name = "Dava")]
+	Case,
+	[Display(Name = "İcra")]
+        Executive,
+        [Display(Name = "Diğer")]
+        Other,
     }
 }

@@ -11,20 +11,33 @@
 @inherits  AbpCrudPageBase<ISafeService,SafeDto, long, PagedAndSortedResultRequestDto, CreateUpdateSafeDto>
 
 <Card>
-    <CardHeader>
-        <Row Class="justify-content-between">
-            <Column ColumnSize="ColumnSize.IsAuto">
-                <h2>Kasa - Banka Tanımları</h2>
-            </Column>
-            <Column ColumnSize="ColumnSize.IsAuto">
-                @if (HasCreatePermission)
-                {
-                    <Button Color="Color.Primary"
-                            Clicked="OpenCreateModalAsync">Yeni</Button>
-                }
-            </Column>
-        </Row>
-    </CardHeader>
+	<CardHeader>
+		<Row Class="justify-content-between">
+			<Column ColumnSize="ColumnSize.IsAuto">
+				<h2>Kasa - Banka Tanımları</h2>
+			</Column>
+			<Column ColumnSize="ColumnSize.IsAuto">
+				@if (HasCreatePermission)
+				{
+					<Button Color="Color.Primary"
+							Clicked="OpenCreateModalAsync">Yeni Kasa</Button>
+                    <Dropdown>
+                        <DropdownToggle Color="Color.Primary">
+                            New Transaction
+                        </DropdownToggle>
+                        <DropdownMenu>
+                            <DropdownItem Clicked="() => OpenClientSafeTransModal()">Client - Safe</DropdownItem>
+                            <DropdownDivider />
+                            <DropdownItem Clicked="() => OpenSafeSafeTransModal()">Safe - Safe</DropdownItem>
+                            <DropdownDivider />
+                            <DropdownItem Clicked="() => OpenSafeExpTransModal()">Safe Expense</DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
+				}
+
+			</Column>
+		</Row>
+	</CardHeader>
     <CardBody>
         <DataGrid TItem="SafeDto"
                   Data="Entities"
@@ -36,6 +49,10 @@
                 <DataGridEntityActionsColumn TItem="SafeDto" @ref="@EntityActionsColumn">
                     <DisplayTemplate>
                         <EntityActions TItem="SafeDto" EntityActionsColumn="@EntityActionsColumn">
+                            <EntityAction TItem="SafeDto"
+                                          Text="Info"
+                                          RequiredPolicy="@UpdatePolicyName"
+                                          Clicked="() => getInfo(context)" />
                             <EntityAction TItem="SafeDto"
                                           Text="Güncelle"
                                           RequiredPolicy="@UpdatePolicyName"
@@ -54,129 +71,150 @@
                 <DataGridColumn TItem="SafeDto"
                                 Field="@nameof(SafeDto.Description)"
                                 Caption="Açıklama"></DataGridColumn>
-              <DataGridColumn TItem="SafeDto"
+                <DataGridColumn TItem="SafeDto"
                                 Field="@nameof(SafeDto.CurrencyId)"
                                 Caption="Dövit Tipi">
                     <DisplayTemplate>
-                          @context.Currency.Name
-                    </DisplayTemplate>                              
-                            </DataGridColumn>
+                        @context.Currency.Name
+                    </DisplayTemplate>
+                </DataGridColumn>
                 <DataGridColumn TItem="SafeDto"
                                 Field="@nameof(SafeDto.CreationTime)"
                                 Caption="Kayıt Tarihi">
                     <DisplayTemplate>
-                          @context.CreationTime.ToString("dd.MM.yyyy") 
-                    </DisplayTemplate>                              
-                            </DataGridColumn>
+                        @context.CreationTime.ToString("dd.MM.yyyy")
+                    </DisplayTemplate>
+                </DataGridColumn>
             </DataGridColumns>
         </DataGrid>
+        @if (ClientSafeTransOpen)
+        {
+            <ClientSafeTransfer OnClose="OnClientSafeTransModalClose" />
+        }
+
+        @if (SafeSafeTransOpen)
+        {
+            <SafeSafeTransfer OnClose="OnSafeSafeTransModalClose" />
+        }
+
+        @if (SafeExpTransOpen)
+        {
+            <SafeExpTransfer OnClose="OnSafeExpTransModalClose" />
+        }
+
+        @if (SafeTransHistoryOpen)
+        {
+            <SafeTranHistory entity="@infoEntity" OnClose="OnSafeTransHistoryModalClose"/>
+        }
     </CardBody>
 </Card>
  
 <Modal @ref="@CreateModal">
-    
-    <ModalContent IsCentered="true">
-        <Form>
-            <ModalHeader>
-                <ModalTitle>Yeni</ModalTitle>
-                <Text>@NewEntity.CurrencyId.ToString()</Text>
-                <CloseButton Clicked="CloseCreateModalAsync"/>
-            </ModalHeader>
-            <ModalBody>
-                <Validations @ref="@CreateValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
-                    <Validation >
-                        <Field>
-                            <FieldLabel>Kasa Adı</FieldLabel>
-                            <TextEdit @bind-Text="@NewEntity.Name">
-                                <Feedback>
-                                    <ValidationError/>
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-                    <Field>
-                        <FieldLabel>Açıklama</FieldLabel>
-                        <TextEdit   @bind-Text="NewEntity.Description"/>
-                    </Field>
-                    <Field>
-                        <FieldLabel>Döviz Tipi</FieldLabel>
+	
+	<ModalContent IsCentered="true">
+		<Form>
+			<ModalHeader>
+				<ModalTitle>Yeni</ModalTitle>
+				<Text>@NewEntity.CurrencyId.ToString()</Text>
+				<CloseButton Clicked="CloseCreateModalAsync"/>
+			</ModalHeader>
+			<ModalBody>
+				<Validations @ref="@CreateValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
+					<Validation >
+						<Field>
+							<FieldLabel>Kasa Adı</FieldLabel>
+							<TextEdit @bind-Text="@NewEntity.Name">
+								<Feedback>
+									<ValidationError/>
+								</Feedback>
+							</TextEdit>
+						</Field>
+					</Validation>
+					<Field>
+						<FieldLabel>Açıklama</FieldLabel>
+						<TextEdit   @bind-Text="NewEntity.Description"/>
+					</Field>
+					<Field>
+						<FieldLabel>Döviz Tipi</FieldLabel>
 
-                        <Select TValue="long" @bind-SelectedValue="@NewEntity.CurrencyId">
-                            @foreach (var author in currencies)
-                            {
-                                <SelectItem TValue="long" Value="@author.Id">
-                                    @author.Name
-                                </SelectItem>
-                            }
-                        </Select>
-                    </Field>
-                </Validations>
-            </ModalBody>
-            <ModalFooter>
-                <Button Color="Blazorise.Color.Secondary"
-                        Clicked="CloseCreateModalAsync">İptal</Button>
-                <Button Color="Blazorise.Color.Primary"
-                        Type="@Blazorise.ButtonType.Submit"
-                        PreventDefaultOnSubmit="true"
-                        Clicked="CreateEntityAsync">Kaydet</Button>
-            </ModalFooter>
-        </Form>
-    </ModalContent>
+						<Select TValue="long" @bind-SelectedValue="@NewEntity.CurrencyId">
+							@foreach (var author in currencies)
+							{
+								<SelectItem TValue="long" Value="@author.Id">
+									@author.Name
+								</SelectItem>
+							}
+						</Select>
+					</Field>
+				</Validations>
+			</ModalBody>
+			<ModalFooter>
+				<Button Color="Blazorise.Color.Secondary"
+						Clicked="CloseCreateModalAsync">İptal</Button>
+				<Button Color="Blazorise.Color.Primary"
+						Type="@Blazorise.ButtonType.Submit"
+						PreventDefaultOnSubmit="true"
+						Clicked="CreateEntityAsync">Kaydet</Button>
+			</ModalFooter>
+		</Form>
+	</ModalContent>
 </Modal>
 
 
 
 <Modal @ref="@EditModal">
  
-    <ModalContent IsCentered="true">
-        <Form>
-            <ModalHeader>
-                <ModalTitle>@EditingEntity.Name</ModalTitle>
-                <Text>@EditingEntity.CurrencyId.ToString()</Text> - <Text>@NewEntity.CurrencyId.ToString()</Text>
-                <CloseButton Clicked="CloseEditModalAsync"/>
-            </ModalHeader>
-            <ModalBody>
-                <Validations @ref="@EditValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
-                    <Validation>
-                        <Field>
-                            <FieldLabel>Kasa Adı</FieldLabel>
-                            <TextEdit @bind-Text="@EditingEntity.Name">
-                                <Feedback>
-                                    <ValidationError/>
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-                    <Field>
-                        <FieldLabel>Açıklama</FieldLabel>
-                        <TextEdit @bind-Text="EditingEntity.Description"/>
-                    </Field>
-                    <Field>
-                        <FieldLabel>Döviz Tipi</FieldLabel>
-                        <Select TValue="long" @bind-SelectedValue="@EditingEntity.CurrencyId">
-                            @foreach (var author in currencies)
-                            {
-                                <SelectItem TValue="long" Value="@author.Id">
-                                    @author.Name
-                                </SelectItem>
-                            }
-                        </Select>
-                    </Field> 
-                </Validations>
-            </ModalBody>
-            <ModalFooter>
-                <Button Color="Blazorise.Color.Secondary"
-                        Clicked="CloseEditModalAsync">İptal</Button>
-                <Button Color="Blazorise.Color.Primary"
-                        Type="@Blazorise.ButtonType.Submit"
-                        PreventDefaultOnSubmit="true"
-                        Clicked="UpdateEntityAsync">Kaydet</Button>
-            </ModalFooter>
-        </Form>
-    </ModalContent>
+	<ModalContent IsCentered="true">
+		<Form>
+			<ModalHeader>
+				<ModalTitle>@EditingEntity.Name</ModalTitle>
+				<Text>@EditingEntity.CurrencyId.ToString()</Text> - <Text>@NewEntity.CurrencyId.ToString()</Text>
+				<CloseButton Clicked="CloseEditModalAsync"/>
+			</ModalHeader>
+			<ModalBody>
+				<Validations @ref="@EditValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
+					<Validation>
+						<Field>
+							<FieldLabel>Kasa Adı</FieldLabel>
+							<TextEdit @bind-Text="@EditingEntity.Name">
+								<Feedback>
+									<ValidationError/>
+								</Feedback>
+							</TextEdit>
+						</Field>
+					</Validation>
+					<Field>
+						<FieldLabel>Açıklama</FieldLabel>
+						<TextEdit @bind-Text="EditingEntity.Description"/>
+					</Field>
+					<Field>
+						<FieldLabel>Döviz Tipi</FieldLabel>
+						<Select TValue="long" @bind-SelectedValue="@EditingEntity.CurrencyId">
+							@foreach (var author in currencies)
+							{
+								<SelectItem TValue="long" Value="@author.Id">
+									@author.Name
+								</SelectItem>
+							}
+						</Select>
+					</Field> 
+				</Validations>
+			</ModalBody>
+			<ModalFooter>
+				<Button Color="Blazorise.Color.Secondary"
+						Clicked="CloseEditModalAsync">İptal</Button>
+				<Button Color="Blazorise.Color.Primary"
+						Type="@Blazorise.ButtonType.Submit"
+						PreventDefaultOnSubmit="true"
+						Clicked="UpdateEntityAsync">Kaydet</Button>
+			</ModalFooter>
+		</Form>
+	</ModalContent>
 </Modal>
 @code
 {
+    private SafeDto infoEntity;
+
     IReadOnlyList<CurrencyDto> currencies = Array.Empty<CurrencyDto>();
     public Safes() // Constructor
     {
@@ -187,9 +225,70 @@
 
     protected override async Task OnInitializedAsync()
     {
+        ClientSafeTransOpen = false;
+        SafeSafeTransOpen = false;
+        SafeExpTransOpen = false;
         await base.OnInitializedAsync();
         currencies = (await currencyService.GetListAsync());
-
     }
- 
+
+    private void getInfo(SafeDto s)
+    {
+        infoEntity = s;
+        SafeTransHistoryOpen = true;
+    }
+
+    private bool ClientSafeTransOpen;
+    private bool SafeSafeTransOpen;
+    private bool SafeExpTransOpen;
+    private bool SafeTransHistoryOpen;
+
+    private void OpenClientSafeTransModal()
+    {
+        ClientSafeTransOpen = true;
+        StateHasChanged();
+    }
+
+    private void OnClientSafeTransModalClose()
+    {
+        ClientSafeTransOpen = false;
+        StateHasChanged();
+    }
+
+    private void OpenSafeSafeTransModal()
+    {
+        SafeSafeTransOpen = true;
+        StateHasChanged();
+    }
+
+    private void OnSafeSafeTransModalClose()
+    {
+        SafeSafeTransOpen = false;
+        StateHasChanged();
+    }
+
+    private void OpenSafeExpTransModal()
+    {
+        SafeExpTransOpen = true;
+        StateHasChanged();
+    }
+
+    private void OnSafeExpTransModalClose()
+    {
+        SafeExpTransOpen = false;
+        StateHasChanged();
+    }
+
+    private void OpenSafeTransHistoryModal()
+    {
+        SafeTransHistoryOpen = true;
+        StateHasChanged();
+    }
+
+    private void OnSafeTransHistoryModalClose()
+    {
+        SafeTransHistoryOpen = false;
+        StateHasChanged();
+    }
+
 }

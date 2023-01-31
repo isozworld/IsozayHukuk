@@ -9,7 +9,7 @@ namespace Isozay.Hukuk.Fiches
     public  class FicheDto : AuditedEntityDto<long>
     {
         public Guid? TenantId { get; set; }
-        public FicheType FicheType { get; set; } = FicheType.Buying;
+        public FicheType FicheType { get; set; } = FicheType.Undefined;
         public string FicheNo { get; set; }
         public DateTime FicheDate { get; set; } = DateTime.Now;
         public string Description { get; set; }

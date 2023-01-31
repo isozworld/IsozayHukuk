@@ -1,0 +1,103 @@
+﻿@using Isozay.Hukuk.Safes
+@using Isozay.Hukuk.Currencies
+@using Isozay.Hukuk.Clients
+@using Isozay.Hukuk.Permissions
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.Application.Dtos
+@using Volo.Abp.BlazoriseUI
+
+@inject Volo.Abp.AspNetCore.Components.Messages.IUiMessageService Messages
+@inject Currencies.ICurrencyService currencyService
+@inject Safes.ISafeService safeService
+@inject IJSRuntime JSRuntime
+
+<Modal class="modal fade show" id="ClientCreate" style="display: block; background-color:rgba(10,10,10,.8)">
+    <ModalContent Centered Size="ModalSize.ExtraLarge">
+        <Form>
+            <ModalHeader>
+                <ModalTitle>Safe Transfer History</ModalTitle>
+                <CloseButton Clicked="ModalCancel" />
+            </ModalHeader>
+            <ModalBody>
+
+                <Row>
+                    <Column ColumnSize="ColumnSize.IsHalf">
+                        <Alert Color="Color.Success" Visible>
+
+                            <DataGrid Data="@i" ShowPager="true">
+                                <DataGridColumns>
+                                    <DataGridColumn TItem="SafeTranDto" Caption="Amount">
+                                        <DisplayTemplate>
+                                            @context.Amount.ToString("G29")
+                                        </DisplayTemplate>
+                                    </DataGridColumn>
+                                    <DataGridColumn TItem="SafeTranDto" Caption="Description">
+                                        <DisplayTemplate>
+                                            @context.Description
+                                        </DisplayTemplate>
+                                    </DataGridColumn>
+                                </DataGridColumns>
+                            </DataGrid>
+
+                        </Alert>
+                    </Column>
+                    <Column ColumnSize="ColumnSize.IsHalf">
+                        <Alert Color="Color.Danger" Visible>
+
+                            <DataGrid Data="@o" ShowPager="true">
+                                <DataGridColumns>
+                                    <DataGridColumn TItem="SafeTranDto" Caption="Amount">
+                                        <DisplayTemplate>
+                                            @context.Amount.ToString("G29")
+                                        </DisplayTemplate>
+                                    </DataGridColumn>
+                                    <DataGridColumn TItem="SafeTranDto" Caption="Description">
+                                        <DisplayTemplate>
+                                            @context.Description
+                                        </DisplayTemplate>
+                                    </DataGridColumn>
+                                </DataGridColumns>
+                            </DataGrid>
+
+                        </Alert>
+                    </Column>
+                </Row>
+
+            </ModalBody>
+            <ModalFooter>
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>
+
+@code {
+    [Parameter] public EventCallback<bool> OnClose { get; set; }
+    [Parameter] public SafeDto entity { get; set; }
+    List<SafeTranDto> i;
+    List<SafeTranDto> o;
+
+    protected override async Task OnInitializedAsync()
+    {
+        i = new List<SafeTranDto>();
+        o = new List<SafeTranDto>();
+
+        var temp = await safeService.GetSafeTransListAsync(entity.Id);
+        temp.ForEach(x =>
+        {
+            if (x.IO == 'I') i.Add(x);
+            else o.Add(x);
+        });
+
+        Console.WriteLine(i.Count());
+        Console.WriteLine(o.Count());
+
+        await base.OnInitializedAsync();
+        StateHasChanged();
+    }
+
+    private Task ModalCancel()
+    {
+        return OnClose.InvokeAsync(false);
+    }
+}
+

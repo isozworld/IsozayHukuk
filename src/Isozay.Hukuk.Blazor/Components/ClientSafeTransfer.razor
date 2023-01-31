@@ -1,0 +1,151 @@
+﻿@using Isozay.Hukuk.Safes
+@using Isozay.Hukuk.Currencies
+@using Isozay.Hukuk.Clients
+@using Isozay.Hukuk.Permissions
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.Application.Dtos
+@using Volo.Abp.BlazoriseUI
+
+@inject Volo.Abp.AspNetCore.Components.Messages.IUiMessageService Messages
+@inject Currencies.ICurrencyService currencyService
+@inject Safes.ISafeService safeService
+@inject IJSRuntime JSRuntime
+
+<Modal class="modal fade show" id="ClientCreate" style="display: block; background-color:rgba(10,10,10,.8)">
+    <ModalContent Centered Size="ModalSize.ExtraLarge">
+        <Form>
+            <ModalHeader>
+                <ModalTitle>Client - Safe Transfer</ModalTitle>
+                <CloseButton Clicked="ModalCancel" />
+            </ModalHeader>
+            <ModalBody>
+
+                <Row>
+                    <Column ColumnSize="ColumnSize.Is5">
+                        <Alert Color="Color.Warning" Visible>
+
+                            <div class="form-group row">
+                                <label class="col-form-label col-3 text-lg-right text-left">Client</label>
+                                <div class="col-9">
+                                    <ClientSearch Selected="@selectedClient" SelectedChanged="@clientSelectedChanged" />
+                                </div>
+                            </div>
+
+                        </Alert>
+                    </Column>
+                    <Column TextAlignment="TextAlignment.Center" ColumnSize="ColumnSize.Is2" Style="display: flex; justify-content: center">
+                        <Icon Style="align-self:center" Name="IconName.ArrowRight" IconSize="IconSize.x3" />
+                    </Column>
+                    <Column ColumnSize="ColumnSize.Is5">
+                        <Alert Color="Color.Dark" Visible>
+
+                            <div class="form-group row">
+                                <label class="col-form-label col-3 text-lg-right text-left">Safe</label>
+                                <div class="col-9">
+                                    <SafeSearch Selected="@selectedSafe" SelectedChanged="@safeSelectedChanged" />
+                                </div>
+                            </div>
+
+                        </Alert>
+                    </Column>
+                </Row>
+
+                <Row>
+                    <Column ColumnSize="ColumnSize.IsFull">
+                        <Alert Color="Color.Primary" Visible>
+
+                            <div class="form-group row">
+                                <label class="col-form-label col-3 text-lg-right text-left">Döviz Tipi</label>
+                                <div class="col-9">
+                                    <Select Size="Size.Medium" TValue="long" @bind-SelectedValue="safeTranDto.CurrencyId" Class="form-control-lg form-control-solid">
+                                        @foreach (var author in currencies)
+                                        {
+                                            <SelectItem TValue="long" Value="@author.Id">
+                                                @author.Name
+                                            </SelectItem>
+                                        }
+                                    </Select>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-form-label col-3 text-lg-right text-left">Amount</label>
+                                <div class="col-9">
+                                    <NumericEdit Size="Size.Medium" @bind-Value="safeTranDto.Amount" Class="form-control-lg form-control-solid" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-form-label col-3 text-lg-right text-left">TrRate</label>
+                                <div class="col-9">
+                                    <NumericEdit Size="Size.Medium" @bind-Value="safeTranDto.TrRate" Class="form-control-lg form-control-solid" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-form-label col-3 text-lg-right text-left">Description</label>
+                                <div class="col-9">
+                                    <TextEdit Size="Size.Medium" @bind-Text="safeTranDto.Description" Class="form-control-lg form-control-solid" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-form-label col-3 text-lg-right text-left">Transaction Date</label>
+                                <div class="col-9">
+                                    <DateEdit Size="Size.Medium" TValue="DateTime" @bind-Date="safeTranDto.TransactionDate" Class="form-control-lg form-control-solid" />
+                                </div>
+                            </div>
+
+                        </Alert>
+                    </Column>
+                </Row>
+
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="ModalCancel">
+                    Cancel
+                </Button>
+                <Button Color="Color.Primary"
+                        Clicked="ModalSave">
+                    Save
+                </Button>
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>
+
+@code {
+    IReadOnlyList<CurrencyDto> currencies = Array.Empty<CurrencyDto>();
+    private SafeDto selectedSafe { get; set; }
+    private ClientDto selectedClient { get; set; }
+    [Parameter] public EventCallback<bool> OnClose { get; set; }
+    private CreateUpdateSafeTranDto safeTranDto;
+
+    private void safeSelectedChanged(SafeDto dto) { selectedSafe = dto; }
+
+    private void clientSelectedChanged(ClientDto dto) { selectedClient = dto; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        safeTranDto = new CreateUpdateSafeTranDto();
+        currencies = (await currencyService.GetListAsync());
+        await base.OnInitializedAsync();
+        StateHasChanged();
+    }
+
+    private Task ModalCancel()
+    {
+        return OnClose.InvokeAsync(false);
+    }
+
+    private Task ModalSave()
+    {
+        safeTranDto.ClientId = selectedClient.Id;
+        safeTranDto.SafeId = selectedSafe.Id;
+        safeTranDto.IO = 'I';
+        safeService.CreateSafeTran(safeTranDto);
+        return OnClose.InvokeAsync(true);
+    }
+}
+

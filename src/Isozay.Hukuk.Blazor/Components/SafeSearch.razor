@@ -1,23 +1,23 @@
 ﻿@using Blazored.Typeahead;
 @using Blazorise.Components;
-@using Isozay.Hukuk.Clients
-@inject IClientService clientService
-@inherits AbpCrudPageBase<IClientService, ClientDto, long, PagedAndSortedResultRequestDto, CreateUpdateClientDto>
+@using Isozay.Hukuk.Safes
+@inject ISafeService safeService
+@inherits AbpCrudPageBase<ISafeService, SafeDto, long, PagedAndSortedResultRequestDto, CreateUpdateSafeDto>
 
 <div class="input-group" style="padding:0; column-gap:10px; column-fill:auto">
     <div class="input-group col" style="padding:0">
         @if (Selected == null)
         {
-            <BlazoredTypeahead SearchMethod="SearchClient"
-                               TItem="ClientDto"
-                               TValue="ClientDto"
+            <BlazoredTypeahead SearchMethod="SearchSafe"
+                               TItem="SafeDto"
+                               TValue="SafeDto"
                                Value="Selected"
                                DisableClear
-                               ValueChanged="@( (ClientDto c) => SelectedResultChanged(c) )"
+                               ValueChanged="@( (SafeDto c) => SelectedResultChanged(c) )"
                                ValueExpression="@( () => Selected )"
                                class="form-control"
                                type="text"
-                               Placeholder="Müşteri / Müvekkil"
+                               Placeholder="Safe"
                                Debounce="500">
 
                 <SelectedTemplate>
@@ -26,10 +26,10 @@
                     </Validation>
                 </SelectedTemplate>
                 <ResultTemplate>
-                    <strong class="mr-2 text-plaka">@context.ClientType.GetDisplayName()</strong> @context.Name*
+                    <strong class="mr-2 text-plaka">@context.Name*</strong> 
                 </ResultTemplate>
                 <NotFoundTemplate>
-                    Müşteri / Müvekkil Bulunamadı.
+                    Safe Not Found
                 </NotFoundTemplate>
             </BlazoredTypeahead>
         }
@@ -37,12 +37,12 @@
         @if (Selected != null)
         {
             <div class="form-control inp-g" style="align-content:center">
-                <strong>@Selected?.ClientType.GetDisplayName()</strong> <span>@Selected?.Name</span>
+                <strong class="mr-2 text-plaka">@Selected.Name*</strong> 
             </div>
         }
 
     </div>
-    
+
     <div class="input-group col" style="padding:0">
         @if (Selected == null)
         {
@@ -65,9 +65,9 @@
 
 @code {
     [Parameter]
-    public ClientDto Selected { get; set; }
+    public SafeDto Selected { get; set; }
     [Parameter]
-    public EventCallback<ClientDto> SelectedChanged { get; set; }
+    public EventCallback<SafeDto> SelectedChanged { get; set; }
     public Task ShowList() => Task.CompletedTask;
 
     public bool CreateDialogOpen { get; set; }
@@ -91,7 +91,7 @@
         StateHasChanged();
     }
 
-    private async Task SelectedResultChanged(ClientDto result)
+    private async Task SelectedResultChanged(SafeDto result)
     {
         if (result == null) return;
         Selected = result;
@@ -99,9 +99,9 @@
         StateHasChanged();
     }
 
-    private async Task<IEnumerable<ClientDto>> SearchClient(string searchText)
+    private async Task<IEnumerable<SafeDto>> SearchSafe(string searchText)
     {
-        return await clientService.Search(searchText);
+        return await safeService.Search(searchText);
     }
 
 }
