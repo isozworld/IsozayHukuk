@@ -64,16 +64,17 @@ namespace Isozay.Hukuk.Safes {
 			);
 		}
 
-		public async Task<IReadOnlyList<SafeDto>> Search (string searchText) {
-			Console.WriteLine ($"______________________________{searchText}");
-			var r = await Repository.GetQueryableAsync ();
-			var q = from safe in r where safe.Name.Contains (searchText) select safe;
-			var results = await AsyncExecuter.ToListAsync (q);
-			return ObjectMapper.Map<List<Safe>, List<SafeDto>> (results);
+        public async Task<IReadOnlyList<SafeDto>> Search(string searchText)
+        {
+            var r = await Repository.GetQueryableAsync();
+            r = r.Include(x => x.Currency);
+            if (!String.IsNullOrEmpty(searchText)) r = r.Where(x => x.Name.Contains(searchText));
+            var results = await AsyncExecuter.ToListAsync(r);
+            return ObjectMapper.Map<List<Safe>, List<SafeDto>>(results);
 
-		}
+        }
 
-		[Authorize (Permissions.HukukPermissions.Safes.Create)]
+        [Authorize (Permissions.HukukPermissions.Safes.Create)]
 		public async Task<SafeTranDto> CreateSafeTran (CreateUpdateSafeTranDto s) {
 			var safeTran = ObjectMapper.Map<CreateUpdateSafeTranDto, SafeTran> (s);
 			await _safeTranRepository.InsertAsync (safeTran);

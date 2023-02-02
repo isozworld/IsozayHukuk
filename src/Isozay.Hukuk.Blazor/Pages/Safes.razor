@@ -19,13 +19,13 @@
 			<Column ColumnSize="ColumnSize.IsAuto">
 				@if (HasCreatePermission)
 				{
-					<Button Color="Color.Primary"
-							Clicked="OpenCreateModalAsync">Yeni Kasa</Button>
                     <Dropdown>
                         <DropdownToggle Color="Color.Primary">
                             New Transaction
                         </DropdownToggle>
                         <DropdownMenu>
+                            <DropdownItem Clicked="OpenCreateModalAsync">New Safe</DropdownItem>
+                            <DropdownDivider />
                             <DropdownItem Clicked="() => OpenClientSafeTransModal()">Client - Safe</DropdownItem>
                             <DropdownDivider />
                             <DropdownItem Clicked="() => OpenSafeSafeTransModal()">Safe - Safe</DropdownItem>
@@ -39,6 +39,7 @@
 		</Row>
 	</CardHeader>
     <CardBody>
+        <TextEdit TextChanged="filterResults" Placeholder="Search" />
         <DataGrid TItem="SafeDto"
                   Data="Entities"
                   ReadData="OnDataGridReadAsync"
@@ -104,7 +105,7 @@
 
         @if (SafeTransHistoryOpen)
         {
-            <SafeTranHistory entity="@infoEntity" OnClose="OnSafeTransHistoryModalClose"/>
+            <SafeTranHistory entity="@infoEntity" OnClose="OnSafeTransHistoryModalClose" />
         }
     </CardBody>
 </Card>
@@ -230,6 +231,12 @@
         SafeExpTransOpen = false;
         await base.OnInitializedAsync();
         currencies = (await currencyService.GetListAsync());
+    }
+
+    public async void filterResults(string text)
+    {
+        Entities = await AppService.Search(text);
+        StateHasChanged();
     }
 
     private void getInfo(SafeDto s)

@@ -11,7 +11,7 @@
 @inject Safes.ISafeService safeService
 @inject IJSRuntime JSRuntime
 
-<Modal class="modal fade show" id="ClientCreate" style="display: block; background-color:rgba(10,10,10,.8)">
+<Modal class="modal fade show" id="SafeSafeTranModal" style="display: block; background-color:rgba(10,10,10,.5)">
     <ModalContent Centered Size="ModalSize.ExtraLarge">
         <Form>
             <ModalHeader>
@@ -117,7 +117,6 @@
 
 @code {
     IReadOnlyList<CurrencyDto> currencies = Array.Empty<CurrencyDto>();
-    private string selectedTab;
     private SafeDto selectedSafeDest { get; set; }
     private SafeDto selectedSafeSour { get; set; }
     [Parameter] public EventCallback<bool> OnClose { get; set; }

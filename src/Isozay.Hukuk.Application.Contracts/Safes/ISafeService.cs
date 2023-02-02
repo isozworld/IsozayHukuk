@@ -17,7 +17,5 @@ namespace Isozay.Hukuk.Safes
 		public Task<IReadOnlyList<SafeDto>> Search (string searchText);
 		public Task<SafeTranDto> CreateSafeTran (CreateUpdateSafeTranDto s);
 		public Task<List<SafeTranDto>> GetSafeTransListAsync(long id);
-
-
     }
 }
