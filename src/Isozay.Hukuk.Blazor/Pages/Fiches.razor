@@ -54,31 +54,31 @@
 				</DataGridEntityActionsColumn>
                 <DataGridColumn TItem="FicheDto"
                                 Field="@nameof(FicheDto.FicheType)"
-                                Caption="Makbuz Türü">
+                                Caption="Fiche Type">
                 </DataGridColumn>
 				<DataGridColumn TItem="FicheDto"
 								Field="@nameof(FicheDto.FicheNo)"
-								Caption="Makbuz No"></DataGridColumn>
+								Caption="Fiche No"></DataGridColumn>
 				<DataGridColumn TItem="FicheDto"
 								Field="@nameof(FicheDto.FicheNo)"
-								Caption="Müşteri - Müvekkil">
+								Caption="Client">
 					<DisplayTemplate>
 						@context.Client.Id.ToString() - @context.Client.Name
 					</DisplayTemplate>
 				</DataGridColumn>
 				<DataGridColumn TItem="FicheDto"
 								Field="@nameof(FicheDto.Description)"
-								Caption="Ek Bilgi"></DataGridColumn>
+								Caption="Description"></DataGridColumn>
 				<DataGridColumn TItem="FicheDto"
 								Field="@nameof(FicheDto.CurrencyId)"
-								Caption="Döviz Tipi">
+								Caption="Currency">
 					<DisplayTemplate>
 						@context.Currency.Name
 					</DisplayTemplate>
 				</DataGridColumn>
 				<DataGridColumn TItem="FicheDto"
 								Field="@nameof(FicheDto.FicheDate)"
-								Caption="Makbuz Tarihi">
+								Caption="Fiche Date">
 					<DisplayTemplate>
 						@context.FicheDate.ToString("dd.MM.yyyy");
 					</DisplayTemplate>
@@ -93,7 +93,7 @@
 	<ModalContent Centered Size="ModalSize.ExtraLarge">
 		<Form>
 			<ModalHeader>
-				<ModalTitle>Yeni Makbuz</ModalTitle>
+				<ModalTitle>New Fiche</ModalTitle>
 				<CloseButton Clicked="CloseCreateModalAsync" />
 			</ModalHeader>
 			<ModalBody>
@@ -108,7 +108,7 @@
 								<Column ColumnSize="ColumnSize.IsHalf">
                                     <Alert Color="Color.Primary" Visible>
                                         <div class="form-group row">
-                                            <label class="col-form-label col-3 text-lg-right text-left">Makbuz Çeşidi</label>
+                                            <label class="col-form-label col-3 text-lg-right text-left">Fiche Type</label>
                                             <div class="col-9">
                                                 <Select Size="Size.Medium" TValue="FicheType" @bind-SelectedValue="@NewEntity.FicheType">
                                                     @foreach (FicheType TypeValue in Enum.GetValues(typeof(FicheType)))
@@ -122,21 +122,21 @@
                                         </div>
 
                                         <div class="form-group row">
-                                            <label class="col-form-label col-3 text-lg-right text-left">Ek Bilgi</label>
+                                            <label class="col-form-label col-3 text-lg-right text-left">Description</label>
                                             <div class="col-9">
                                                 <TextEdit Size="Size.Medium" @bind-Text="NewEntity.Description" Class="form-control-lg form-control-solid" />
                                             </div>
 										</div>
 
                                         <div class="form-group row">
-                                            <label class="col-form-label col-3 text-lg-right text-left">Makbuz No</label>
+                                            <label class="col-form-label col-3 text-lg-right text-left">Fiche No</label>
                                             <div class="col-9">
                                                 <TextEdit Size="Size.Medium" @bind-Text="NewEntity.FicheNo" Class="form-control-lg form-control-solid" />
                                             </div>
                                         </div>
 
                                         <div class="form-group row">
-                                            <label class="col-form-label col-3 text-lg-right text-left">Müşteri - Müvekkil</label>
+                                            <label class="col-form-label col-3 text-lg-right text-left">Client</label>
                                             <div class="col-9">
                                                 <Validation>
                                                     <ClientSearch Selected="selectedClient" SelectedChanged="@clientSelectedChanged" />
@@ -148,7 +148,7 @@
 								<Column ColumnSize="ColumnSize.IsHalf">
 									<Alert Color="Color.Primary" Visible>
 										<div class="form-group row">
-											<label class="col-form-label col-3 text-lg-right text-left">Döviz Tipi</label>
+											<label class="col-form-label col-3 text-lg-right text-left">Currency</label>
 											<div class="col-9">
 												<Select Size="Size.Medium" TValue="long" @bind-SelectedValue="@NewEntity.CurrencyId" Class="form-control-lg form-control-solid">
 													@foreach (var author in currencies)
@@ -161,7 +161,7 @@
 											</div>
 										</div>
 										<div class="form-group row">
-											<label class="col-form-label col-3 text-lg-right text-left">Makbuz Tarihi</label>
+											<label class="col-form-label col-3 text-lg-right text-left">Fiche Date</label>
 											<div class="col-9">
 												<DateEdit Size="Size.Medium" TValue="DateTime" @bind-Date="NewEntity.FicheDate" Class="form-control-lg form-control-solid" />
 											</div>

@@ -101,5 +101,18 @@ namespace Isozay.Hukuk.Safes {
 			return Dtos;
 
 		}
+
+		public async Task<string> getSafeValue(long id)
+		{
+			decimal safeVal = 0;
+			var tranList = await GetSafeTransListAsync(id);
+			tranList.ForEach(x =>
+			{
+				if (x.IO == 'I') safeVal += x.Amount;
+				else safeVal -= x.Amount;
+			});
+
+			return safeVal.ToString("G29");
+		}
 	}
 }

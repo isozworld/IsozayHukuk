@@ -15,7 +15,7 @@
     <ModalContent Centered Size="ModalSize.ExtraLarge">
         <Form>
             <ModalHeader>
-                <ModalTitle>Safe Transfer History</ModalTitle>
+                <ModalTitle>@entity.Name Bilgisi - Mevcut Kasa Değeri: @safeVal</ModalTitle>
                 <CloseButton Clicked="ModalCancel" />
             </ModalHeader>
             <ModalBody>
@@ -73,6 +73,7 @@
 @code {
     [Parameter] public EventCallback<bool> OnClose { get; set; }
     [Parameter] public SafeDto entity { get; set; }
+    string safeVal;
     List<SafeTranDto> i;
     List<SafeTranDto> o;
 
@@ -90,7 +91,7 @@
 
         Console.WriteLine(i.Count());
         Console.WriteLine(o.Count());
-
+        safeVal = await safeService.getSafeValue(entity.Id);
         await base.OnInitializedAsync();
         StateHasChanged();
     }

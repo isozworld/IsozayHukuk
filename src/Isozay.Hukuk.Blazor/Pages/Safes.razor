@@ -72,9 +72,15 @@
                 <DataGridColumn TItem="SafeDto"
                                 Field="@nameof(SafeDto.Description)"
                                 Caption="Açıklama"></DataGridColumn>
+                @*<DataGridColumn TItem="SafeDto"
+                                Caption="Bakiye">
+                    <DisplayTemplate>
+                        @AppService.getSafeValue(context.Id).Result
+                    </DisplayTemplate>
+                </DataGridColumn>*@
                 <DataGridColumn TItem="SafeDto"
                                 Field="@nameof(SafeDto.CurrencyId)"
-                                Caption="Dövit Tipi">
+                                Caption="Döviz Tipi">
                     <DisplayTemplate>
                         @context.Currency.Name
                     </DisplayTemplate>
