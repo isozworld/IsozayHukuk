@@ -30,9 +30,12 @@ namespace Isozay.Hukuk.Fiches {
 
 		private readonly IRepository<FicheLine, long> _ficheLineRepository;
 
+		private readonly ClientService _clientService;
+
 		public FicheService (IRepository<Fiche, long> repository,
-		    IRepository<FicheLine, long> ficheLineRepository)
+		    IRepository<FicheLine, long> ficheLineRepository, ClientService clientService)
 		: base (repository) {
+			_clientService = clientService;
 			_ficheLineRepository = ficheLineRepository;
 			GetPolicyName = HukukPermissions.Fiches.Default;
 			GetListPolicyName = HukukPermissions.Fiches.Default;
@@ -83,13 +86,15 @@ namespace Isozay.Hukuk.Fiches {
 
 			var rv = await Repository.InsertAsync (myfiche, true);
 
-			var rvFiche = ObjectMapper.Map<Fiche, FicheDto> (rv);
+            var rvFiche = ObjectMapper.Map<Fiche, FicheDto> (rv);
 
-			rvFiche.FicheLine = new List<FicheLineDto> ();
+            rvFiche.FicheLine = new List<FicheLineDto> ();
 
-			rv.FicheLine.ForEach (x => { rvFiche.FicheLine.Add (ObjectMapper.Map<FicheLine, FicheLineDto> (x)); });
+            rv.FicheLine.ForEach (x => { rvFiche.FicheLine.Add (ObjectMapper.Map<FicheLine, FicheLineDto> (x)); });
 
-			return rvFiche;
+            await _clientService.CreateClientTran(rvFiche, await GetListFichLineAsync(rvFiche.Id));
+
+            return rvFiche;
 		}
 
 		[Authorize (Permissions.HukukPermissions.Fiches.Edit)]

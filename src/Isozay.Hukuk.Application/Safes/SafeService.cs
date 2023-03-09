@@ -30,7 +30,10 @@ namespace Isozay.Hukuk.Safes {
 
 		public readonly IRepository<SafeTran, long> _safeTranRepository;
 
-		public SafeService (IRepository<Safe, long> repository, IRepository<SafeTran, long> safeTranRepository) : base (repository) {
+        private readonly ClientService _clientService;
+
+        public SafeService (IRepository<Safe, long> repository, IRepository<SafeTran, long> safeTranRepository, ClientService clientService) : base (repository) {
+			_clientService = clientService;
 			_safeTranRepository = safeTranRepository;
 			GetPolicyName = HukukPermissions.Safes.Default;
 			GetListPolicyName = HukukPermissions.Safes.Default;
@@ -79,6 +82,11 @@ namespace Isozay.Hukuk.Safes {
 			var safeTran = ObjectMapper.Map<CreateUpdateSafeTranDto, SafeTran> (s);
 			await _safeTranRepository.InsertAsync (safeTran);
 			var rv = ObjectMapper.Map<SafeTran, SafeTranDto> (safeTran);
+			if (s.ClientId != null)
+			{
+				Console.WriteLine("--------------------------GATOARABE");
+				await _clientService.CreateClientTran(rv);
+			}
 			return rv;
 		}
 

@@ -13,7 +13,7 @@ namespace Isozay.Hukuk.Clients
         public long FicheId { get; set; }
         public long ClientId { get; set; }
         public long? SafeId { get; set; }
-        public DateTime TransactionDate { get; set; }
+        public DateTime TransactionDate { get; set; } = DateTime.Now;
         public decimal Amount { get; set; }
         public long CurrencyId { get; set; }
         public decimal TrRate { get; set; }

@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
+using Isozay.Hukuk.Fiches;
+using Isozay.Hukuk.Safes;
+
+
 
 namespace Isozay.Hukuk.Clients
 {
@@ -16,5 +20,7 @@ namespace Isozay.Hukuk.Clients
     {
         public Task<IReadOnlyList<ClientDto>> Search(string searchText);
         public Task<IReadOnlyList<ClientDto>> GetListSearchAsync(string searchText);
+        public Task<ClientTranDto> CreateClientTran(FicheDto c, List<FicheLineDto> l);
+        public Task<ClientTranDto> CreateClientTran(SafeTranDto c);
     }
 }

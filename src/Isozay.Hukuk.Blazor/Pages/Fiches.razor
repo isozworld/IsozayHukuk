@@ -611,11 +611,14 @@
 
         else if (NewEntity.FicheLine.Count() == 0) Message.Warn("Lütfen fiş detayı ekleyiniz", "Hata");
 
+        else if (NewEntity.FicheType == FicheType.Undefined) Message.Warn("Lütfen fiş tipini seçiniz", "Hata");
+
         else
         {
             NewEntity.ClientId = selectedClient.Id;
             CreateEntityAsync();
         }
+
     }
 
 }

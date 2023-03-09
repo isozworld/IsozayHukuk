@@ -2,17 +2,17 @@
 
 namespace Isozay.Hukuk.Fiches
 {
-    public enum  FicheType
+    public enum FicheType
     {
         [Display(Name = "Tanımsız")]
         Undefined,
-	[Display (Name = "Müşavirlik")]
-	Consultancy,
-	[Display (Name = "Dava")]
-	Case,
-	[Display(Name = "İcra")]
-        Executive,
-        [Display(Name = "Diğer")]
-        Other,
+        [Display(Name = "Alış")]
+        Buying,
+        [Display(Name = "Satış")]
+        Selling,
+        [Display(Name = "Alış İade")]
+        BuyReturn,
+        [Display(Name = "Satış İade")]
+        SalesReturn,
     }
 }
