@@ -16,6 +16,7 @@ using Volo.Abp.Auditing;
 using Microsoft.EntityFrameworkCore;
 using Isozay.Hukuk.Currencies;
 using Isozay.Hukuk.Clients;
+using Isozay.Hukuk.Fiches;
 
 namespace Isozay.Hukuk.Safes {
 	[Authorize (HukukPermissions.Safes.Default)]
@@ -82,15 +83,10 @@ namespace Isozay.Hukuk.Safes {
 			var safeTran = ObjectMapper.Map<CreateUpdateSafeTranDto, SafeTran> (s);
 			await _safeTranRepository.InsertAsync (safeTran);
 			var rv = ObjectMapper.Map<SafeTran, SafeTranDto> (safeTran);
-			if (s.ClientId != null)
-			{
-				Console.WriteLine("--------------------------GATOARABE");
-				await _clientService.CreateClientTran(rv);
-			}
 			return rv;
 		}
 
-		public async Task<List<SafeTranDto>> GetSafeTransListAsync(long id)
+        public async Task<List<SafeTranDto>> GetSafeTransListAsync(long id)
 		{
 			var queryable = await _safeTranRepository.GetQueryableAsync();
 			queryable = queryable

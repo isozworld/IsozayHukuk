@@ -16,7 +16,7 @@
 	<CardHeader>
 		<Row Class="justify-content-between">
 			<Column ColumnSize="ColumnSize.IsAuto">
-				<h2>Makbuzlar</h2>
+				<h2>Fişler</h2>
 			</Column>
 			<Column ColumnSize="ColumnSize.IsAuto">
 				@if (HasCreatePermission)
@@ -187,69 +187,69 @@
 												  ShowPager="true"
 												  Editable="true"
 												  PageSize="PageSize">
-											<DataGridColumns>
-												<DataGridCommandColumn TItem="FicheLineDto" NewCommandAllowed="false">
-													<DeleteCommandTemplate>
-														<Button Color="Color.Danger" Clicked="@context.Clicked">Delete</Button>
-													</DeleteCommandTemplate>
-													<EditCommandTemplate>
-														<Button Color="Color.Light" Clicked="@context.Clicked">Edit</Button>
-													</EditCommandTemplate>
-													<SaveCommandTemplate>
-														<Button Color="Color.Success" Clicked="@context.Clicked">Save</Button>
-													</SaveCommandTemplate>
-													<CancelCommandTemplate>
-														<Button Color="Color.Warning" Clicked="@context.Clicked" >Cancel</Button>
-													</CancelCommandTemplate>
-												</DataGridCommandColumn>
-												<DataGridColumn TItem="FicheLineDto"
-																Field="@nameof(FicheLineDto.FicheQuantity)"
-																Caption="Item">
-													<DisplayTemplate>
-														@context.Item.Name
-													</DisplayTemplate>
-												</DataGridColumn>
-												<DataGridColumn TItem="FicheLineDto"
-																Field="@nameof(FicheLineDto.FicheQuantity)"
-																Caption="Fiche Quantity"
-																Editable>
-													<EditTemplate>
-														<NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
-													</EditTemplate>
-												</DataGridColumn>
-												<DataGridColumn TItem="FicheLineDto"
-																Field="@nameof(FicheLineDto.FicheAmount)"
-																Caption="Fiche Amount"
-																Editable>
-													<EditTemplate>
-														<NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
-													</EditTemplate>
-												</DataGridColumn>
-												<DataGridColumn TItem="FicheLineDto"
-																Field="@nameof(FicheLineDto.UnitPrice)"
-																Caption="Unit Price"
-																Editable>
-													<EditTemplate>
-														<NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
-													</EditTemplate>
-												</DataGridColumn>
-												<DataGridColumn TItem="FicheLineDto"
-																Field="@nameof(FicheLineDto.Vat)"
-																Caption="VAT"
-																Editable>
-													<EditTemplate>
-														<NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
-													</EditTemplate>
-												</DataGridColumn>
-												<DataGridColumn TItem="FicheLineDto"
-																Field="@nameof(FicheLineDto.VatTotal)"
-																Caption="VAT Total"
-																Editable>
-													<EditTemplate>
-														<NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
-													</EditTemplate>
-												</DataGridColumn>
-											</DataGridColumns>
+                                            <DataGridColumns>
+                                                <DataGridCommandColumn TItem="FicheLineDto" NewCommandAllowed="false">
+                                                    <DeleteCommandTemplate>
+                                                        <Button Color="Color.Danger" Clicked="@context.Clicked">Delete</Button>
+                                                    </DeleteCommandTemplate>
+                                                    <EditCommandTemplate>
+                                                        <Button Color="Color.Light" Clicked="@context.Clicked">Edit</Button>
+                                                    </EditCommandTemplate>
+                                                    <SaveCommandTemplate>
+                                                        <Button Color="Color.Success" Clicked="@context.Clicked">Save</Button>
+                                                    </SaveCommandTemplate>
+                                                    <CancelCommandTemplate>
+                                                        <Button Color="Color.Warning" Clicked="@context.Clicked">Cancel</Button>
+                                                    </CancelCommandTemplate>
+                                                </DataGridCommandColumn>
+                                                <DataGridColumn TItem="FicheLineDto"
+                                                                Field="@nameof(FicheLineDto.FicheQuantity)"
+                                                                Caption="Item">
+                                                    <DisplayTemplate>
+                                                        @context.Item.Name
+                                                    </DisplayTemplate>
+                                                </DataGridColumn>
+                                                <DataGridColumn TItem="FicheLineDto"
+                                                                Field="@nameof(FicheLineDto.FicheAmount)"
+                                                                Caption="Fiche Amount"
+                                                                Editable>
+                                                    <EditTemplate>
+                                                        <NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
+                                                    </EditTemplate>
+                                                </DataGridColumn>
+                                                <DataGridColumn TItem="FicheLineDto"
+                                                                Field="@nameof(FicheLineDto.FicheQuantity)"
+                                                                Caption="Fiche Quantity"
+                                                                Editable>
+                                                    <EditTemplate>
+                                                        <NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
+                                                    </EditTemplate>
+                                                </DataGridColumn>
+                                                <DataGridColumn TItem="FicheLineDto"
+                                                                Field="@nameof(FicheLineDto.UnitPrice)"
+                                                                Caption="Unit Price"
+                                                                Editable>
+                                                    <EditTemplate>
+                                                        <NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
+                                                    </EditTemplate>
+                                                </DataGridColumn>
+                                                <DataGridColumn TItem="FicheLineDto"
+                                                                Field="@nameof(FicheLineDto.Vat)"
+                                                                Caption="VAT"
+                                                                Editable>
+                                                    <EditTemplate>
+                                                        <NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
+                                                    </EditTemplate>
+                                                </DataGridColumn>
+                                                <DataGridColumn TItem="FicheLineDto"
+                                                                Field="@nameof(FicheLineDto.VatTotal)"
+                                                                Caption="VAT Total"
+                                                                Editable>
+                                                    <EditTemplate>
+                                                        <NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
+                                                    </EditTemplate>
+                                                </DataGridColumn>
+                                            </DataGridColumns>
 										</DataGrid>
 									</Row>
 								</Alert>

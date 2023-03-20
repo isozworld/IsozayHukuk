@@ -1,37 +1,34 @@
-﻿@using Isozay.Hukuk.Safes
-@using Isozay.Hukuk.Currencies
-@using Isozay.Hukuk.Clients
+﻿@using Isozay.Hukuk.Clients
 @using Isozay.Hukuk.Permissions
 @using Microsoft.AspNetCore.Authorization
 @using Volo.Abp.Application.Dtos
 @using Volo.Abp.BlazoriseUI
 
 @inject Volo.Abp.AspNetCore.Components.Messages.IUiMessageService Messages
-@inject Currencies.ICurrencyService currencyService
-@inject Safes.ISafeService safeService
+@inject Clients.IClientService clientService
 @inject IJSRuntime JSRuntime
 
-<Modal class="modal fade show" id="SafeTranHistoryModal" style="display: block; background-color:rgba(10,10,10,.5)">
+<Modal class="modal fade show" id="ClientTranHistoryModal" style="display: block; background-color:rgba(10,10,10,.5)">
     <ModalContent Centered Size="ModalSize.ExtraLarge">
         <Form>
             <ModalHeader>
-                <ModalTitle>@entity.Name Bilgisi - Mevcut Kasa Değeri: @safeVal</ModalTitle>
+                <ModalTitle>@entity.Name Transfer Bilgisi</ModalTitle>
                 <CloseButton Clicked="ModalCancel" />
             </ModalHeader>
             <ModalBody>
 
                 <Row>
                     <Column ColumnSize="ColumnSize.IsHalf">
-                        <Alert Color="Color.Success" Visible>
+                        <Alert Color="Color.Danger" Visible>
 
                             <DataGrid Data="@i" ShowPager="true">
                                 <DataGridColumns>
-                                    <DataGridColumn TItem="SafeTranDto" Caption="Amount">
+                                    <DataGridColumn TItem="ClientTranDto" Caption="Amount">
                                         <DisplayTemplate>
                                             @context.Amount.ToString("G29")
                                         </DisplayTemplate>
                                     </DataGridColumn>
-                                    <DataGridColumn TItem="SafeTranDto" Caption="Description">
+                                    <DataGridColumn TItem="ClientTranDto" Caption="Description">
                                         <DisplayTemplate>
                                             @context.Description
                                         </DisplayTemplate>
@@ -42,16 +39,16 @@
                         </Alert>
                     </Column>
                     <Column ColumnSize="ColumnSize.IsHalf">
-                        <Alert Color="Color.Danger" Visible>
+                        <Alert Color="Color.Success" Visible>
 
                             <DataGrid Data="@o" ShowPager="true">
                                 <DataGridColumns>
-                                    <DataGridColumn TItem="SafeTranDto" Caption="Amount">
+                                    <DataGridColumn TItem="ClientTranDto" Caption="Amount">
                                         <DisplayTemplate>
                                             @context.Amount.ToString("G29")
                                         </DisplayTemplate>
                                     </DataGridColumn>
-                                    <DataGridColumn TItem="SafeTranDto" Caption="Description">
+                                    <DataGridColumn TItem="ClientTranDto" Caption="Description">
                                         <DisplayTemplate>
                                             @context.Description
                                         </DisplayTemplate>
@@ -72,24 +69,23 @@
 
 @code {
     [Parameter] public EventCallback<bool> OnClose { get; set; }
-    [Parameter] public SafeDto entity { get; set; }
-    string safeVal;
-    List<SafeTranDto> i;
-    List<SafeTranDto> o;
+    [Parameter] public ClientDto entity { get; set; }
+    List<ClientTranDto> i;
+    List<ClientTranDto> o;
 
     protected override async Task OnInitializedAsync()
     {
-        i = new List<SafeTranDto>();
-        o = new List<SafeTranDto>();
+        i = new List<ClientTranDto>();
+        o = new List<ClientTranDto>();
 
-        var temp = await safeService.GetSafeTransListAsync(entity.Id);
+        var temp = await clientService.GetClientTranDtoHistory(entity.Id);
+
         temp.ForEach(x =>
         {
             if (x.IO == 'I') i.Add(x);
             else o.Add(x);
         });
 
-        safeVal = await safeService.getSafeValue(entity.Id);
         await base.OnInitializedAsync();
         StateHasChanged();
     }

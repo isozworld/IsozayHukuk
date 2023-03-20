@@ -39,7 +39,5 @@ namespace Isozay.Hukuk.Items
             var results = await AsyncExecuter.ToListAsync(q);
             return ObjectMapper.Map<List<Item>, List<ItemDto>>(results);
         }
-
-
     }
 }

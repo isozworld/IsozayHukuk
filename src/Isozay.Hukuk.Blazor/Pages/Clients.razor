@@ -42,6 +42,10 @@
                     <DisplayTemplate>
                         <EntityActions TItem="ClientDto" EntityActionsColumn="@EntityActionsColumn">
                             <EntityAction TItem="ClientDto"
+                                          Text="Info"
+                                          RequiredPolicy="@UpdatePolicyName"
+                                          Clicked="() => OpenInfoModal(context)" />
+                            <EntityAction TItem="ClientDto"
                                           Text="Güncelle"
                                           RequiredPolicy="@UpdatePolicyName"
                                           Clicked="() => OpenEditModalAsync(context)" />
@@ -87,6 +91,10 @@
                 </DataGridColumn>
             </DataGridColumns>
         </DataGrid>
+        @if (infoOpen)
+        {
+            <ClientTranHistory OnClose="OnInfoModalClose" entity="@infoEntity" />
+        }
     </CardBody>
 </Card>
 
@@ -228,6 +236,9 @@
 
 @code
 {
+    private ClientDto infoEntity;
+    private bool infoOpen;
+
     public Clients() // Constructor
     {
         CreatePolicyName = HukukPermissions.Clients.Create;
@@ -237,7 +248,21 @@
 
     protected override async Task OnInitializedAsync()
     {
+        infoOpen = false;
         Entities = await AppService.GetListSearchAsync(searchText);
+    }
+
+    private void OpenInfoModal(ClientDto c)
+    {
+        infoEntity = c;
+        infoOpen = true;
+        StateHasChanged();
+    }
+
+    private void OnInfoModalClose()
+    {
+        infoOpen = false;
+        StateHasChanged();
     }
 
     //SearchBox

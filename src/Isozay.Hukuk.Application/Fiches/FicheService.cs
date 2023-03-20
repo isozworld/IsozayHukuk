@@ -134,5 +134,13 @@ namespace Isozay.Hukuk.Fiches {
 			await _ficheLineRepository.InsertAsync(ficheLine, true);
 			return Task.CompletedTask;
 		}
-	}
+
+		public async Task<IReadOnlyList<FicheDto>> Search(string searchText, long id)
+		{
+            var r = await Repository.GetQueryableAsync();
+            var q = from fiche in r where fiche.Description.Contains(searchText) where fiche.ClientId == id select fiche;
+            var results = await AsyncExecuter.ToListAsync(q);
+            return ObjectMapper.Map<List<Fiche>, List<FicheDto>>(results);
+        }
+    }
 }

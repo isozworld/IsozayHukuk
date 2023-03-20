@@ -22,29 +22,29 @@
             <ModalBody>
                 <Validations Model="@FicheLine" ValidateOnLoad="false">
                     <Field>
-                        <FieldLabel>FicheQuantity</FieldLabel>
-                        <NumericEdit @bind-Value="@FicheQuantity"> </NumericEdit>
-                        @*<NumericPicker @bind-Value="@FicheQuantity"></NumericPicker>*@
-                    </Field>
-                    <Field>
                         <FieldLabel>UnitPrice</FieldLabel>
                         <NumericEdit @bind-Value="@UnitPrice" />
                     </Field>
                     <Field>
-                        <FieldLabel>FicheAmount</FieldLabel>
-                        <NumericEdit @bind-Value="@FicheAmount" />
+                        <FieldLabel>FicheQuantity</FieldLabel>
+                        <NumericEdit @bind-Value="@FicheQuantity"> </NumericEdit>
+                        @*<NumericPicker @bind-Value="@FicheQuantity"></NumericPicker>*@
                     </Field>
+                    @*<Field>
+            <FieldLabel>FicheAmount</FieldLabel>
+            <NumericEdit @bind-Value="@FicheAmount" />
+        </Field>*@
                     <Field>
                         <FieldLabel>Vat</FieldLabel>
                         <NumericEdit @bind-Value="@Vat" />
                     </Field>
-                    <Field>
-                        <FieldLabel>VatTotal</FieldLabel>
-                        <NumericEdit @bind-Value="@VatTotal" />
-                    </Field>
+                    @*<Field>
+            <FieldLabel>VatTotal</FieldLabel>
+            <NumericEdit @bind-Value="@VatTotal" />
+        </Field>*@
                     <Field>
                         <FieldLabel>Stok / Dava</FieldLabel>
-                        <ItemSearch Selected="@selectedItem" SelectedChanged="selectedItemChange"/>
+                        <ItemSearch Selected="@selectedItem" SelectedChanged="selectedItemChange" />
                     </Field>
                 </Validations>
             </ModalBody>
@@ -107,7 +107,7 @@
             return null;
         }
         FicheLine.FicheQuantity = FicheQuantity;
-        FicheLine.FicheAmount = FicheAmount;
+        FicheLine.FicheAmount = FicheQuantity * UnitPrice;
         FicheLine.Vat = Vat;
         FicheLine.VatTotal = VatTotal;
         FicheLine.UnitPrice = UnitPrice;

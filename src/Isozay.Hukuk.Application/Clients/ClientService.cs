@@ -32,11 +32,9 @@ namespace Isozay.Hukuk.Clients
 	    CreateUpdateClientDto>, IClientService//Used to create/update a Client
     {
         public readonly IRepository<ClientTran, long> _clientTranRepository;
-		public readonly FicheService _ficheService;
         public ClientService(IRepository<Client, long> repository, IRepository<ClientTran, long> clientTranRepository)
 		: base(repository)
 		{
-			//_ficheService = ficheService;
 			_clientTranRepository = clientTranRepository;
 			GetPolicyName = HukukPermissions.Clients.Default;
 			GetListPolicyName = HukukPermissions.Clients.Default;
@@ -103,15 +101,38 @@ namespace Isozay.Hukuk.Clients
 			return rv;
 		}
 
-        public async Task<ClientTranDto> CreateClientTran(SafeTranDto c)
+		public async Task<List<ClientTranDto>> GetClientTranDtoHistory(long id)
+		{
+
+			Console.WriteLine($"______________________ {id}");
+			var queryable = await _clientTranRepository.GetQueryableAsync();
+            queryable = queryable.Where(x => x.ClientId == id);
+
+            var queryRequest = await AsyncExecuter.ToListAsync(queryable);
+
+            var Dtos = queryRequest.Select(x =>
+            {
+                var dto = ObjectMapper.Map<ClientTran, ClientTranDto>(x);
+                return dto;
+            }).ToList();
+
+            return Dtos;
+        }
+
+        public async Task<ClientTranDto> CreateClientTran(CreateUpdateSafeTranDto c, long ficheId)
 		{
             var clientTranDto = new ClientTranDto();
+            Console.WriteLine("--------------------------GATOARABE1");
 
-            clientTranDto.Amount = 0;
+            clientTranDto.Amount = c.Amount;
             clientTranDto.ClientId = c.ClientId ?? default(long);
             clientTranDto.CurrencyId = c.CurrencyId;
-            clientTranDto.SafeId = c.Id;
+            clientTranDto.SafeId = c.SafeId;
+			clientTranDto.FicheId = ficheId;
             clientTranDto.TrRate = 1;
+			clientTranDto.IO = 'O';
+            Console.WriteLine("--------------------------GATOARABE2");
+
 
             var clientTran = ObjectMapper.Map<ClientTranDto, ClientTran>(clientTranDto);
             await _clientTranRepository.InsertAsync(clientTran);

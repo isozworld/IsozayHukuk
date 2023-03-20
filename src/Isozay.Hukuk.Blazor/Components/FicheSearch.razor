@@ -1,31 +1,32 @@
 ﻿@using Blazored.Typeahead;
 @using Blazorise.Components;
-@using Isozay.Hukuk.Items;
-@inject IItemService itemService
-@inherits AbpCrudPageBase<IItemService, ItemDto, long, PagedAndSortedResultRequestDto, ItemDto>
+@using Isozay.Hukuk.Fiches;
+@using Isozay.Hukuk.Clients;
+@inject IFicheService ficheService
+@inherits AbpCrudPageBase<IFicheService, FicheDto, long, PagedAndSortedResultRequestDto, CreateUpdateFicheDto>
 
 <div class="input-group">
     <div class="form-control inp-g" style="padding:0">
         @if (Selected == null)
         {
-            <BlazoredTypeahead SearchMethod="SearchItem"
-                               TItem="ItemDto"
-                               TValue="ItemDto"
+            <BlazoredTypeahead SearchMethod="SearchFiche"
+                               TItem="FicheDto"
+                               TValue="FicheDto"
                                Value="Selected"
                                DisableClear
-                               ValueChanged="@( (ItemDto i) => SelectedResultChanged(i) )"
+                               ValueChanged="@( (FicheDto i) => SelectedResultChanged(i) )"
                                ValueExpression="@( () => Selected )"
                                class="form-control"
                                type="text"
-                               Placeholder="Stok / Dava"
+                               Placeholder="Fiche"
                                Debounce="500">
                 <SelectedTemplate>
                     <Validation>
-                        <strong class="mr-2 text-plaka">@Selected?.Name </strong>
+                        <strong class="mr-2 text-plaka">@Selected?.Description </strong>
                     </Validation>
                 </SelectedTemplate>
                 <ResultTemplate>
-                    @context.Name*
+                    @context.Description*
                 </ResultTemplate>
                 <NotFoundTemplate>
                     Stok / Dava Bulunamadı.
@@ -36,7 +37,7 @@
         @if (Selected != null)
         {
             <div class="form-control inp-g" style="align-content:center">
-                <strong>@Selected?.Code</strong> <span>@Selected?.Name</span>
+                <strong>@Selected?.FicheNo</strong> <span>@Selected?.Description</span>
             </div>
         }
     </div>
@@ -53,10 +54,18 @@
 
 @code {
     [Parameter]
-    public ItemDto Selected { get; set; } = new ItemDto();
+    public ClientDto selectedClient { get; set; }
     [Parameter]
-    public EventCallback<ItemDto> SelectedChanged { get; set; }
+    public FicheDto Selected { get; set; } = new FicheDto();
+    [Parameter]
+    public EventCallback<FicheDto> SelectedChanged { get; set; }
     public Task ShowList() => Task.CompletedTask;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Selected = null;
+        await base.OnInitializedAsync();
+    }
 
     public async void clickHandler()
     {
@@ -65,16 +74,16 @@
         StateHasChanged();
     }
 
-    private async Task SelectedResultChanged(ItemDto result)
+    private async Task SelectedResultChanged(FicheDto result)
     {
         if (result == null) return;
         Selected = result;
         await SelectedChanged.InvokeAsync(Selected);
     }
 
-    private async Task<IEnumerable<ItemDto>> SearchItem(string searchText)
+    private async Task<IEnumerable<FicheDto>> SearchFiche(string searchText)
     {
-        return await itemService.Search(searchText);
+        return await ficheService.Search(searchText, selectedClient.Id);
     }
 }
 

@@ -17,5 +17,6 @@ namespace Isozay.Hukuk.Fiches
 		Task<List<FicheLineDto>> GetListFichLineAsync(long FicheId);
 		Task DeleteFicheLine (long FicheLineId);
 		Task<Task> CreateFicheLineAsync(FicheLineDto f);
+		Task<IReadOnlyList<FicheDto>> Search(string searchText, long id);
 	}
 }
