@@ -78,11 +78,13 @@ namespace Isozay.Hukuk.Safes {
 
         }
 
-        [Authorize (Permissions.HukukPermissions.Safes.Create)]
-		public async Task<SafeTranDto> CreateSafeTran (CreateUpdateSafeTranDto s) {
-			var safeTran = ObjectMapper.Map<CreateUpdateSafeTranDto, SafeTran> (s);
+        [Authorize (HukukPermissions.Safes.Create)]
+		public async Task<SafeTranDto> CreateSafeTran (CreateUpdateSafeTranDto s)
+		{
+			var safeTran = ObjectMapper.Map<CreateUpdateSafeTranDto, SafeTran>(s);
 			await _safeTranRepository.InsertAsync (safeTran);
 			var rv = ObjectMapper.Map<SafeTran, SafeTranDto> (safeTran);
+            if (rv.ClientId != null) await _clientService.CreateClientTran(rv);
 			return rv;
 		}
 

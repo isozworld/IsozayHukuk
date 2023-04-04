@@ -1,4 +1,5 @@
 ﻿@using Isozay.Hukuk.Clients
+@using Isozay.Hukuk.Currencies
 @using Isozay.Hukuk.Permissions
 @using Microsoft.AspNetCore.Authorization
 @using Volo.Abp.Application.Dtos
@@ -6,6 +7,7 @@
 
 @inject Volo.Abp.AspNetCore.Components.Messages.IUiMessageService Messages
 @inject Clients.IClientService clientService
+@inject Currencies.ICurrencyService currencyService
 @inject IJSRuntime JSRuntime
 
 <Modal class="modal fade show" id="ClientTranHistoryModal" style="display: block; background-color:rgba(10,10,10,.5)">
@@ -18,14 +20,19 @@
             <ModalBody>
 
                 <Row>
-                    <Column ColumnSize="ColumnSize.IsHalf">
-                        <Alert Color="Color.Danger" Visible>
+                    <Column ColumnSize="ColumnSize.IsFull">
+                        <Alert Color="Color.Primary" Visible>
 
-                            <DataGrid Data="@i" ShowPager="true">
+                            <DataGrid Data="@tranlist" ShowPager="true" RowStyling="@OnRowStyling">
                                 <DataGridColumns>
                                     <DataGridColumn TItem="ClientTranDto" Caption="Amount">
                                         <DisplayTemplate>
                                             @context.Amount.ToString("G29")
+                                        </DisplayTemplate>
+                                    </DataGridColumn>
+                                    <DataGridColumn TItem="ClientTranDto" Caption="Currency">
+                                        <DisplayTemplate>
+                                            @getCurr(context.CurrencyId)
                                         </DisplayTemplate>
                                     </DataGridColumn>
                                     <DataGridColumn TItem="ClientTranDto" Caption="Description">
@@ -33,24 +40,9 @@
                                             @context.Description
                                         </DisplayTemplate>
                                     </DataGridColumn>
-                                </DataGridColumns>
-                            </DataGrid>
-
-                        </Alert>
-                    </Column>
-                    <Column ColumnSize="ColumnSize.IsHalf">
-                        <Alert Color="Color.Success" Visible>
-
-                            <DataGrid Data="@o" ShowPager="true">
-                                <DataGridColumns>
-                                    <DataGridColumn TItem="ClientTranDto" Caption="Amount">
+                                    <DataGridColumn TItem="ClientTranDto" Caption="Date">
                                         <DisplayTemplate>
-                                            @context.Amount.ToString("G29")
-                                        </DisplayTemplate>
-                                    </DataGridColumn>
-                                    <DataGridColumn TItem="ClientTranDto" Caption="Description">
-                                        <DisplayTemplate>
-                                            @context.Description
+                                            @context.TransactionDate
                                         </DisplayTemplate>
                                     </DataGridColumn>
                                 </DataGridColumns>
@@ -70,24 +62,33 @@
 @code {
     [Parameter] public EventCallback<bool> OnClose { get; set; }
     [Parameter] public ClientDto entity { get; set; }
-    List<ClientTranDto> i;
-    List<ClientTranDto> o;
+    IReadOnlyList<CurrencyDto> currencies = Array.Empty<CurrencyDto>();
+    List<ClientTranDto> tranlist;
 
     protected override async Task OnInitializedAsync()
     {
-        i = new List<ClientTranDto>();
-        o = new List<ClientTranDto>();
+        currencies = (await currencyService.GetListAsync());
 
-        var temp = await clientService.GetClientTranDtoHistory(entity.Id);
-
-        temp.ForEach(x =>
-        {
-            if (x.IO == 'I') i.Add(x);
-            else o.Add(x);
-        });
+        tranlist = await clientService.GetClientTranDtoHistory(entity.Id);
 
         await base.OnInitializedAsync();
+
         StateHasChanged();
+    }
+
+    private void OnRowStyling(ClientTranDto dto, DataGridRowStyling styling)
+    {
+        if (dto.IO == 'I')
+            styling.Style = "color: red;";
+        else
+            styling.Color = "color: black;";
+    }
+
+    private String getCurr (long id)
+    {
+        String temp = "";
+        foreach (var c in currencies) { if (c.Id == id) temp = c.Name; }
+        return temp;
     }
 
     private Task ModalCancel()

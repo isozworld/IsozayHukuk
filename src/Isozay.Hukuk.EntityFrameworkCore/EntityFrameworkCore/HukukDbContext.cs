@@ -111,6 +111,7 @@ namespace Isozay.Hukuk.EntityFrameworkCore
             {
                 b.ToTable(HukukConsts.DbTablePrefix + "ClientTrans", HukukConsts.DbSchema);
                 b.ConfigureByConvention(); //auto configure for the base class props
+                b.Property(x => x.FicheId).IsRequired(false);
                 //...
             });
             builder.Entity<Currencies.Currency>(b =>

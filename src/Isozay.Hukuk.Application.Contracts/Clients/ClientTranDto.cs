@@ -1,6 +1,4 @@
-﻿using Isozay.Hukuk.Currencies;
-using Isozay.Hukuk.Safes;
-using Isozay.Hukuk.Fiches;
+﻿using Isozay.Hukuk.Fiches;
 using System;
 using Volo.Abp.Application.Dtos;
 

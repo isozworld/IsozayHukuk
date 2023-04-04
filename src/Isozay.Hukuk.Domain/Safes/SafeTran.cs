@@ -14,9 +14,11 @@ namespace Isozay.Hukuk.Safes
         public DateTime TransactionDate { get; set; }
         public decimal Amount { get; set; }
         public Currency Currency { get; set; }
+        public long? CurrencyId { get; set; }
         public decimal TrRate { get; set; }
         public string Description { get; set; }
         public Client? Client { get; set; }
+        public long? ClientId { get; set; }
         public char IO { get; set; }
     }
 }

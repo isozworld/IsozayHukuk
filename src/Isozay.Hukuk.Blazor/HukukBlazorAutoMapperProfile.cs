@@ -17,6 +17,8 @@ namespace Isozay.Hukuk.Blazor
             CreateMap<CreateUpdateSafeDto, SafeDto>();
             CreateMap<CreateUpdateFicheDto, FicheDto>();
             CreateMap<FicheDto, CreateUpdateFicheDto>();
+            CreateMap<CreateUpdateSafeTranDto, SafeTranDto>();
+            CreateMap<SafeTranDto, CreateUpdateSafeTranDto>();
         }
     }
 }

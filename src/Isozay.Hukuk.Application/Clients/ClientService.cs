@@ -64,18 +64,22 @@ namespace Isozay.Hukuk.Clients
 			return ObjectMapper.Map<List<Client>, List<ClientDto>>(results);
 		}
 
-		public async Task<ClientTranDto> CreateClientTran (FicheDto c, List<FicheLineDto> l)
+        [Authorize(HukukPermissions.Clients.Default)]
+        public async Task<ClientTranDto> CreateClientTran (FicheDto c)
 		{
 
-			var clientTranDto = new ClientTranDto();
+            var clientTranDto = new ClientTranDto
+            {
+                Amount = 0,
+                ClientId = c.ClientId,
+                CurrencyId = c.CurrencyId,
+                FicheType = c.FicheType,
+                FicheId = c.Id,
+                TrRate = 1,
+                Description = c.Description
+            };
 
-			clientTranDto.Amount = 0;
-			clientTranDto.ClientId = c.ClientId;
-			clientTranDto.CurrencyId = c.CurrencyId;
-			clientTranDto.FicheType = c.FicheType;
-			clientTranDto.FicheId = c.Id;
-			clientTranDto.TrRate = 1;
-			switch (c.FicheType)
+            switch (c.FicheType)
 			{
 				case FicheType.Buying:
 					clientTranDto.IO = 'O';
@@ -93,7 +97,7 @@ namespace Isozay.Hukuk.Clients
 					break;
 			}
 
-			l.ForEach(x => { clientTranDto.Amount += x.UnitPrice * x.FicheQuantity; });
+			c.FicheLine.ForEach(x => { clientTranDto.Amount += x.UnitPrice * x.FicheQuantity; });
 
 			var clientTran = ObjectMapper.Map<ClientTranDto, ClientTran>(clientTranDto);
 			await _clientTranRepository.InsertAsync(clientTran);
@@ -101,7 +105,26 @@ namespace Isozay.Hukuk.Clients
 			return rv;
 		}
 
-		public async Task<List<ClientTranDto>> GetClientTranDtoHistory(long id)
+        public async Task<ClientTranDto> CreateClientTran(SafeTranDto c)
+        {
+            var clientTranDto = new ClientTranDto
+            {
+                //FicheId = null,
+                Amount = c.Amount,
+                Description = c.Description,
+                ClientId = c.ClientId ?? 0,
+                CurrencyId = c.CurrencyId,
+                SafeId = c.SafeId,
+                TrRate = 1,
+                IO = 'O'
+            };
+            var clientTran = ObjectMapper.Map<ClientTranDto, ClientTran>(clientTranDto);
+            await _clientTranRepository.InsertAsync(clientTran);
+            var rv = ObjectMapper.Map<ClientTran, ClientTranDto>(clientTran);
+            return rv;
+        }
+
+        public async Task<List<ClientTranDto>> GetClientTranDtoHistory(long id)
 		{
 
 			Console.WriteLine($"______________________ {id}");
@@ -118,27 +141,5 @@ namespace Isozay.Hukuk.Clients
 
             return Dtos;
         }
-
-        public async Task<ClientTranDto> CreateClientTran(CreateUpdateSafeTranDto c, long ficheId)
-		{
-            var clientTranDto = new ClientTranDto();
-            Console.WriteLine("--------------------------GATOARABE1");
-
-            clientTranDto.Amount = c.Amount;
-            clientTranDto.ClientId = c.ClientId ?? default(long);
-            clientTranDto.CurrencyId = c.CurrencyId;
-            clientTranDto.SafeId = c.SafeId;
-			clientTranDto.FicheId = ficheId;
-            clientTranDto.TrRate = 1;
-			clientTranDto.IO = 'O';
-            Console.WriteLine("--------------------------GATOARABE2");
-
-
-            var clientTran = ObjectMapper.Map<ClientTranDto, ClientTran>(clientTranDto);
-            await _clientTranRepository.InsertAsync(clientTran);
-            var rv = ObjectMapper.Map<ClientTran, ClientTranDto>(clientTran);
-            return rv;
-        }
-
     }
 }

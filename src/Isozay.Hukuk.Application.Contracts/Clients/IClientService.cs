@@ -20,8 +20,8 @@ namespace Isozay.Hukuk.Clients
     {
         public Task<IReadOnlyList<ClientDto>> Search(string searchText);
         public Task<IReadOnlyList<ClientDto>> GetListSearchAsync(string searchText);
-        public Task<ClientTranDto> CreateClientTran(FicheDto c, List<FicheLineDto> l);
-        public Task<ClientTranDto> CreateClientTran(CreateUpdateSafeTranDto c, long ficheId);
+        public Task<ClientTranDto> CreateClientTran(FicheDto c);
+        public Task<ClientTranDto> CreateClientTran(SafeTranDto c);
         public Task<List<ClientTranDto>> GetClientTranDtoHistory(long id);
     }
 }

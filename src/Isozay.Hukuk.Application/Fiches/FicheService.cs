@@ -16,6 +16,7 @@ using Volo.Abp;
 using Microsoft.EntityFrameworkCore;
 using Abp.Domain.Uow;
 using Isozay.Hukuk.Items;
+using Isozay.Hukuk.Safes;
 
 namespace Isozay.Hukuk.Fiches {
 	[Authorize (HukukPermissions.Clients.Default)]
@@ -78,13 +79,13 @@ namespace Isozay.Hukuk.Fiches {
 			);
 		}
 
-		[Authorize (Permissions.HukukPermissions.Fiches.Create)]
+		[Authorize (HukukPermissions.Fiches.Create)]
 		public override async Task<FicheDto> CreateAsync (CreateUpdateFicheDto input) { 
 			input.FicheLine.ForEach (x => { x.Item = null; });
 
 			var myfiche = ObjectMapper.Map<CreateUpdateFicheDto, Fiche> (input);
 
-			var rv = await Repository.InsertAsync (myfiche, true);
+            var rv = await Repository.InsertAsync (myfiche, true);
 
             var rvFiche = ObjectMapper.Map<Fiche, FicheDto> (rv);
 
@@ -92,12 +93,12 @@ namespace Isozay.Hukuk.Fiches {
 
             rv.FicheLine.ForEach (x => { rvFiche.FicheLine.Add (ObjectMapper.Map<FicheLine, FicheLineDto> (x)); });
 
-            await _clientService.CreateClientTran(rvFiche, await GetListFichLineAsync(rvFiche.Id));
+            await _clientService.CreateClientTran(rvFiche);
 
             return rvFiche;
 		}
 
-		[Authorize (Permissions.HukukPermissions.Fiches.Edit)]
+		[Authorize (HukukPermissions.Fiches.Edit)]
 		public async Task<List<FicheLineDto>> GetListFichLineAsync(long FicheId) {
 
 			var queryable = await _ficheLineRepository.GetQueryableAsync ();

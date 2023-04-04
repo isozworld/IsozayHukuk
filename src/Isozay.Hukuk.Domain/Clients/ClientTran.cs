@@ -1,5 +1,4 @@
-﻿using Isozay.Hukuk.Currencies;
-using Isozay.Hukuk.Safes;
+﻿using Isozay.Hukuk.Fiches;
 using System;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
@@ -9,8 +8,8 @@ namespace Isozay.Hukuk.Clients
     public class ClientTran : AuditedAggregateRoot<long>, IMultiTenant
     {
         public Guid? TenantId { get; set; }
-        public Fiches.FicheType FicheType { get; set; }
-        public long FicheId { get; set; }
+        public FicheType FicheType { get; set; }
+        public long? FicheId { get; set; }
         public long ClientId { get; set; }
         public long? SafeId { get; set; }
         public DateTime TransactionDate { get; set; }
