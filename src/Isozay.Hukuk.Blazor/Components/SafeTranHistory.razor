@@ -19,50 +19,42 @@
                 <CloseButton Clicked="ModalCancel" />
             </ModalHeader>
             <ModalBody>
-
-                <Row>
-                    <Column ColumnSize="ColumnSize.IsHalf">
-                        <Alert Color="Color.Success" Visible>
-
-                            <DataGrid Data="@i" ShowPager="true">
-                                <DataGridColumns>
-                                    <DataGridColumn TItem="SafeTranDto" Caption="Amount">
-                                        <DisplayTemplate>
-                                            @context.Amount.ToString("G29")
-                                        </DisplayTemplate>
-                                    </DataGridColumn>
-                                    <DataGridColumn TItem="SafeTranDto" Caption="Description">
-                                        <DisplayTemplate>
-                                            @context.Description
-                                        </DisplayTemplate>
-                                    </DataGridColumn>
-                                </DataGridColumns>
-                            </DataGrid>
-
-                        </Alert>
-                    </Column>
-                    <Column ColumnSize="ColumnSize.IsHalf">
-                        <Alert Color="Color.Danger" Visible>
-
-                            <DataGrid Data="@o" ShowPager="true">
-                                <DataGridColumns>
-                                    <DataGridColumn TItem="SafeTranDto" Caption="Amount">
-                                        <DisplayTemplate>
-                                            @context.Amount.ToString("G29")
-                                        </DisplayTemplate>
-                                    </DataGridColumn>
-                                    <DataGridColumn TItem="SafeTranDto" Caption="Description">
-                                        <DisplayTemplate>
-                                            @context.Description
-                                        </DisplayTemplate>
-                                    </DataGridColumn>
-                                </DataGridColumns>
-                            </DataGrid>
-
-                        </Alert>
-                    </Column>
-                </Row>
-
+                <DataGrid TItem="SafeTranDto"
+                          Data="@safeTranList"
+                          ShowPager="true">
+                    <DataGridColumns>
+                        <DataGridColumn TItem="SafeTranDto" Caption="Date">
+                            <DisplayTemplate>
+                                @context.TransactionDate.ToShortDateString()
+                            </DisplayTemplate>
+                        </DataGridColumn>
+                        <DataGridColumn TItem="SafeTranDto" Caption="Client">
+                            <DisplayTemplate>
+                                @setName(context)
+                            </DisplayTemplate>
+                        </DataGridColumn>
+                        <DataGridColumn TItem="SafeTranDto" Caption="Description">
+                            <DisplayTemplate>
+                                @context.Description
+                            </DisplayTemplate>
+                        </DataGridColumn>
+                        <DataGridColumn TItem="SafeTranDto" Caption="Debt">
+                            <DisplayTemplate>
+                                @context.Debt.ToString("G29")
+                            </DisplayTemplate>
+                        </DataGridColumn>
+                        <DataGridColumn TItem="SafeTranDto" Caption="Credit">
+                            <DisplayTemplate>
+                                @context.Credit.ToString("G29")
+                            </DisplayTemplate>
+                        </DataGridColumn>
+                        <DataGridColumn TItem="SafeTranDto" Caption="Balance">
+                            <DisplayTemplate>
+                                @context.Balance.ToString("G29")
+                            </DisplayTemplate>
+                        </DataGridColumn>
+                    </DataGridColumns>
+                </DataGrid>
             </ModalBody>
             <ModalFooter>
             </ModalFooter>
@@ -74,24 +66,23 @@
     [Parameter] public EventCallback<bool> OnClose { get; set; }
     [Parameter] public SafeDto entity { get; set; }
     string safeVal;
-    List<SafeTranDto> i;
-    List<SafeTranDto> o;
+    List<SafeTranDto> safeTranList;
 
     protected override async Task OnInitializedAsync()
     {
-        i = new List<SafeTranDto>();
-        o = new List<SafeTranDto>();
 
-        var temp = await safeService.GetSafeTransListAsync(entity.Id);
-        temp.ForEach(x =>
-        {
-            if (x.IO == 'I') i.Add(x);
-            else o.Add(x);
-        });
-
-        safeVal = await safeService.getSafeValue(entity.Id);
+        safeTranList = await safeService.GetSafeTransListAsync(entity.Id);
         await base.OnInitializedAsync();
         StateHasChanged();
+    }
+
+    private string setName(SafeTranDto s)
+    {
+        if (s.Client == null)
+        {
+            return "";
+        }
+        return s.Client.Name;
     }
 
     private Task ModalCancel()

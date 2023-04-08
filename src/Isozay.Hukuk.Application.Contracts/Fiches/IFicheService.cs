@@ -18,5 +18,8 @@ namespace Isozay.Hukuk.Fiches
 		Task DeleteFicheLine (long FicheLineId);
 		Task<Task> CreateFicheLineAsync(FicheLineDto f);
 		Task<IReadOnlyList<FicheDto>> Search(string searchText, long id);
-	}
+        Task UpdateClientTranAsync(long ficheId);
+		Task<bool> HasAnyFiches(long id);
+		Task<string> getFicheNumber(long? id);
+    }
 }

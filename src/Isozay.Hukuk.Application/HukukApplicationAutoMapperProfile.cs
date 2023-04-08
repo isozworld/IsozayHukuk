@@ -34,6 +34,8 @@ namespace Isozay.Hukuk
 
             CreateMap<ClientTranDto, ClientTran>().ReverseMap();
 
+            CreateMap<ClientRelation, ClientRelationDto>().ReverseMap();
+
         }
     }
 }

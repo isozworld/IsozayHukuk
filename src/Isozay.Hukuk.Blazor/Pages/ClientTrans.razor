@@ -1,0 +1,150 @@
+﻿@page "/clienttrans"
+@attribute [Authorize(HukukPermissions.Clients.Default)]
+@using Isozay.Hukuk.Permissions
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.Application.Dtos
+@using Isozay.Hukuk.Clients
+@using Isozay.Hukuk.Fiches
+@using Isozay.Hukuk.Safes
+@using Isozay.Hukuk.Currencies
+@using Isozay.Hukuk.Localization
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.AspNetCore.Components.Web
+@inject IStringLocalizer<HukukResource> L
+@inject AbpBlazorMessageLocalizerHelper<HukukResource> LH
+@inject Currencies.ICurrencyService currencyService
+@inject ISafeService safeService
+@inject IFicheService ficheService
+@inherits AbpCrudPageBase<IClientService, ClientDto, long, PagedAndSortedResultRequestDto, CreateUpdateClientDto>
+
+<Card>
+    <CardHeader>
+        <Row Class="justify-content-between">
+            <Column ColumnSize="ColumnSize.IsAuto">
+                <h2>Müvekkil Hesap Hareketleri</h2>
+            </Column>
+        </Row>
+    </CardHeader>
+
+    <CardBody>
+        <Validation>
+            <ClientSearch Selected="selectedClient" SelectedChanged="@clientSelectedChanged" />
+        </Validation>
+        @if (selectedClient != null)
+        {
+            <Check TValue="bool" Checked="childIncluded" CheckedChanged="@checkedChanged"> İlişkili müvekkil transferleri dahil edilsin </Check>
+        }
+        <DataGrid TItem="ClientTranDto"
+                  Data="clientTransList"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  PageSize="PageSize"
+                  AggregateData="clientTransList">
+            @*<DataGridAggregates>
+                <DataGridAggregate TItem="ClientTranDto"
+                                   Field="@nameof(ClientTranDto.Description)"
+                                   Aggregate="DataGridAggregateType.Count">
+                    <DisplayTemplate>
+                        @($"Total Transaction: {context.Value}")
+                    </DisplayTemplate>
+                </DataGridAggregate>
+                <DataGridAggregate TItem="ClientTranDto"
+                                   Field="@nameof(ClientTranDto.Debt)"
+                                   Aggregate="DataGridAggregateType.Sum"
+                                   DisplayFormat="{0:C}"/>
+            </DataGridAggregates>*@
+            <DataGridColumns>
+                <DataGridColumn TItem="ClientTranDto" Caption="Date">
+                    <DisplayTemplate>
+                        @context.TransactionDate.ToShortDateString()
+                    </DisplayTemplate>
+                </DataGridColumn>
+                <DataGridColumn TItem="ClientTranDto" Caption="Fiche Number" Field="">
+                    <DisplayTemplate>
+                        @context.FicheNo
+                    </DisplayTemplate>
+                </DataGridColumn>
+                <DataGridColumn TItem="ClientTranDto" Caption="Safe Name">
+                    <DisplayTemplate>
+                        @context.SafeName
+                    </DisplayTemplate>
+                </DataGridColumn>
+                <DataGridColumn TItem="ClientTranDto" Caption="Description">
+                    <DisplayTemplate>
+                        @context.Description
+                    </DisplayTemplate>
+                </DataGridColumn>
+                <DataGridColumn TItem="ClientTranDto" Caption="Debt">
+                    <DisplayTemplate>
+                        @context.Debt.ToString("G29")
+                    </DisplayTemplate>
+                </DataGridColumn>
+                <DataGridColumn TItem="ClientTranDto" Caption="Credit">
+                    <DisplayTemplate>
+                        @context.Credit.ToString("G29")
+                    </DisplayTemplate>
+                </DataGridColumn>
+                <DataGridColumn TItem="ClientTranDto" Caption="Balance">
+                    <DisplayTemplate>
+                        @context.Balance.ToString("G29")
+                    </DisplayTemplate>
+                </DataGridColumn>
+                <DataGridColumn TItem="ClientTranDto" Caption="Currency">
+                    <DisplayTemplate>
+                        @getCurr(context.CurrencyId)
+                    </DisplayTemplate>
+                </DataGridColumn>
+            </DataGridColumns>
+        </DataGrid>
+    </CardBody>
+</Card>
+
+@code
+{
+    private bool childIncluded;
+    private ClientDto selectedClient { get; set; }
+    private List<ClientTranDto> clientTransList { get; set; }
+    IReadOnlyList<CurrencyDto> currencies = Array.Empty<CurrencyDto>();
+
+    public ClientTrans() // Constructor
+    {
+        CreatePolicyName = HukukPermissions.Clients.Create;
+        UpdatePolicyName = HukukPermissions.Clients.Edit;
+        DeletePolicyName = HukukPermissions.Clients.Delete;
+    }
+
+    private async void clientSelectedChanged(ClientDto dto)
+    {
+        selectedClient = dto;
+        if (selectedClient != null) clientTransList = await AppService.GetClientTranDtoHistory(selectedClient.Id, childIncluded);
+        else
+        {
+            clientTransList = new List<ClientTranDto>();
+            childIncluded = false;
+        }
+        StateHasChanged();
+    }
+
+    private void checkedChanged(bool b)
+    {
+        childIncluded = b;
+        clientSelectedChanged(selectedClient);
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        childIncluded = false;
+        currencies = (await currencyService.GetListAsync());
+        clientTransList = new List<ClientTranDto>();
+        await base.OnInitializedAsync();
+    }
+
+    private String getCurr(long id)
+    {
+        String temp = "";
+        foreach (var c in currencies) { if (c.Id == id) temp = c.Name; }
+        return temp;
+    }
+
+}

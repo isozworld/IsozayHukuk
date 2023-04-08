@@ -79,6 +79,14 @@ namespace Isozay.Hukuk.Blazor.Menus
                  )
              );
             Sabitler.AddItem(
+                 new ApplicationMenuItem(
+                     "Sabitler",
+                     "Müvekkil Hesap Hareketleri",
+                      icon: "fas fa-circle",
+                     url: "/clienttrans"
+                 )
+             );
+            Sabitler.AddItem(
              new ApplicationMenuItem(
                  "Sabitler",
                  "Kasa Tanımları",

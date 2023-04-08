@@ -1419,7 +1419,7 @@ namespace Isozay.Hukuk.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     TenantId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
                     FicheType = table.Column<int>(type: "int", nullable: false),
-                    FicheId = table.Column<long>(type: "bigint", nullable: false),
+                    FicheId = table.Column<long>(type: "bigint", nullable: true),
                     ClientId = table.Column<long>(type: "bigint", nullable: false),
                     SafeId = table.Column<long>(type: "bigint", nullable: true),
                     TransactionDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),

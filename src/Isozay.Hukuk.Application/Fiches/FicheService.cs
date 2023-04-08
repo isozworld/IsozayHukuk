@@ -30,12 +30,13 @@ namespace Isozay.Hukuk.Fiches {
 	{
 
 		private readonly IRepository<FicheLine, long> _ficheLineRepository;
+        private readonly ClientService _clientService;
+		private readonly IRepository<ClientTran, long> _clientTranRepository;
 
-		private readonly ClientService _clientService;
-
-		public FicheService (IRepository<Fiche, long> repository,
-		    IRepository<FicheLine, long> ficheLineRepository, ClientService clientService)
+        public FicheService (IRepository<Fiche, long> repository,
+		    IRepository<FicheLine, long> ficheLineRepository, ClientService clientService, IRepository<ClientTran, long> clientTranRepository)
 		: base (repository) {
+			_clientTranRepository = clientTranRepository;
 			_clientService = clientService;
 			_ficheLineRepository = ficheLineRepository;
 			GetPolicyName = HukukPermissions.Fiches.Default;
@@ -69,8 +70,6 @@ namespace Isozay.Hukuk.Fiches {
 				return dto;
 			}).ToList ();
 
-			//Get the total count with another query
-
 			var totalCount = await Repository.GetCountAsync ();
 
 			return new PagedResultDto<FicheDto> (
@@ -79,7 +78,68 @@ namespace Isozay.Hukuk.Fiches {
 			);
 		}
 
-		[Authorize (HukukPermissions.Fiches.Create)]
+        [Authorize(HukukPermissions.Fiches.Edit)]
+        public async Task UpdateClientTranAsync(long ficheId)
+        {
+			var fiche = (await Repository.GetListAsync()).Where(x => x.Id == ficheId).First();
+            var ficheLine = await _ficheLineRepository.GetQueryableAsync();
+            var ficheLineList = ficheLine.Where(x => x.FicheId == ficheId).ToList();
+            decimal newVal = 0;
+            ficheLineList.ForEach(x => { newVal += x.UnitPrice * x.FicheQuantity; });
+            var tran = await _clientTranRepository.GetQueryableAsync();
+            var toUpdate = tran.Where(x => x.FicheId == ficheId).First();
+
+            toUpdate.Amount = newVal;
+			toUpdate.ClientId = fiche.ClientId;
+			toUpdate.Description = fiche.Description;
+			toUpdate.CurrencyId = fiche.CurrencyId;
+			toUpdate.TransactionDate = fiche.FicheDate;
+			toUpdate.FicheType = fiche.FicheType;
+
+            switch (toUpdate.FicheType)
+            {
+                case FicheType.Buying:
+                    toUpdate.IO = 'O';
+                    break;
+                case FicheType.Selling:
+                    toUpdate.IO = 'I';
+                    break;
+                case FicheType.BuyReturn:
+                    toUpdate.IO = 'I';
+                    break;
+                case FicheType.SalesReturn:
+                    toUpdate.IO = 'O';
+                    break;
+                default:
+                    break;
+            }
+
+            await _clientTranRepository.UpdateAsync(toUpdate, true);
+        }
+
+		[Authorize(HukukPermissions.Fiches.Delete)]
+		public override async Task DeleteAsync(long id)
+		{
+			var clientTran = (await _clientTranRepository.GetQueryableAsync()).Where(x => x.FicheId == id).First();
+			await _clientTranRepository.DeleteAsync(clientTran);
+			await base.DeleteAsync(id);
+		}
+
+		public async Task<bool> HasAnyFiches(long id)
+		{
+			var a = (await Repository.GetListAsync()).Where(x => x.ClientId == id);
+			return a.Any();
+		}
+
+
+		public async Task<string> getFicheNumber(long? id)
+		{
+			if (id == null) return "";
+			else return (await Repository.GetAsync(id ?? default)).FicheNo;
+		}
+
+
+        [Authorize (HukukPermissions.Fiches.Create)]
 		public override async Task<FicheDto> CreateAsync (CreateUpdateFicheDto input) { 
 			input.FicheLine.ForEach (x => { x.Item = null; });
 
@@ -120,10 +180,9 @@ namespace Isozay.Hukuk.Fiches {
 		}
 
 		[Authorize (Permissions.HukukPermissions.Fiches.Delete)]
-		public Task DeleteFicheLine(long FicheLineId)
+		public async Task DeleteFicheLine(long FicheLineId)
 		{
-			_ficheLineRepository.DeleteAsync(FicheLineId, true);
-			return Task.CompletedTask;
+			await _ficheLineRepository.DeleteAsync(FicheLineId, true);
 		}
 
 
@@ -131,8 +190,9 @@ namespace Isozay.Hukuk.Fiches {
 		public async Task<Task> CreateFicheLineAsync(FicheLineDto f)
 		{
 			f.Item = null;
+			f.Currency = null;
 			var ficheLine = ObjectMapper.Map<FicheLineDto, FicheLine>(f);
-			await _ficheLineRepository.InsertAsync(ficheLine, true);
+			await _ficheLineRepository.InsertAsync(ficheLine);
 			return Task.CompletedTask;
 		}
 

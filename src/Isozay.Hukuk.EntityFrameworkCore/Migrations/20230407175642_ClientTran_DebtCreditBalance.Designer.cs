@@ -3,6 +3,7 @@ using System;
 using Isozay.Hukuk.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -11,9 +12,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Isozay.Hukuk.Migrations
 {
     [DbContext(typeof(HukukDbContext))]
-    partial class HukukDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230407175642_ClientTran_DebtCreditBalance")]
+    partial class ClientTran_DebtCreditBalance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -145,6 +147,9 @@ namespace Isozay.Hukuk.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(65,30)");
 
+                    b.Property<decimal?>("Balance")
+                        .HasColumnType("decimal(65,30)");
+
                     b.Property<long>("ClientId")
                         .HasColumnType("bigint");
 
@@ -162,8 +167,14 @@ namespace Isozay.Hukuk.Migrations
                         .HasColumnType("char(36)")
                         .HasColumnName("CreatorId");
 
+                    b.Property<decimal?>("Credit")
+                        .HasColumnType("decimal(65,30)");
+
                     b.Property<long>("CurrencyId")
                         .HasColumnType("bigint");
+
+                    b.Property<decimal?>("Debt")
+                        .HasColumnType("decimal(65,30)");
 
                     b.Property<string>("Description")
                         .HasColumnType("longtext");

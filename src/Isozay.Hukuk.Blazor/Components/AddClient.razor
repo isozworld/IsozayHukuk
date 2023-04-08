@@ -13,7 +13,7 @@
 			</ModalHeader>
 			<ModalBody>
                 <Validations @ref="@CreateValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
-                    <Validation MessageLocalizer="@LH.Localize">
+                    <Validation Validator="@ValidationRule.IsNotEmpty" MessageLocalizer="@LH.Localize">
                         <Field>
                             <FieldLabel>Ad Soyad/Unvan</FieldLabel>
                             <TextEdit @bind-Text="NewEntity.Name">
@@ -23,37 +23,37 @@
                             </TextEdit>
                         </Field>
                     </Validation>
-                    <Validation MessageLocalizer="@LH.Localize">
+                    <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
                         <Field>
                             <FieldLabel>Telefon</FieldLabel>
                             <TextEdit @bind-Text="NewEntity.Phone" />
                         </Field>
                     </Validation>
-                    <Validation MessageLocalizer="@LH.Localize">
+                    <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
                         <Field>
                             <FieldLabel>Faks</FieldLabel>
                             <TextEdit @bind-Text="NewEntity.Fax" />
                         </Field>
                     </Validation>
-                    <Validation MessageLocalizer="@LH.Localize">
+                    <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
                         <Field>
                             <FieldLabel>Adres</FieldLabel>
                             <MemoEdit @bind-Text="NewEntity.Address" />
                         </Field>
                     </Validation>
-                    <Validation MessageLocalizer="@LH.Localize">
+                    <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
                         <Field>
                             <FieldLabel>V.Dairesi</FieldLabel>
                             <TextEdit @bind-Text="NewEntity.TaxDep" />
                         </Field>
                     </Validation>
-                    <Validation MessageLocalizer="@LH.Localize">
+                    <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
                         <Field>
                             <FieldLabel>V.No</FieldLabel>
                             <TextEdit @bind-Text="NewEntity.TaxNumber" />
                         </Field>
                     </Validation>
-                    <Validation MessageLocalizer="@LH.Localize">
+                    <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
                         <Field>
                             <FieldLabel>Tip</FieldLabel>
                             <Select TValue="ClientType" @bind-SelectedValue="@NewEntity.ClientType">
@@ -66,6 +66,25 @@
                             </Select>
                         </Field>
                     </Validation>
+                    <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>İlişkilendirme</FieldLabel>
+                            <Check TValue="bool" Checked="@isRelated" CheckedChanged="@OnRelationChanged">Bu müvekkil ilişkilendirsin</Check>
+                        </Field>
+                    </Validation>
+                    @if (isRelated)
+                    {
+                        <Validation Validator="@ValidationRule.IsNotEmpty" MessageLocalizer="@LH.Localize">
+                            <Field>
+                                <FieldLabel>İlişkili Müvekkil</FieldLabel>
+                                <ClientSearch Selected="parentClient" SelectedChanged="@parentClientChanged" DisableCreate="true" />
+                            </Field>
+                            <Field>
+                                <FieldLabel>İlişki Açıklaması</FieldLabel>
+                                <TextEdit @bind-Text="@relationDescription" />
+                            </Field>
+                        </Validation>
+                    }
                 </Validations>
 			</ModalBody>
 			<ModalFooter>
@@ -88,15 +107,38 @@
 @code {
     [Parameter]
     public EventCallback<bool> OnClose { get; set; }
+    private bool isRelated;
+    private ClientDto parentClient { get; set; }
+    private string relationDescription { get; set; }
 
     private Task ModalCancel()
     {
         return OnClose.InvokeAsync(false);
     }
 
+    private void OnRelationChanged(bool val)
+    {
+        isRelated = val;
+        if (!val) parentClient = null;
+        StateHasChanged();
+    }
+
+    private void parentClientChanged(ClientDto dto)
+    {
+        parentClient = dto;
+        StateHasChanged();
+    }
+
     private Task ModalOk()
     {
-        CreateEntityAsync ();
+        if (isRelated)
+        {
+            AppService.CreateClientRelation(NewEntity, parentClient.Id, relationDescription);
+        }
+        else
+        {
+            CreateEntityAsync();
+        }
         return ModalCancel();
     }
 }

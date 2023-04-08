@@ -59,6 +59,7 @@ namespace Isozay.Hukuk.EntityFrameworkCore
         public DbSet<Safes.SafeTran> SafeTrans { get; set; }
         public DbSet<Clients.ClientTran> ClientTrans { get; set; }
         public DbSet<Currencies.Currency> Currencies { get; set; }
+        public DbSet<Clients.ClientRelation> ClientRelations { get; set; }
         public DbSet<Fiches.Fiche> Fiches { get; set; }
         public DbSet<Fiches.FicheLine> FicheLines { get; set; }
         public DbSet<Items.Item> Items { get; set; }
@@ -112,6 +113,12 @@ namespace Isozay.Hukuk.EntityFrameworkCore
                 b.ToTable(HukukConsts.DbTablePrefix + "ClientTrans", HukukConsts.DbSchema);
                 b.ConfigureByConvention(); //auto configure for the base class props
                 b.Property(x => x.FicheId).IsRequired(false);
+                //...
+            });
+            builder.Entity<Clients.ClientRelation>(b =>
+            {
+                b.ToTable(HukukConsts.DbTablePrefix + "ClientRelations", HukukConsts.DbSchema);
+                b.ConfigureByConvention(); //auto configure for the base class props
                 //...
             });
             builder.Entity<Currencies.Currency>(b =>

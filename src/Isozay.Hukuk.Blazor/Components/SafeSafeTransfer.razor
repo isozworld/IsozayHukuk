@@ -85,7 +85,7 @@
                             <div class="form-group row">
                                 <label class="col-form-label col-3 text-lg-right text-left">Description</label>
                                 <div class="col-9">
-                                    <TextEdit Size="Size.Medium" @bind-Text="safeTranDto.Description" Class="form-control-lg form-control-solid" />
+                                    <TextEdit Size="Size.Medium" @bind-Text="desc" Class="form-control-lg form-control-solid" />
                                 </div>
                             </div>
 
@@ -120,6 +120,7 @@
     private SafeDto selectedSafeDest { get; set; }
     private SafeDto selectedSafeSour { get; set; }
     [Parameter] public EventCallback<bool> OnClose { get; set; }
+    private string desc;
     private CreateUpdateSafeTranDto safeTranDto;
 
     private void safeSelectedDestChanged(SafeDto dto) { selectedSafeDest = dto; }
@@ -141,9 +142,11 @@
 
     private Task ModalSave()
     {
+        safeTranDto.Description = selectedSafeDest.Name + " - " + desc;
         safeTranDto.SafeId = selectedSafeSour.Id;
         safeTranDto.IO = 'O';
         safeService.CreateSafeTran(safeTranDto);
+        safeTranDto.Description = selectedSafeSour.Name + " - " + desc;
         safeTranDto.SafeId = selectedSafeDest.Id;
         safeTranDto.IO = 'I';
         safeService.CreateSafeTran(safeTranDto);

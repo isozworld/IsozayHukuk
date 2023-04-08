@@ -69,7 +69,7 @@
     {
         currencies = (await currencyService.GetListAsync());
 
-        tranlist = await clientService.GetClientTranDtoHistory(entity.Id);
+        tranlist = await clientService.GetClientTranDtoHistory(entity.Id, false);
 
         await base.OnInitializedAsync();
 

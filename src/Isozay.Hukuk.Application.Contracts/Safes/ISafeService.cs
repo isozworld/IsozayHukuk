@@ -18,5 +18,7 @@ namespace Isozay.Hukuk.Safes
 		public Task<SafeTranDto> CreateSafeTran (CreateUpdateSafeTranDto s);
         public Task<List<SafeTranDto>> GetSafeTransListAsync(long id);
 		public Task<string> getSafeValue(long id);
-	}
+        Task<string> getSafeName(long? id);
+
+    }
 }

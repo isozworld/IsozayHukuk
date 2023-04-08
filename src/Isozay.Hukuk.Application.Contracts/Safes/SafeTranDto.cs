@@ -18,6 +18,9 @@ namespace Isozay.Hukuk.Safes
         public string Description { get; set; }
         public long? ClientId { get; set; }
         public ClientDto? Client { get; set; }
+        public decimal Debt { get; set; }
+        public decimal Credit { get; set; }
+        public decimal Balance { get; set; }
         public char IO { get; set; }
     }
 }

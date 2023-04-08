@@ -43,19 +43,23 @@
     </div>
     
     <div class="input-group col" style="padding:0">
-        @if (Selected == null)
+        @if (!DisableCreate)
         {
-            <Button Color="Color.Success" @onclick="() => OpenCreateDialog()">
-                Yeni
-            </Button>
+            @if (Selected == null)
+            {
+                <Button Color="Color.Success" @onclick="() => OpenCreateDialog()">
+                    Yeni
+                </Button>
+            }
         }
-        @if (Selected != null)
-        {
-            <Button Color="Color.Danger" @onclick="clickHandler">
-                Kaldır
-            </Button>
-        }
-    </div>
+            @if (Selected != null)
+            {
+                <Button Color="Color.Danger" @onclick="clickHandler">
+                    Kaldır
+                </Button>
+            }
+        </div>
+
     @if (CreateDialogOpen)
     {
         <AddClient OnClose="@OnCreateDialogClose"></AddClient>
@@ -67,6 +71,8 @@
     public ClientDto Selected { get; set; }
     [Parameter]
     public EventCallback<ClientDto> SelectedChanged { get; set; }
+    [Parameter]
+    public bool DisableCreate { get; set; } = false;
     public Task ShowList() => Task.CompletedTask;
 
     public bool CreateDialogOpen { get; set; }

@@ -4,10 +4,12 @@
 @using Microsoft.AspNetCore.Authorization
 @using Volo.Abp.Application.Dtos
 @using Isozay.Hukuk.Clients
+@using Isozay.Hukuk.Fiches
 @using Isozay.Hukuk.Localization
 @using Microsoft.Extensions.Localization
 @using Volo.Abp.AspNetCore.Components.Web
 @inject IStringLocalizer<HukukResource> L
+@inject IFicheService ficheService
 @inject AbpBlazorMessageLocalizerHelper<HukukResource> LH
 @inherits AbpCrudPageBase<IClientService, ClientDto, long, PagedAndSortedResultRequestDto, CreateUpdateClientDto>
 
@@ -52,7 +54,7 @@
                             <EntityAction TItem="ClientDto"
                                           Text="Sil"
                                           RequiredPolicy="@DeletePolicyName"
-                                          Clicked="() => DeleteEntityAsync(context)"
+                                          Clicked="() => DeleteConfirmation(context)"
                                           ConfirmationMessage="()=>GetDeleteConfirmationMessage(context)" />
                         </EntityActions>
                     </DisplayTemplate>
@@ -98,7 +100,7 @@
     </CardBody>
 </Card>
 
-<Modal @ref="@CreateModal">
+<Modal @ref="@CreateModal" Opened="@CreateModalOpened">
     <ModalContent IsCentered="true">
         <Form>
             <ModalHeader>
@@ -148,6 +150,21 @@
                             }
                         </Select>
                     </Field>
+                    <Field>
+                        <FieldLabel>İlişkilendirme</FieldLabel>
+                        <Check TValue="bool" Checked="@isRelated" CheckedChanged="@OnRelationChanged">Bu müvekkil ilişkilendirsin</Check>
+                    </Field>
+                    @if (isRelated)
+                    {
+                            <Field>
+                                <FieldLabel>İlişkili Müvekkil</FieldLabel>
+                                <ClientSearch Selected="parentClient" SelectedChanged="@parentClientChanged" DisableCreate="true"/>
+                            </Field>
+                            <Field>
+                                <FieldLabel>İlişki Açıklaması</FieldLabel>
+                                <TextEdit @bind-Text="@relationDescription" />
+                            </Field>
+                    }
                 </Validations>
             </ModalBody>
             <ModalFooter>
@@ -158,7 +175,7 @@
                 <Button Color="Blazorise.Color.Primary"
                         Type="@Blazorise.ButtonType.Submit"
                         PreventDefaultOnSubmit="true"
-                        Clicked="CreateEntityAsync">
+                        Clicked="@CreateClient">
                     Kaydet
                 </Button>
             </ModalFooter>
@@ -166,7 +183,7 @@
     </ModalContent>
 </Modal>
 
-<Modal @ref="@EditModal">
+<Modal @ref="@EditModal" Opened="OnEditModalOpened">
     <ModalContent IsCentered="true">
         <Form>
             <ModalHeader>
@@ -216,6 +233,21 @@
                             }
                         </Select>
                     </Field>
+                    <Field>
+                        <FieldLabel>İlişkilendirme</FieldLabel>
+                        <Check TValue="bool" Checked="@editRelated" CheckedChanged="@OnEditRelationChanged">Bu müvekkil ilişkilendirsin</Check>
+                    </Field>
+                    @if (editRelated)
+                    {
+                        <Field>
+                            <FieldLabel>İlişkili Müvekkil</FieldLabel>
+                            <ClientSearch Selected="editParentClient" SelectedChanged="@editParentClientChanged" DisableCreate="true" />
+                        </Field>
+                        <Field>
+                            <FieldLabel>İlişki Açıklaması</FieldLabel>
+                            <TextEdit @bind-Text="@editRelationDescription" />
+                        </Field>
+                    }
                 </Validations>
             </ModalBody>
             <ModalFooter>
@@ -226,7 +258,7 @@
                 <Button Color="Blazorise.Color.Primary"
                         Type="@Blazorise.ButtonType.Submit"
                         PreventDefaultOnSubmit="true"
-                        Clicked="UpdateEntityAsync">
+                        Clicked="OnEditModalConfirmed">
                     Kaydet
                 </Button>
             </ModalFooter>
@@ -239,6 +271,15 @@
     private ClientDto infoEntity;
     private bool infoOpen;
 
+    private bool isRelated;
+    private ClientDto parentClient { get; set; }
+    private string relationDescription { get; set; }
+
+    private bool hadParentBefore { get; set; }
+    private bool editRelated { get; set; }
+    private string editRelationDescription { get; set; }
+    private ClientDto editParentClient { get; set; }
+
     public Clients() // Constructor
     {
         CreatePolicyName = HukukPermissions.Clients.Create;
@@ -246,8 +287,95 @@
         DeletePolicyName = HukukPermissions.Clients.Delete;
     }
 
+    private async void CreateClient()
+    {
+        if (isRelated)
+        {
+            await AppService.CreateClientRelation(NewEntity, parentClient.Id, relationDescription);
+        }
+        else
+        {
+            await CreateEntityAsync();
+        }
+        await CloseCreateModalAsync();
+    }
+
+    private async void DeleteConfirmation(ClientDto context)
+    {
+        if (await ficheService.HasAnyFiches(context.Id))
+        {
+            await Message.Warn("Bu müşteriye ait kayıtlar olduğu için silinemez.", "Uyarı!");
+        } else
+        {
+            await DeleteEntityAsync(context);
+        }
+    }
+
+    private void CreateModalOpened()
+    {
+        relationDescription = "";
+        isRelated = false;
+        parentClient = null;
+        StateHasChanged();
+    }
+
+    private void OnRelationChanged( bool val )
+    {
+        isRelated = val;
+        if (!val) parentClient = null;
+        StateHasChanged();
+    }
+
+    private void OnEditRelationChanged(bool val)
+    {
+        editRelated = val;
+        if (!val) editParentClient = null;
+        StateHasChanged();
+    }
+
+    private async void OnEditModalOpened()
+    {
+        var r = await AppService.getParentRelation(EditingEntityId);
+
+        if (r != null)
+        {
+            hadParentBefore = true;
+            editRelated = true;
+            editParentClient = await AppService.GetAsync(r.ParentClientId);
+            editRelationDescription = r.Description;
+            StateHasChanged();
+        }
+        else
+        {
+            hadParentBefore = false;
+            editRelated = false;
+            editParentClient = null;
+            editRelationDescription = "";
+            StateHasChanged();
+        }
+    }
+
+    private async void OnEditModalConfirmed()
+    {
+        await AppService.UpdateClientAndRelation(EditingEntity, EditingEntityId, editParentClient.Id, editRelationDescription, hadParentBefore);
+        await CloseEditModalAsync();
+    }
+
+    private void editParentClientChanged(ClientDto dto)
+    {
+        editParentClient = dto;
+        StateHasChanged();
+    }
+
+    private void parentClientChanged(ClientDto dto)
+    {
+        parentClient = dto;
+        StateHasChanged();
+    }
+
     protected override async Task OnInitializedAsync()
     {
+        parentClient = null;
         infoOpen = false;
         Entities = await AppService.GetListSearchAsync(searchText);
     }

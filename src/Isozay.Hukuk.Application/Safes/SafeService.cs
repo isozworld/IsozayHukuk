@@ -104,7 +104,32 @@ namespace Isozay.Hukuk.Safes {
 				return dto;
 			}).ToList();
 
-			return Dtos;
+            SafeTranDto previous = null;
+
+            foreach (SafeTranDto current in Dtos)
+            {
+
+                if (current.IO == 'O')
+                {
+                    current.Debt = current.Amount;
+                    current.Credit = 0;
+                }
+
+                else
+                {
+                    current.Debt = 0;
+                    current.Credit = current.Amount;
+                }
+
+                current.Balance = current.Credit - current.Debt;
+                if (previous != null) current.Balance += previous.Balance;
+
+                previous = current;
+            }
+
+
+
+            return Dtos;
 
 		}
 
@@ -119,6 +144,12 @@ namespace Isozay.Hukuk.Safes {
 			});
 
 			return safeVal.ToString("G29");
+		}
+
+		public async Task<string> getSafeName(long? id)
+		{
+			if (id == null) return "";
+			else return (await Repository.GetAsync(id ?? default)).Name;
 		}
 	}
 }
