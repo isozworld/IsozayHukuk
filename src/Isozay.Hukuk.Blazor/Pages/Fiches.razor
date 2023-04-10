@@ -366,9 +366,9 @@
                                                             <EntityAction TItem="FicheLineDto"
                                                                           Text="Sil"
                                                                           Clicked="() => DeleteFicheLine(context)" />
-                                                            @*<EntityAction TItem="FicheLineDto"
+                                                            <EntityAction TItem="FicheLineDto"
                                                                           Text="Güncelle"
-                                                                          Clicked="() => OpenEditFicheLineDialog(context)" />*@
+                                                                          Clicked="() => OpenEditFicheLineDialog(context)" />
                                                         </EntityActions>
                                                     </DisplayTemplate>
                                                 </DataGridEntityActionsColumn>
@@ -506,6 +506,7 @@
         FicheLineList = await AppService.GetListFichLineAsync(EditingEntity.Id);
         selectedClient = await clientService.GetAsync(EditingEntity.ClientId);
         ToBeAddedFicheLineList = new List<FicheLineDto>();
+        ToBeUpdatedFicheLineList = new List<FicheLineDto>();
         ToBeDeletedFicheLineList = new List<long>();
         StateHasChanged();
     }
@@ -528,7 +529,9 @@
                     }
                 });
             }
+
             await UpdateEntityAsync();
+
             await AppService.UpdateClientTranAsync(EditingEntity.Id);
             StateHasChanged();
         }
@@ -567,15 +570,15 @@
         StateHasChanged();
     }
 
-    private void OnCreateFicheLineDialogClose(bool accepted)
+    private void OnCreateFicheLineDialogClose()
     {
         CreateFicheLineDialogOpen = false;
     }
 
-    private void OnEditFicheLineDialogClose(bool accepted)
+    private void OnEditFicheLineDialogClose()
     {
         EditFicheLineDialogOpen = false;
-        Editing = false;
+        StateHasChanged();
     }
 
     private void OpenCreateFisheLineDialog()
@@ -594,6 +597,9 @@
 
     public void UpdateFicheLine(FicheLineDto f)
     {
+        OnEditFicheLineDialogClose();
+        f.ItemId = f.Item.Id;
+        ToBeUpdatedFicheLineList.Add(f);
         Console.WriteLine("------------------------updated");
     }
 

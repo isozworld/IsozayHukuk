@@ -185,6 +185,13 @@ namespace Isozay.Hukuk.Fiches {
 			await _ficheLineRepository.DeleteAsync(FicheLineId, true);
 		}
 
+		public async Task UpdateFicheLines(List<FicheLineDto> l)
+		{
+			foreach (FicheLineDto f in l)
+			{
+				await _ficheLineRepository.UpdateAsync(ObjectMapper.Map<FicheLineDto,FicheLine>(f));
+			}
+		}
 
 		[Authorize (Permissions.HukukPermissions.Fiches.Edit)]
 		public async Task<Task> CreateFicheLineAsync(FicheLineDto f)

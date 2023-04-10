@@ -21,5 +21,6 @@ namespace Isozay.Hukuk.Fiches
         Task UpdateClientTranAsync(long ficheId);
 		Task<bool> HasAnyFiches(long id);
 		Task<string> getFicheNumber(long? id);
+		Task UpdateFicheLines(List<FicheLineDto> l);
     }
 }
