@@ -24,14 +24,14 @@
                 @if (true)
                 {
                     <Button Color="Color.Primary"
-                            Clicked="OpenCreateModalAsync">
+                            Clicked="CreateModalOpen">
                         Yeni
                     </Button>
                 }
             </Column>
         </Row>
     </CardHeader>
-   
+
     <CardBody>
         <TextEdit TextChanged="filterResults" Placeholder="Search" />
         <DataGrid TItem="ClientDto"
@@ -63,20 +63,30 @@
                                 Field="@nameof(ClientDto.Name)"
                                 Caption="Ad Soyad/Unvan"></DataGridColumn>
                 <DataGridColumn TItem="ClientDto"
+                                Field="@nameof(ClientDto.ClientIdentifier)"
+                                Caption="Kimlik Tipi">
+                    <DisplayTemplate>
+                        @context.ClientIdentifier.GetDisplayName()
+                    </DisplayTemplate>
+                </DataGridColumn>
+                <DataGridColumn TItem="ClientDto"
+                                Field="@nameof(ClientDto.IdNumber)"
+                                Caption="Kimlik No"></DataGridColumn>
+                <DataGridColumn TItem="ClientDto"
                                 Field="@nameof(ClientDto.Phone)"
                                 Caption="Telefon"></DataGridColumn>
                 <DataGridColumn TItem="ClientDto"
                                 Field="@nameof(ClientDto.Fax)"
                                 Caption="Faks"></DataGridColumn>
                 <DataGridColumn TItem="ClientDto"
+                                Field="@nameof(ClientDto.Mail)"
+                                Caption="E-Posta"></DataGridColumn>
+                <DataGridColumn TItem="ClientDto"
                                 Field="@nameof(ClientDto.Address)"
                                 Caption="Adres"></DataGridColumn>
                 <DataGridColumn TItem="ClientDto"
                                 Field="@nameof(ClientDto.TaxDep)"
                                 Caption="V.Dairesi"></DataGridColumn>
-                <DataGridColumn TItem="ClientDto"
-                                Field="@nameof(ClientDto.TaxNumber)"
-                                Caption="V.No"></DataGridColumn>
                 <DataGridColumn TItem="ClientDto"
                                 Field="@nameof(ClientDto.ClientType)"
                                 Caption="Tip">
@@ -100,88 +110,10 @@
     </CardBody>
 </Card>
 
-<Modal @ref="@CreateModal" Opened="@CreateModalOpened">
-    <ModalContent IsCentered="true">
-        <Form>
-            <ModalHeader>
-                <ModalTitle>@L["Yeni Müşteri/Müvekkil"]</ModalTitle>
-                <CloseButton Clicked="CloseCreateModalAsync" />
-            </ModalHeader>
-            <ModalBody>
-                <Validations @ref="@CreateValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>Ad Soyad/Unvan</FieldLabel>
-                            <TextEdit @bind-Text="@NewEntity.Name">
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-                    <Field>
-                        <FieldLabel>Telefon</FieldLabel>
-                        <TextEdit @bind-Text="NewEntity.Phone" />
-                    </Field>
-                    <Field>
-                        <FieldLabel>Faks</FieldLabel>
-                        <TextEdit @bind-Text="NewEntity.Fax" />
-                    </Field>
-                    <Field>
-                        <FieldLabel>Adres</FieldLabel>
-                        <MemoEdit @bind-Text="NewEntity.Address" />
-                    </Field>
-                    <Field>
-                        <FieldLabel>V.Dairesi</FieldLabel>
-                        <TextEdit @bind-Text="NewEntity.TaxDep" />
-                    </Field>
-                    <Field>
-                        <FieldLabel>V.No</FieldLabel>
-                        <TextEdit @bind-Text="NewEntity.TaxNumber" />
-                    </Field>
-                    <Field>
-                        <FieldLabel>Tip</FieldLabel>
-                        <Select TValue="ClientType" @bind-SelectedValue="@NewEntity.ClientType">
-                            @foreach (ClientType ClientTypeValue in Enum.GetValues(typeof(ClientType)))
-                            {
-                                <SelectItem TValue="ClientType" Value="@((ClientType) ClientTypeValue)">
-                                    @ClientTypeValue.GetDisplayName()
-                                </SelectItem>
-                            }
-                        </Select>
-                    </Field>
-                    <Field>
-                        <FieldLabel>İlişkilendirme</FieldLabel>
-                        <Check TValue="bool" Checked="@isRelated" CheckedChanged="@OnRelationChanged">Bu müvekkil ilişkilendirsin</Check>
-                    </Field>
-                    @if (isRelated)
-                    {
-                            <Field>
-                                <FieldLabel>İlişkili Müvekkil</FieldLabel>
-                                <ClientSearch Selected="parentClient" SelectedChanged="@parentClientChanged" DisableCreate="true"/>
-                            </Field>
-                            <Field>
-                                <FieldLabel>İlişki Açıklaması</FieldLabel>
-                                <TextEdit @bind-Text="@relationDescription" />
-                            </Field>
-                    }
-                </Validations>
-            </ModalBody>
-            <ModalFooter>
-                <Button Color="Blazorise.Color.Secondary"
-                        Clicked="CloseCreateModalAsync">
-                    İptal
-                </Button>
-                <Button Color="Blazorise.Color.Primary"
-                        Type="@Blazorise.ButtonType.Submit"
-                        PreventDefaultOnSubmit="true"
-                        Clicked="@CreateClient">
-                    Kaydet
-                </Button>
-            </ModalFooter>
-        </Form>
-    </ModalContent>
-</Modal>
+@if (isCreateModalOpen)
+{
+    <AddClient OnClose="OnCreateDialogClose" />
+}
 
 <Modal @ref="@EditModal" Opened="OnEditModalOpened">
     <ModalContent IsCentered="true">
@@ -211,16 +143,16 @@
                         <TextEdit @bind-Text="EditingEntity.Fax" />
                     </Field>
                     <Field>
+                        <FieldLabel>E-Posta</FieldLabel>
+                        <TextEdit @bind-Text="EditingEntity.Mail" />
+                    </Field>
+                    <Field>
                         <FieldLabel>Adres</FieldLabel>
                         <MemoEdit @bind-Text="EditingEntity.Address" />
                     </Field>
                     <Field>
                         <FieldLabel>V.Dairesi</FieldLabel>
                         <TextEdit @bind-Text="EditingEntity.TaxDep" />
-                    </Field>
-                    <Field>
-                        <FieldLabel>V.No</FieldLabel>
-                        <TextEdit @bind-Text="EditingEntity.TaxNumber" />
                     </Field>
                     <Field>
                         <FieldLabel>Tip</FieldLabel>
@@ -270,6 +202,7 @@
 {
     private ClientDto infoEntity;
     private bool infoOpen;
+    private bool isCreateModalOpen;
 
     private bool isRelated;
     private ClientDto parentClient { get; set; }
@@ -305,7 +238,8 @@
         if (await ficheService.HasAnyFiches(context.Id))
         {
             await Message.Warn("Bu müşteriye ait kayıtlar olduğu için silinemez.", "Uyarı!");
-        } else
+        }
+        else
         {
             await DeleteEntityAsync(context);
         }
@@ -319,7 +253,19 @@
         StateHasChanged();
     }
 
-    private void OnRelationChanged( bool val )
+    private void CreateModalOpen()
+    {
+        isCreateModalOpen = true;
+        StateHasChanged();
+    }
+
+    private void OnCreateDialogClose(bool accepted)
+    {
+        isCreateModalOpen = false;
+        StateHasChanged();
+    }
+
+    private void OnRelationChanged(bool val)
     {
         isRelated = val;
         if (!val) parentClient = null;
@@ -375,6 +321,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        isCreateModalOpen = false;
         parentClient = null;
         infoOpen = false;
         Entities = await AppService.GetListSearchAsync(searchText);

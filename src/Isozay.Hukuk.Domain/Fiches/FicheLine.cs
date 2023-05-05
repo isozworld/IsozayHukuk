@@ -18,10 +18,11 @@ namespace Isozay.Hukuk.Fiches
         public decimal VatTotal { get; set; }
         public decimal TrCurr { get; set; }
         public long CurrencyId { get; set; }
+        public string Description { get; set; }
         public Currency Currency { get; set; }
         public FicheType FicheType { get; set; }
         public char IO { get; set; }
         public long ItemId { get; set; }
-                public Items.Item Item { get; set; }
+        public Items.Item Item { get; set; }
     }
 }

@@ -77,6 +77,12 @@ namespace Isozay.Hukuk.Clients
 			return ObjectMapper.Map<List<Client>, List<ClientDto>>(results);
 		}
 
+        public async Task<bool> isUsed(string s)
+        {
+            var r = (await Repository.GetQueryableAsync()).ToList().Where(x => x.IdNumber == s);
+            return r.Any();
+        }
+
         [Authorize(HukukPermissions.Clients.Create)]
         public async Task<ClientTranDto> CreateClientTran (FicheDto c)
 		{

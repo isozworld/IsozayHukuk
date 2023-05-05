@@ -19,6 +19,7 @@ namespace Isozay.Hukuk.Fiches
         public long CurrencyId { get; set; }
         public CurrencyDto Currency { get; set; }
         public FicheType FicheType { get; set; }
+        public string Description { get; set; }
         public char IO { get; set; }
         public long ItemId { get; set; }
         public Items.ItemDto Item { get; set; }

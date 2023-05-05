@@ -5,102 +5,137 @@
 @inherits AbpCrudPageBase<IClientService, ClientDto, long, PagedAndSortedResultRequestDto, CreateUpdateClientDto>
 
 <Modal class="modal fade show" id="ClientCreate" style="display: block; background-color:rgba(10,10,10,.8)">
-	<ModalContent Centered IsCentered="true">
-		<Form class="modal-content">
-			<ModalHeader>
-				<ModalTitle>@L["Yeni Müşteri/Müvekkil"]</ModalTitle>
-				<CloseButton @onclick="ModalCancel" />
-			</ModalHeader>
-			<ModalBody>
-                <Validations @ref="@CreateValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
-                    <Validation Validator="@ValidationRule.IsNotEmpty" MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>Ad Soyad/Unvan</FieldLabel>
-                            <TextEdit @bind-Text="NewEntity.Name">
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-                    <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>Telefon</FieldLabel>
-                            <TextEdit @bind-Text="NewEntity.Phone" />
-                        </Field>
-                    </Validation>
-                    <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>Faks</FieldLabel>
-                            <TextEdit @bind-Text="NewEntity.Fax" />
-                        </Field>
-                    </Validation>
-                    <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>Adres</FieldLabel>
-                            <MemoEdit @bind-Text="NewEntity.Address" />
-                        </Field>
-                    </Validation>
-                    <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>V.Dairesi</FieldLabel>
-                            <TextEdit @bind-Text="NewEntity.TaxDep" />
-                        </Field>
-                    </Validation>
-                    <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>V.No</FieldLabel>
-                            <TextEdit @bind-Text="NewEntity.TaxNumber" />
-                        </Field>
-                    </Validation>
-                    <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>Tip</FieldLabel>
-                            <Select TValue="ClientType" @bind-SelectedValue="@NewEntity.ClientType">
-                                @foreach (ClientType ClientTypeValue in Enum.GetValues(typeof(ClientType)))
-                                {
-                                    <SelectItem TValue="ClientType" Value="@((ClientType) ClientTypeValue)">
-                                        @ClientTypeValue.GetDisplayName()
-                                    </SelectItem>
-                                }
-                            </Select>
-                        </Field>
-                    </Validation>
-                    <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>İlişkilendirme</FieldLabel>
-                            <Check TValue="bool" Checked="@isRelated" CheckedChanged="@OnRelationChanged">Bu müvekkil ilişkilendirsin</Check>
-                        </Field>
-                    </Validation>
-                    @if (isRelated)
-                    {
-                        <Validation Validator="@ValidationRule.IsNotEmpty" MessageLocalizer="@LH.Localize">
+    <ModalContent Centered IsCentered="true">
+        <Form class="modal-content">
+            <ModalHeader>
+                <ModalTitle>@L["Yeni Müşteri - Müvekkil"]</ModalTitle>
+                <CloseButton @onclick="ModalCancel" />
+            </ModalHeader>
+            <ModalBody>
+                <Row>
+                    <Column>
+                        <Validations ValidateOnLoad="false">
+                            <Validation Validator="@ValidationRule.IsNotEmpty" MessageLocalizer="@LH.Localize">
+                                <Field>
+                                    <FieldLabel>Ad Soyad/Unvan</FieldLabel>
+                                    <TextEdit @bind-Text="NewEntity.Name">
+                                        <Feedback>
+                                            <ValidationError />
+                                        </Feedback>
+                                    </TextEdit>
+                                </Field>
+                            </Validation>
                             <Field>
-                                <FieldLabel>İlişkili Müvekkil</FieldLabel>
-                                <ClientSearch Selected="parentClient" SelectedChanged="@parentClientChanged" DisableCreate="true" />
+                                <FieldLabel>Kimlik Tipi</FieldLabel>
+                                <Select TValue="ClientIdentifier" @bind-SelectedValue="@NewEntity.ClientIdentifier">
+                                    @foreach (ClientIdentifier ClientIdentifierValue in Enum.GetValues(typeof(ClientType)))
+                                    {
+                                        <SelectItem TValue="ClientIdentifier" Value="@((ClientIdentifier) ClientIdentifierValue)">
+                                            @ClientIdentifierValue.GetDisplayName()
+                                        </SelectItem>
+                                    }
+                                </Select>
                             </Field>
-                            <Field>
-                                <FieldLabel>İlişki Açıklaması</FieldLabel>
-                                <TextEdit @bind-Text="@relationDescription" />
-                            </Field>
-                        </Validation>
-                    }
-                </Validations>
-			</ModalBody>
-			<ModalFooter>
-				<Button Color="Blazorise.Color.Secondary"
-						@onclick="ModalCancel">
-					İptal
-				</Button>
-				<Button Color="Blazorise.Color.Primary"
-						Type="@Blazorise.ButtonType.Submit"
-						PreventDefaultOnSubmit="true"
-						@onclick="ModalOk">
-					Kaydet
-				</Button>
-			</ModalFooter>
-		</Form>
-	</ModalContent>
+                            @if (NewEntity.ClientIdentifier == ClientIdentifier.VKN)
+                            {
+                                <Validation Validator="@ValidateIdNumber">
+                                    <Field>
+                                        <FieldLabel>Vergi No</FieldLabel>
+                                        <TextEdit @bind-Text="NewEntity.IdNumber" />
+                                    </Field>
+                                </Validation>
+                                <Field>
+                                    <FieldLabel>V. Dairesi</FieldLabel>
+                                    <TextEdit @bind-Text="NewEntity.TaxDep" />
+                                </Field>
+                            }
+                            @if (NewEntity.ClientIdentifier == ClientIdentifier.TCKN)
+                            {
+                                <Validation Validator="@ValidateIdNumber">
+                                    <Field>
+                                        <FieldLabel>TC Kimlik No</FieldLabel>
+                                        <TextEdit @bind-Text="NewEntity.IdNumber" />
+                                    </Field>
+                                </Validation>
+                            }
+                            <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
+                                <Field>
+                                    <FieldLabel>Telefon</FieldLabel>
+                                    <TextEdit @bind-Text="NewEntity.Phone" />
+                                </Field>
+                            </Validation>
+                        </Validations>
+                    </Column>
+                    <Column>
+                        <Validations>
+                            <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
+                                <Field>
+                                    <FieldLabel>Faks</FieldLabel>
+                                    <TextEdit @bind-Text="NewEntity.Fax" />
+                                </Field>
+                            </Validation>
+                            <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
+                                <Field>
+                                    <FieldLabel>Adres</FieldLabel>
+                                    <MemoEdit @bind-Text="NewEntity.Address" />
+                                </Field>
+                            </Validation>
+                            <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
+                                <Field>
+                                    <FieldLabel>E-Posta</FieldLabel>
+                                    <TextEdit @bind-Text="NewEntity.Mail" />
+                                </Field>
+                            </Validation>
+                            <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
+                                <Field>
+                                    <FieldLabel>Tip</FieldLabel>
+                                    <Select TValue="ClientType" @bind-SelectedValue="@NewEntity.ClientType">
+                                        @foreach (ClientType ClientTypeValue in Enum.GetValues(typeof(ClientType)))
+                                        {
+                                            <SelectItem TValue="ClientType" Value="@((ClientType) ClientTypeValue)">
+                                                @ClientTypeValue.GetDisplayName()
+                                            </SelectItem>
+                                        }
+                                    </Select>
+                                </Field>
+                            </Validation>
+                            <Validation Validator="@ValidationRule.None" MessageLocalizer="@LH.Localize">
+                                <Field>
+                                    <FieldLabel>İlişkilendirme</FieldLabel>
+                                    <Check TValue="bool" Checked="@isRelated" CheckedChanged="@OnRelationChanged">Bu müvekkil ilişkilendirsin</Check>
+                                </Field>
+                            </Validation>
+                            @if (isRelated)
+                            {
+                                <Validation Validator="@ValidationRule.IsNotEmpty" MessageLocalizer="@LH.Localize">
+                                    <Field>
+                                        <FieldLabel>İlişkili Müvekkil</FieldLabel>
+                                        <ClientSearch Selected="parentClient" SelectedChanged="@parentClientChanged" DisableCreate="true" />
+                                    </Field>
+                                    <Field>
+                                        <FieldLabel>İlişki Açıklaması</FieldLabel>
+                                        <TextEdit @bind-Text="@relationDescription" />
+                                    </Field>
+                                </Validation>
+                            }
+                        </Validations>
+                    </Column>
+                </Row>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Blazorise.Color.Secondary"
+                        @onclick="ModalCancel">
+                    İptal
+                </Button>
+                <Button Color="Blazorise.Color.Primary"
+                        Type="@Blazorise.ButtonType.Submit"
+                        PreventDefaultOnSubmit="true"
+                        @onclick="ModalOk">
+                    Kaydet
+                </Button>
+            </ModalFooter>
+        </Form>
+    </ModalContent>
 </Modal>
 
 
@@ -123,6 +158,14 @@
         StateHasChanged();
     }
 
+    protected override async Task OnInitializedAsync()
+    {
+        isRelated = false;
+        relationDescription = "";
+        parentClient = null;
+        await base.OnInitializedAsync();
+    }
+
     private void parentClientChanged(ClientDto dto)
     {
         parentClient = dto;
@@ -134,12 +177,24 @@
         if (isRelated)
         {
             AppService.CreateClientRelation(NewEntity, parentClient.Id, relationDescription);
+            return ModalCancel();
         }
         else
         {
             CreateEntityAsync();
+            return ModalCancel();
         }
-        return ModalCancel();
+    }
+
+    void ValidateIdNumber(ValidatorEventArgs e)
+    {
+        var id = Convert.ToString(e.Value);
+        if (NewEntity.ClientIdentifier == ClientIdentifier.TCKN)
+            e.Status = string.IsNullOrEmpty(id) ? ValidationStatus.None :
+                id.Length == 11 ? ValidationStatus.Success : ValidationStatus.Error;
+        else
+            e.Status = string.IsNullOrEmpty(id) ? ValidationStatus.None :
+                id.Length == 10 ? ValidationStatus.Success : ValidationStatus.Error;
     }
 }
 

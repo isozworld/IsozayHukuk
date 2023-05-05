@@ -26,6 +26,7 @@ namespace Isozay.Hukuk.Clients
         public Task<ClientRelationDto> CreateClientRelation(CreateUpdateClientDto c, long ParentId, string desc);
         Task<ClientRelationDto> getParentRelation(long id);
         Task UpdateClientAndRelation(CreateUpdateClientDto c, long childId, long newParentId, string newDescription, bool hadParentBefore);
+        Task<bool> isUsed(string s);
         //public Task<string> getClientName(long id);
     }
 }

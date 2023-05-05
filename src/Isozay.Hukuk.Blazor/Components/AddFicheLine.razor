@@ -22,29 +22,24 @@
             <ModalBody>
                 <Validations Model="@ficheLine" ValidateOnLoad="false">
                     <Field>
-                        <FieldLabel>UnitPrice</FieldLabel>
+                        <FieldLabel>Birim Fiyat</FieldLabel>
                         <NumericEdit @bind-Value="@UnitPrice" />
                     </Field>
                     <Field>
-                        <FieldLabel>FicheQuantity</FieldLabel>
-                        <NumericEdit @bind-Value="@FicheQuantity"> </NumericEdit>
-                        @*<NumericPicker @bind-Value="@FicheQuantity"></NumericPicker>*@
+                        <FieldLabel>Miktar</FieldLabel>
+                        <NumericEdit @bind-Value="@FicheQuantity" />
                     </Field>
-                    @*<Field>
-                        <FieldLabel>FicheAmount</FieldLabel>
-                        <NumericEdit @bind-Value="@FicheAmount" />
-                    </Field>*@
                     <Field>
-                        <FieldLabel>Vat</FieldLabel>
+                        <FieldLabel>KDV</FieldLabel>
                         <NumericEdit @bind-Value="@Vat" />
                     </Field>
-                    @*<Field>
-                        <FieldLabel>VatTotal</FieldLabel>
-                        <NumericEdit @bind-Value="@VatTotal" />
-                    </Field>*@
                     <Field>
                         <FieldLabel>Stok / Dava</FieldLabel>
                         <ItemSearch Selected="@selectedItem" SelectedChanged="selectedItemChange" />
+                    </Field>
+                    <Field>
+                        <FieldLabel>Açıklama</FieldLabel>
+                        <TextEdit @bind-Text="Description" />
                     </Field>
                 </Validations>
             </ModalBody>
@@ -75,6 +70,7 @@
     private decimal FicheAmount { get; set; }
     private decimal Vat { get; set; }
     private decimal VatTotal { get; set; }
+    private string Description { get; set; }
 
 
 
@@ -124,6 +120,7 @@
         ficheLine.Item = selectedItem;
         ficheLine.CurrencyId = 1;
         ficheLine.TrCurr = 0;
+        ficheLine.Description = Description;
 
         return OnClick.InvokeAsync(ficheLine);
     }
