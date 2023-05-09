@@ -18,15 +18,14 @@ namespace Isozay.Hukuk.Clients
             CreateUpdateClientDto> //Used to create/update a book
            
     {
-        public Task<IReadOnlyList<ClientDto>> Search(string searchText);
-        public Task<IReadOnlyList<ClientDto>> GetListSearchAsync(string searchText);
-        public Task<ClientTranDto> CreateClientTran(FicheDto c);
-        public Task<ClientTranDto> CreateClientTran(SafeTranDto c);
-        public Task<List<ClientTranDto>> GetClientTranDtoHistory(long id, bool childIncluded);
-        public Task<ClientRelationDto> CreateClientRelation(CreateUpdateClientDto c, long ParentId, string desc);
+        Task<IReadOnlyList<ClientDto>> Search(string searchText);
+        Task<IReadOnlyList<ClientDto>> GetListSearchAsync(string searchText);
+        Task<ClientTranDto> CreateClientTran(FicheDto c);
+        Task<ClientTranDto> CreateClientTran(SafeTranDto c, char p);
+        Task<List<ClientTranDto>> GetClientTranDtoHistory(long id, bool childIncluded, string selectedSafeName = "Tümü");
+        Task<ClientRelationDto> CreateClientRelation(CreateUpdateClientDto c, long ParentId, string desc);
         Task<ClientRelationDto> getParentRelation(long id);
         Task UpdateClientAndRelation(CreateUpdateClientDto c, long childId, long newParentId, string newDescription, bool hadParentBefore);
         Task<bool> isUsed(string s);
-        //public Task<string> getClientName(long id);
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Isozay.Hukuk.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -11,9 +12,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Isozay.Hukuk.Migrations
 {
     [DbContext(typeof(HukukDbContext))]
-    partial class HukukDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230505134323_BureauSafeFix3")]
+    partial class BureauSafeFix3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -180,9 +182,6 @@ namespace Isozay.Hukuk.Migrations
 
                     b.Property<long?>("FicheId")
                         .HasColumnType("bigint");
-
-                    b.Property<string>("FicheNo")
-                        .HasColumnType("longtext");
 
                     b.Property<int>("FicheType")
                         .HasColumnType("int");
@@ -554,9 +553,6 @@ namespace Isozay.Hukuk.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("ExtraProperties");
 
-                    b.Property<long?>("FicheId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("IO")
                         .IsRequired()
                         .HasColumnType("varchar(1)");
@@ -587,8 +583,6 @@ namespace Isozay.Hukuk.Migrations
                     b.HasIndex("ClientId");
 
                     b.HasIndex("CurrencyId");
-
-                    b.HasIndex("FicheId");
 
                     b.HasIndex("SafeId");
 
@@ -2591,10 +2585,6 @@ namespace Isozay.Hukuk.Migrations
                         .WithMany()
                         .HasForeignKey("CurrencyId");
 
-                    b.HasOne("Isozay.Hukuk.Fiches.Fiche", "Fiche")
-                        .WithMany()
-                        .HasForeignKey("FicheId");
-
                     b.HasOne("Isozay.Hukuk.Safes.Safe", "Safe")
                         .WithMany()
                         .HasForeignKey("SafeId")
@@ -2604,8 +2594,6 @@ namespace Isozay.Hukuk.Migrations
                     b.Navigation("Client");
 
                     b.Navigation("Currency");
-
-                    b.Navigation("Fiche");
 
                     b.Navigation("Safe");
                 });

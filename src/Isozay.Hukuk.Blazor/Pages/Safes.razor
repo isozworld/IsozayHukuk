@@ -21,16 +21,20 @@
 				{
                     <Dropdown>
                         <DropdownToggle Color="Color.Primary">
-                            New Transaction
+                            Kasa İşlemleri
                         </DropdownToggle>
                         <DropdownMenu>
-                            <DropdownItem Clicked="OpenCreateModalAsync">New Safe</DropdownItem>
+                            <DropdownItem Clicked="OpenCreateModalAsync">Yeni Kasa</DropdownItem>
                             <DropdownDivider />
-                            <DropdownItem Clicked="() => OpenClientSafeTransModal()">Client - Safe</DropdownItem>
+                            <DropdownItem Clicked="() => OpenClientSafeTransModal()">Şahıstan Kasaya Para Yatırma</DropdownItem>
                             <DropdownDivider />
-                            <DropdownItem Clicked="() => OpenSafeSafeTransModal()">Safe - Safe</DropdownItem>
+                            <DropdownItem Clicked="() => OpenSafeSafeTransModal()">Kasadan Kasaya Para Transferi</DropdownItem>
                             <DropdownDivider />
-                            <DropdownItem Clicked="() => OpenSafeExpTransModal()">Safe Expense</DropdownItem>
+                            <DropdownItem Clicked="() => OpenSafeExpTransModal()">Kasadan Harcama</DropdownItem>
+                            <DropdownDivider />
+                            <DropdownItem Clicked="() => OpenClientExpTransModal()">Şahıstan Harcama</DropdownItem>
+                            <DropdownDivider />
+                            <DropdownItem Clicked="() => OpenClientLendModal()">Şahısa Emanet Verme</DropdownItem>
                         </DropdownMenu>
                     </Dropdown>
 				}
@@ -72,12 +76,6 @@
                 <DataGridColumn TItem="SafeDto"
                                 Field="@nameof(SafeDto.Description)"
                                 Caption="Açıklama"></DataGridColumn>
-                @*<DataGridColumn TItem="SafeDto"
-                                Caption="Bakiye">
-                    <DisplayTemplate>
-                        @AppService.getSafeValue(context.Id).Result
-                    </DisplayTemplate>
-                </DataGridColumn>*@
                 <DataGridColumn TItem="SafeDto"
                                 Field="@nameof(SafeDto.CurrencyId)"
                                 Caption="Döviz Tipi">
@@ -113,6 +111,16 @@
         {
             <SafeTranHistory entity="@infoEntity" OnClose="OnSafeTransHistoryModalClose" />
         }
+
+        @if (ClientExpTransOpen)
+        {
+            <ClientExpTransfer OnClose="OnClientExpTransModalClose" />
+        }
+
+        @if (ClientLendOpen)
+        {
+            <ClientLendTransfer OnClose="OnClientLendModalClose"/>
+        }
     </CardBody>
 </Card>
  
@@ -126,34 +134,44 @@
 				<CloseButton Clicked="CloseCreateModalAsync"/>
 			</ModalHeader>
 			<ModalBody>
-				<Validations @ref="@CreateValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
-					<Validation >
-						<Field>
-							<FieldLabel>Kasa Adı</FieldLabel>
-							<TextEdit @bind-Text="@NewEntity.Name">
-								<Feedback>
-									<ValidationError/>
-								</Feedback>
-							</TextEdit>
-						</Field>
-					</Validation>
-					<Field>
-						<FieldLabel>Açıklama</FieldLabel>
-						<TextEdit   @bind-Text="NewEntity.Description"/>
-					</Field>
-					<Field>
-						<FieldLabel>Döviz Tipi</FieldLabel>
-
-						<Select TValue="long" @bind-SelectedValue="@NewEntity.CurrencyId">
-							@foreach (var author in currencies)
-							{
-								<SelectItem TValue="long" Value="@author.Id">
-									@author.Name
-								</SelectItem>
-							}
-						</Select>
-					</Field>
-				</Validations>
+                <Validations @ref="@CreateValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
+                    <Validation>
+                        <Field>
+                            <FieldLabel>Kasa Adı</FieldLabel>
+                            <TextEdit @bind-Text="@NewEntity.Name">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+                    <Field>
+                        <FieldLabel>Açıklama</FieldLabel>
+                        <TextEdit @bind-Text="NewEntity.Description" />
+                    </Field>
+                    <Field>
+                        <FieldLabel>Döviz Tipi</FieldLabel>
+                        <Select TValue="long" @bind-SelectedValue="@NewEntity.CurrencyId">
+                            @foreach (var author in currencies)
+                            {
+                                <SelectItem TValue="long" Value="@author.Id">
+                                    @author.Name
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+                    <Field>
+                        <FieldLabel>Kasa Tipi</FieldLabel>
+                        <Select TValue="SafeType" @bind-SelectedValue="@NewEntity.SafeType">
+                            @foreach (SafeType SafeTypeValue in Enum.GetValues(typeof(SafeType)))
+                            {
+                                <SelectItem TValue="SafeType" Value="@((SafeType) SafeTypeValue)">
+                                    @SafeTypeValue.GetDisplayName()
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+                </Validations>
 			</ModalBody>
 			<ModalFooter>
 				<Button Color="Blazorise.Color.Secondary"
@@ -179,33 +197,44 @@
 				<CloseButton Clicked="CloseEditModalAsync"/>
 			</ModalHeader>
 			<ModalBody>
-				<Validations @ref="@EditValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
-					<Validation>
-						<Field>
-							<FieldLabel>Kasa Adı</FieldLabel>
-							<TextEdit @bind-Text="@EditingEntity.Name">
-								<Feedback>
-									<ValidationError/>
-								</Feedback>
-							</TextEdit>
-						</Field>
-					</Validation>
-					<Field>
-						<FieldLabel>Açıklama</FieldLabel>
-						<TextEdit @bind-Text="EditingEntity.Description"/>
-					</Field>
-					<Field>
-						<FieldLabel>Döviz Tipi</FieldLabel>
-						<Select TValue="long" @bind-SelectedValue="@EditingEntity.CurrencyId">
-							@foreach (var author in currencies)
-							{
-								<SelectItem TValue="long" Value="@author.Id">
-									@author.Name
-								</SelectItem>
-							}
-						</Select>
-					</Field> 
-				</Validations>
+                <Validations @ref="@EditValidationsRef" Model="@NewEntity" ValidateOnLoad="false">
+                    <Validation>
+                        <Field>
+                            <FieldLabel>Kasa Adı</FieldLabel>
+                            <TextEdit @bind-Text="@EditingEntity.Name">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+                    <Field>
+                        <FieldLabel>Açıklama</FieldLabel>
+                        <TextEdit @bind-Text="EditingEntity.Description" />
+                    </Field>
+                    <Field>
+                        <FieldLabel>Döviz Tipi</FieldLabel>
+                        <Select TValue="long" @bind-SelectedValue="@EditingEntity.CurrencyId">
+                            @foreach (var curr in currencies)
+                            {
+                                <SelectItem TValue="long" Value="@curr.Id">
+                                    @curr.Name
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+                    <Field>
+                        <FieldLabel>Kasa Tipi</FieldLabel>
+                        <Select TValue="SafeType" @bind-SelectedValue="@EditingEntity.SafeType">
+                            @foreach (SafeType SafeTypeValue in Enum.GetValues(typeof(SafeType)))
+                            {
+                                <SelectItem TValue="SafeType" Value="@((SafeType) SafeTypeValue)">
+                                    @SafeTypeValue.GetDisplayName()
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+                </Validations>
 			</ModalBody>
 			<ModalFooter>
 				<Button Color="Blazorise.Color.Secondary"
@@ -232,6 +261,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        ClientLendOpen = false;
+        ClientExpTransOpen = false;
         ClientSafeTransOpen = false;
         SafeSafeTransOpen = false;
         SafeExpTransOpen = false;
@@ -251,10 +282,25 @@
         SafeTransHistoryOpen = true;
     }
 
+    private void UpdateSafe()
+    {
+        if (EditingEntity.SafeType == SafeType.Undefined) Message.Warn("Lütfen kasa tipi seçiniz.", "Uyarı");
+        else UpdateEntityAsync();
+    }
+
+    private void CreateSafe()
+    {
+        if (NewEntity.SafeType == SafeType.Undefined) Message.Warn("Lütfen kasa tipi seçiniz.", "Uyarı");
+        else CreateEntityAsync();
+    }
+
     private bool ClientSafeTransOpen;
     private bool SafeSafeTransOpen;
     private bool SafeExpTransOpen;
     private bool SafeTransHistoryOpen;
+    private bool ClientExpTransOpen;
+    private bool ClientLendOpen;
+
 
     private void OpenClientSafeTransModal()
     {
@@ -292,6 +338,18 @@
         StateHasChanged();
     }
 
+    private void OpenClientExpTransModal()
+    {
+        ClientExpTransOpen = true;
+        StateHasChanged();
+    }
+
+    private void OnClientExpTransModalClose()
+    {
+        ClientExpTransOpen = false;
+        StateHasChanged();
+    }
+
     private void OpenSafeTransHistoryModal()
     {
         SafeTransHistoryOpen = true;
@@ -301,6 +359,18 @@
     private void OnSafeTransHistoryModalClose()
     {
         SafeTransHistoryOpen = false;
+        StateHasChanged();
+    }
+
+    private void OpenClientLendModal()
+    {
+        ClientLendOpen = true;
+        StateHasChanged();
+    }
+
+    private void OnClientLendModalClose()
+    {
+        ClientLendOpen = false;
         StateHasChanged();
     }
 

@@ -1,4 +1,4 @@
-﻿@page "/clients"
+@page "/clients"
 @attribute [Authorize(HukukPermissions.Clients.Default)]
 @using Isozay.Hukuk.Permissions
 @using Microsoft.AspNetCore.Authorization
@@ -44,7 +44,7 @@
                     <DisplayTemplate>
                         <EntityActions TItem="ClientDto" EntityActionsColumn="@EntityActionsColumn">
                             <EntityAction TItem="ClientDto"
-                                          Text="Info"
+                                          Text="Bilgi"
                                           RequiredPolicy="@UpdatePolicyName"
                                           Clicked="() => OpenInfoModal(context)" />
                             <EntityAction TItem="ClientDto"
@@ -220,18 +220,18 @@
         DeletePolicyName = HukukPermissions.Clients.Delete;
     }
 
-    private async void CreateClient()
-    {
-        if (isRelated)
-        {
-            await AppService.CreateClientRelation(NewEntity, parentClient.Id, relationDescription);
-        }
-        else
-        {
-            await CreateEntityAsync();
-        }
-        await CloseCreateModalAsync();
-    }
+    //private async void CreateClient()
+    //{
+    //    if (isRelated)
+    //    {
+    //        await AppService.CreateClientRelation(NewEntity, parentClient.Id, relationDescription);
+    //    }
+    //    else
+    //    {
+    //        await CreateEntityAsync();
+    //    }
+    //    await CloseCreateModalAsync();
+    //}
 
     private async void DeleteConfirmation(ClientDto context)
     {
@@ -250,12 +250,6 @@
         relationDescription = "";
         isRelated = false;
         parentClient = null;
-        StateHasChanged();
-    }
-
-    private void CreateModalOpen()
-    {
-        isCreateModalOpen = true;
         StateHasChanged();
     }
 
@@ -299,6 +293,12 @@
             editRelationDescription = "";
             StateHasChanged();
         }
+    }
+
+    private void CreateModalOpen()
+    {
+        isCreateModalOpen = true;
+        StateHasChanged();
     }
 
     private async void OnEditModalConfirmed()

@@ -25,4 +25,7 @@
     <Content Remove="**\*generate-proxy.json" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Blazorise.DataGrid" />
+  </ItemGroup>
 </Project>

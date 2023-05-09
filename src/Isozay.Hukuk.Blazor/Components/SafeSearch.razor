@@ -68,6 +68,8 @@
     public SafeDto Selected { get; set; }
     [Parameter]
     public EventCallback<SafeDto> SelectedChanged { get; set; }
+    [Parameter]
+    public SafeType safeType { get; set; }
     public Task ShowList() => Task.CompletedTask;
 
     public bool CreateDialogOpen { get; set; }
@@ -101,7 +103,8 @@
 
     private async Task<IEnumerable<SafeDto>> SearchSafe(string searchText)
     {
-        return await safeService.Search(searchText);
+        if (safeType == SafeType.Undefined) return await safeService.Search(searchText);
+        else return (await safeService.Search(searchText)).Where(x => x.SafeType == safeType);
     }
 
 }

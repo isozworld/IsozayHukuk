@@ -8,6 +8,7 @@ namespace Isozay.Hukuk.Safes
     {
         public Guid? TenantId { get; set; }
         public string Name { get; set; }
+        public SafeType SafeType { get; set; }
         public string Description { get; set; }
         public long CurrencyId { get; set; } = 1;
     }

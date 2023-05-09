@@ -10,6 +10,7 @@ namespace Isozay.Hukuk.Clients
         public Guid? TenantId { get; set; }
         public FicheType FicheType { get; set; }
         public long? FicheId { get; set; }
+        public string? FicheNo { get; set; }
         public long ClientId { get; set; }
         public long? SafeId { get; set; }
         public DateTime TransactionDate { get; set; }

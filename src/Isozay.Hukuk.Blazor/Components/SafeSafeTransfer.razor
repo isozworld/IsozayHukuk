@@ -145,11 +145,11 @@
         safeTranDto.Description = selectedSafeDest.Name + " - " + desc;
         safeTranDto.SafeId = selectedSafeSour.Id;
         safeTranDto.IO = 'O';
-        safeService.CreateSafeTran(safeTranDto);
+        safeService.MakeSafeTransfer(safeTranDto);
         safeTranDto.Description = selectedSafeSour.Name + " - " + desc;
         safeTranDto.SafeId = selectedSafeDest.Id;
         safeTranDto.IO = 'I';
-        safeService.CreateSafeTran(safeTranDto);
+        safeService.MakeSafeTransfer(safeTranDto);
 
 
         return OnClose.InvokeAsync(true);

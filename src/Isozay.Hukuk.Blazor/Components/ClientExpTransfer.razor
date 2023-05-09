@@ -9,43 +9,27 @@
 
 @inject Volo.Abp.AspNetCore.Components.Messages.IUiMessageService Messages
 @inject Currencies.ICurrencyService currencyService
+@inject IClientService clientService
 @inject Safes.ISafeService safeService
-@inject Fiches.IFicheService fichService
-@inject Clients.IClientService clientService
 @inject IJSRuntime JSRuntime
 
-<Modal class="modal fade show" id="ClientSafeTransModal" style="display: block; background-color:rgba(10,10,10,.5)">
+<Modal class="modal fade show" id="SafeExpTranModal" style="display: block; background-color:rgba(10,10,10,.5)">
     <ModalContent Centered Size="ModalSize.ExtraLarge">
         <Form>
             <ModalHeader>
-                <ModalTitle>Client - Safe Transfer</ModalTitle>
+                <ModalTitle>Şahıs Hesabından Harcama</ModalTitle>
                 <CloseButton Clicked="ModalCancel" />
             </ModalHeader>
             <ModalBody>
 
-                <Row>
+                <Row TextAlignment="TextAlignment.Center" Style="display: flex; justify-content: center; align-items: center">
                     <Column ColumnSize="ColumnSize.Is5">
                         <Alert Color="Color.Warning" Visible>
 
                             <div class="form-group row">
-                                <label class="col-form-label col-3 text-lg-right text-left">Client</label>
+                                <label class="col-form-label col-3 text-lg-right text-left">Müşteri - Müvekkil</label>
                                 <div class="col-9">
-                                    <ClientSearch Selected="@selectedClient" SelectedChanged="@clientSelectedChanged" />
-                                </div>
-                            </div>
-
-                        </Alert>
-                    </Column>
-                    <Column TextAlignment="TextAlignment.Center" ColumnSize="ColumnSize.Is2" Style="display: flex; justify-content: center">
-                        <Icon Style="align-self:center" Name="IconName.ArrowRight" IconSize="IconSize.x3" />
-                    </Column>
-                    <Column ColumnSize="ColumnSize.Is5">
-                        <Alert Color="Color.Dark" Visible>
-
-                            <div class="form-group row">
-                                <label class="col-form-label col-3 text-lg-right text-left">Safe</label>
-                                <div class="col-9">
-                                    <SafeSearch Selected="@selectedSafe" SelectedChanged="@safeSelectedChanged" safeType="SafeType.Undefined"/>
+                                    <ClientSearch Selected="@selectedClient" SelectedChanged="@clientSelectedChanged" DisableCreate="true" />
                                 </div>
                             </div>
 
@@ -60,7 +44,7 @@
                             <div class="form-group row">
                                 <label class="col-form-label col-3 text-lg-right text-left">Döviz Tipi</label>
                                 <div class="col-9">
-                                    <Select Size="Size.Medium" TValue="long" @bind-SelectedValue="safeTranDto.CurrencyId" Class="form-control-lg form-control-solid">
+                                    <Select Size="Size.Medium" TValue="long" @bind-SelectedValue="clientTranDto.CurrencyId" Class="form-control-lg form-control-solid">
                                         @foreach (var author in currencies)
                                         {
                                             <SelectItem TValue="long" Value="@author.Id">
@@ -82,30 +66,37 @@
                             }
 
                             <div class="form-group row">
+                                <label class="col-form-label col-3 text-lg-right text-left">Safe</label>
+                                <div class="col-9">
+                                    <SafeSearch Selected="@selectedSafe" SelectedChanged="@safeSelectedChanged" safeType="SafeType.Other" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
                                 <label class="col-form-label col-3 text-lg-right text-left">Miktar</label>
                                 <div class="col-9">
-                                    <NumericEdit Size="Size.Medium" @bind-Value="safeTranDto.Amount" Class="form-control-lg form-control-solid" />
+                                    <NumericEdit Size="Size.Medium" @bind-Value="clientTranDto.Amount" Class="form-control-lg form-control-solid" />
                                 </div>
                             </div>
 
                             <div class="form-group row">
                                 <label class="col-form-label col-3 text-lg-right text-left">TL Kuru</label>
                                 <div class="col-9">
-                                    <NumericEdit Size="Size.Medium" @bind-Value="safeTranDto.TrRate" Class="form-control-lg form-control-solid" />
+                                    <NumericEdit Size="Size.Medium" @bind-Value="clientTranDto.TrRate" Class="form-control-lg form-control-solid" />
                                 </div>
                             </div>
 
                             <div class="form-group row">
                                 <label class="col-form-label col-3 text-lg-right text-left">Açıklama</label>
                                 <div class="col-9">
-                                    <TextEdit Size="Size.Medium" @bind-Text="safeTranDto.Description" Class="form-control-lg form-control-solid" />
+                                    <TextEdit Size="Size.Medium" @bind-Text="clientTranDto.Description" Class="form-control-lg form-control-solid" />
                                 </div>
                             </div>
 
                             <div class="form-group row">
                                 <label class="col-form-label col-3 text-lg-right text-left">İşlem Tarihi</label>
                                 <div class="col-9">
-                                    <DateEdit Size="Size.Medium" TValue="DateTime" @bind-Date="safeTranDto.TransactionDate" Class="form-control-lg form-control-solid" />
+                                    <DateEdit Size="Size.Medium" TValue="DateTime" @bind-Date="clientTranDto.TransactionDate" Class="form-control-lg form-control-solid" />
                                 </div>
                             </div>
 
@@ -130,26 +121,28 @@
 
 @code {
     IReadOnlyList<CurrencyDto> currencies = Array.Empty<CurrencyDto>();
-    private FicheDto selectedFiche { get; set; }
     private SafeDto selectedSafe { get; set; }
     private ClientDto selectedClient { get; set; }
+    private FicheDto selectedFiche { get; set; }
+
     [Parameter] public EventCallback<bool> OnClose { get; set; }
-    private CreateUpdateSafeTranDto safeTranDto;
 
     private void safeSelectedChanged(SafeDto dto) { selectedSafe = dto; }
 
     private void clientSelectedChanged(ClientDto dto) { selectedClient = dto; }
 
+    private void ficheSelectedChanged(FicheDto f) { selectedFiche = f; }
+
+    private ClientTranDto clientTranDto;
+    private CreateUpdateSafeTranDto safeTranDto;
+
     protected override async Task OnInitializedAsync()
     {
-        selectedClient = null;
-        safeTranDto = new CreateUpdateSafeTranDto();
+        clientTranDto = new ClientTranDto();
         currencies = (await currencyService.GetListAsync());
         await base.OnInitializedAsync();
         StateHasChanged();
     }
-
-    private void ficheSelectedChanged(FicheDto f) { selectedFiche = f; }
 
     private Task ModalCancel()
     {
@@ -158,13 +151,20 @@
 
     private Task ModalSave()
     {
-        safeTranDto.ClientId = selectedClient.Id;
-        safeTranDto.FicheId = selectedFiche.Id;
-        safeTranDto.SafeId = selectedSafe.Id;
-        safeTranDto.IO = 'I';
-        safeService.MakeClientSafeDeposit(safeTranDto);
-
+        safeTranDto = new CreateUpdateSafeTranDto
+        {
+            SafeId = selectedSafe.Id,
+            Amount = clientTranDto.Amount,
+            FicheId = selectedFiche.Id,
+            TrRate = clientTranDto.TrRate,
+            IO = 'O',
+            TransactionDate = clientTranDto.TransactionDate,
+            ClientId = selectedClient.Id,
+            Description = clientTranDto.Description
+        };
+        clientTranDto.IO = 'O';
+        clientTranDto.FicheNo = selectedFiche.FicheNo;
+        safeService.MakeClientSafeExpense(safeTranDto);
         return OnClose.InvokeAsync(true);
     }
 }
-

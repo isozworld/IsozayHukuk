@@ -1,5 +1,6 @@
 ﻿using Isozay.Hukuk.Clients;
 using Isozay.Hukuk.Currencies;
+using Isozay.Hukuk.Fiches;
 using System;
 using Volo.Abp.Application.Dtos;
 
@@ -16,6 +17,8 @@ namespace Isozay.Hukuk.Safes
         public CurrencyDto Currency { get; set; }
         public decimal TrRate { get; set; }
         public string Description { get; set; }
+        public FicheDto? Fiche { get; set; }
+        public long? FicheId { get; set; }
         public long? ClientId { get; set; }
         public ClientDto? Client { get; set; }
         public decimal Debt { get; set; }

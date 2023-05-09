@@ -30,10 +30,16 @@ namespace Isozay.Hukuk.Safes {
 	{
 
 		public readonly IRepository<SafeTran, long> _safeTranRepository;
+        public readonly IRepository<Fiche, long> _ficheRepository;
 
         private readonly ClientService _clientService;
 
-        public SafeService (IRepository<Safe, long> repository, IRepository<SafeTran, long> safeTranRepository, ClientService clientService) : base (repository) {
+        public SafeService (IRepository<Safe, long> repository,
+			IRepository<SafeTran, long> safeTranRepository,
+            IRepository<Fiche, long> ficheRepository,
+            ClientService clientService
+			) : base (repository) {
+			_ficheRepository = ficheRepository;
 			_clientService = clientService;
 			_safeTranRepository = safeTranRepository;
 			GetPolicyName = HukukPermissions.Safes.Default;
@@ -78,15 +84,33 @@ namespace Isozay.Hukuk.Safes {
 
         }
 
-        [Authorize (HukukPermissions.Safes.Create)]
-		public async Task<SafeTranDto> CreateSafeTran (CreateUpdateSafeTranDto s)
+        public async Task<SafeTranDto> MakeSafeTransfer(CreateUpdateSafeTranDto s)
+		{
+            var safeTran = ObjectMapper.Map<CreateUpdateSafeTranDto, SafeTran>(s);
+            await _safeTranRepository.InsertAsync(safeTran);
+            var rv = ObjectMapper.Map<SafeTran, SafeTranDto>(safeTran);
+            return rv;
+        }
+
+		public async Task<SafeTranDto> MakeClientSafeDeposit (CreateUpdateSafeTranDto s)
 		{
 			var safeTran = ObjectMapper.Map<CreateUpdateSafeTranDto, SafeTran>(s);
 			await _safeTranRepository.InsertAsync (safeTran);
 			var rv = ObjectMapper.Map<SafeTran, SafeTranDto> (safeTran);
-            if (rv.ClientId != null) await _clientService.CreateClientTran(rv);
+			rv.Fiche = ObjectMapper.Map<Fiche,FicheDto>(await _ficheRepository.GetAsync(rv.FicheId ?? default));
+            await _clientService.CreateClientTran(rv, 'O');
 			return rv;
 		}
+
+        public async Task<SafeTranDto> MakeClientSafeExpense(CreateUpdateSafeTranDto s)
+		{
+            var safeTran = ObjectMapper.Map<CreateUpdateSafeTranDto, SafeTran>(s);
+            await _safeTranRepository.InsertAsync(safeTran);
+            var rv = ObjectMapper.Map<SafeTran, SafeTranDto>(safeTran);
+            rv.Fiche = ObjectMapper.Map<Fiche, FicheDto>(await _ficheRepository.GetAsync(rv.FicheId ?? default));
+            await _clientService.CreateClientTran(rv, 'I');
+            return rv;
+        }
 
         public async Task<List<SafeTranDto>> GetSafeTransListAsync(long id)
 		{
@@ -94,6 +118,7 @@ namespace Isozay.Hukuk.Safes {
 			queryable = queryable
 				.Include(x => x.Client)
 				.Include(x => x.Safe)
+				.Include(x => x.Fiche)
 				.Where(x => x.SafeId == id);
 
 			var queryRequest = await AsyncExecuter.ToListAsync(queryable);
@@ -133,7 +158,7 @@ namespace Isozay.Hukuk.Safes {
 
 		}
 
-		public async Task<string> getSafeValue(long id)
+        public async Task<string> getSafeValue(long id)
 		{
 			decimal safeVal = 0;
 			var tranList = await GetSafeTransListAsync(id);
@@ -151,5 +176,7 @@ namespace Isozay.Hukuk.Safes {
 			if (id == null) return "";
 			else return (await Repository.GetAsync(id ?? default)).Name;
 		}
+
+		
 	}
 }

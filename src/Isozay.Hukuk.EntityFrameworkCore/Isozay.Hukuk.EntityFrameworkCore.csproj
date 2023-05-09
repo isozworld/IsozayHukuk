@@ -27,4 +27,7 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Blazorise.DataGrid" />
+  </ItemGroup>
 </Project>

@@ -1,5 +1,6 @@
 ﻿using Isozay.Hukuk.Clients;
 using Isozay.Hukuk.Currencies;
+using Isozay.Hukuk.Fiches;
 using System;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
@@ -17,6 +18,8 @@ namespace Isozay.Hukuk.Safes
         public long? CurrencyId { get; set; }
         public decimal TrRate { get; set; }
         public string Description { get; set; }
+        public Fiche? Fiche { get; set; }
+        public long? FicheId { get; set; }
         public Client? Client { get; set; }
         public long? ClientId { get; set; }
         public char IO { get; set; }

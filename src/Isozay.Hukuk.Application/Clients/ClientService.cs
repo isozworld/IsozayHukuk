@@ -39,13 +39,13 @@ namespace Isozay.Hukuk.Clients
         public ClientService(IRepository<Client, long> repository,
             IRepository<ClientTran, long> clientTranRepository,
             IRepository<ClientRelation, long> clientRelationRepository,
+            IRepository<Fiche,long> ficheRepository,
             IRepository<FicheLine, long> ficheLineRepository,
-            IRepository<Fiche, long> ficheRepository,
             IRepository<Safe, long> safeRepository)
 		: base(repository)
 		{
-            _safeRepository = safeRepository;
             _ficheRepository = ficheRepository;
+            _safeRepository = safeRepository;
             _ficheLineRepository = ficheLineRepository;
             _clientRelationRepository = clientRelationRepository;
 			_clientTranRepository = clientTranRepository;
@@ -60,7 +60,6 @@ namespace Isozay.Hukuk.Clients
 
 		public async Task<IReadOnlyList<ClientDto>> Search(string searchText)
 		{
-			Console.WriteLine($"______________________________{searchText}");
 			var r = await Repository.GetQueryableAsync();
 			var q = from client in r
 				where  client.Name.Contains(searchText)
@@ -86,9 +85,11 @@ namespace Isozay.Hukuk.Clients
         [Authorize(HukukPermissions.Clients.Create)]
         public async Task<ClientTranDto> CreateClientTran (FicheDto c)
 		{
+            var safes = (await _safeRepository.GetQueryableAsync()).Where(x => x.SafeType == SafeType.Bureaue);
 
             var clientTranDto = new ClientTranDto
             {
+                SafeId = safes.First().Id,
                 Amount = 0,
                 ClientId = c.ClientId,
                 CurrencyId = c.CurrencyId,
@@ -147,24 +148,18 @@ namespace Isozay.Hukuk.Clients
             await base.DeleteAsync(id);
         }
 
-        //public async Task<string> getClientName(long id)
-        //{
-        //    var rv = await Repository.GetAsync(id);
-        //    return rv.Name;
-        //}
-
-        public async Task<ClientTranDto> CreateClientTran(SafeTranDto c)
+        public async Task<ClientTranDto> CreateClientTran(SafeTranDto c, char p)
         {
             var clientTranDto = new ClientTranDto
             {
+                FicheNo = c.Fiche.FicheNo,
                 Amount = c.Amount,
                 Description = c.Description,
                 ClientId = c.ClientId ?? 0,
                 CurrencyId = c.CurrencyId,
                 SafeId = c.SafeId,
                 TrRate = 1,
-                IO = 'O',
-                
+                IO = p,
             };
 
             var clientTran = ObjectMapper.Map<ClientTranDto, ClientTran>(clientTranDto);
@@ -205,7 +200,7 @@ namespace Isozay.Hukuk.Clients
             }
         }
 
-        public async Task<List<ClientTranDto>> GetClientTranDtoHistory(long id, bool childIncluded)
+        public async Task<List<ClientTranDto>> GetClientTranDtoHistory(long id, bool childIncluded, string selectedSafeName = "Tümü")
 		{
             var queryable = await _clientTranRepository.GetQueryableAsync();
 
@@ -231,6 +226,18 @@ namespace Isozay.Hukuk.Clients
                 return dto;
             }).ToList();
 
+            foreach (ClientTranDto current in Dtos)
+            {
+                var fiches = await _ficheRepository.GetQueryableAsync();
+                var safes = await _safeRepository.GetQueryableAsync();
+
+                if (current.FicheId != null) current.FicheNo = fiches.Where(x => x.Id == current.FicheId).First().FicheNo;
+                current.SafeName = safes.Where(x => x.Id == current.SafeId).First().Name;
+            }
+
+            if (selectedSafeName != "Tümü")
+                Dtos = Dtos.Where(x => x.SafeName == selectedSafeName).ToList();
+
             ClientTranDto previous = null;
 
             foreach (ClientTranDto current in Dtos)
@@ -251,12 +258,6 @@ namespace Isozay.Hukuk.Clients
                 current.Balance = current.Credit - current.Debt;
                 if (previous != null) current.Balance += previous.Balance;
 
-                var fiches = await _ficheRepository.GetQueryableAsync();
-                var safes = await _safeRepository.GetQueryableAsync();
-
-                if (current.FicheId != null) current.FicheNo = fiches.Where(x => x.Id == current.FicheId).First().FicheNo;
-                else current.SafeName = safes.Where(x => x.Id == current.SafeId).First().Name;
-                
                 previous = current;
             }
 

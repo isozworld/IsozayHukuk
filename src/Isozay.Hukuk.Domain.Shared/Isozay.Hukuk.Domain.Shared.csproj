@@ -28,4 +28,11 @@
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="6.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Safes\" />
+    <None Remove="Blazorise.DataGrid" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Safes\" />
+  </ItemGroup>
 </Project>

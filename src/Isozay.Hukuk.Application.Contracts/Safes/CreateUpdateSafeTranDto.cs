@@ -14,7 +14,8 @@ namespace Isozay.Hukuk.Safes
 		public long CurrencyId { get; set; } = 1;
 		public decimal TrRate { get; set; }
 		public string Description { get; set; }
-		public long? ClientId { get; set; }
+        public long? FicheId { get; set; }
+        public long? ClientId { get; set; }
 		public char IO { get; set; }
 	}
 }

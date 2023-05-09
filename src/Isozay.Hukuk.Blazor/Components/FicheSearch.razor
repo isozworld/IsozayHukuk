@@ -56,19 +56,20 @@
     [Parameter]
     public ClientDto selectedClient { get; set; }
     [Parameter]
-    public FicheDto Selected { get; set; } = new FicheDto();
+    public FicheDto Selected { get; set; }
     [Parameter]
     public EventCallback<FicheDto> SelectedChanged { get; set; }
     public Task ShowList() => Task.CompletedTask;
 
     protected override async Task OnInitializedAsync()
     {
-        Selected = null;
+        Console.WriteLine($"--------------------{selectedClient.Id}");
         await base.OnInitializedAsync();
     }
 
     public async void clickHandler()
     {
+        Console.WriteLine($"--------------------{selectedClient.Id}");
         Selected = null;
         await SelectedChanged.InvokeAsync(Selected);
         StateHasChanged();
@@ -76,13 +77,16 @@
 
     private async Task SelectedResultChanged(FicheDto result)
     {
+        Console.WriteLine($"--------------------{selectedClient.Id}");
         if (result == null) return;
         Selected = result;
         await SelectedChanged.InvokeAsync(Selected);
+        StateHasChanged();
     }
 
     private async Task<IEnumerable<FicheDto>> SearchFiche(string searchText)
     {
+        Console.WriteLine($"--------------------{selectedClient.Id}");
         return await ficheService.Search(searchText, selectedClient.Id);
     }
 }

@@ -54,31 +54,31 @@
 				</DataGridEntityActionsColumn>
                 <DataGridColumn TItem="FicheDto"
                                 Field="@nameof(FicheDto.FicheType)"
-                                Caption="Fiche Type">
+                                Caption="Fiş Türü">
                 </DataGridColumn>
 				<DataGridColumn TItem="FicheDto"
 								Field="@nameof(FicheDto.FicheNo)"
-								Caption="Fiche No"></DataGridColumn>
+								Caption="Fiş No"></DataGridColumn>
 				<DataGridColumn TItem="FicheDto"
 								Field="@nameof(FicheDto.FicheNo)"
-								Caption="Client">
+								Caption="Müşteri - Müvekkil">
 					<DisplayTemplate>
 						@context.Client.Id.ToString() - @context.Client.Name
 					</DisplayTemplate>
 				</DataGridColumn>
 				<DataGridColumn TItem="FicheDto"
 								Field="@nameof(FicheDto.Description)"
-								Caption="Description"></DataGridColumn>
+								Caption="Açıklama"></DataGridColumn>
 				<DataGridColumn TItem="FicheDto"
 								Field="@nameof(FicheDto.CurrencyId)"
-								Caption="Currency">
+								Caption="Döviz Tipi">
 					<DisplayTemplate>
 						@context.Currency.Name
 					</DisplayTemplate>
 				</DataGridColumn>
 				<DataGridColumn TItem="FicheDto"
 								Field="@nameof(FicheDto.FicheDate)"
-								Caption="Fiche Date">
+								Caption="Fiş Tarihi">
 					<DisplayTemplate>
 						@context.FicheDate.ToString("dd.MM.yyyy");
 					</DisplayTemplate>
@@ -93,7 +93,7 @@
 	<ModalContent Centered Size="ModalSize.ExtraLarge">
 		<Form>
 			<ModalHeader>
-				<ModalTitle>New Fiche</ModalTitle>
+				<ModalTitle>Yeni Fiş</ModalTitle>
 				<CloseButton Clicked="CloseCreateModalAsync" />
 			</ModalHeader>
 			<ModalBody>
@@ -108,7 +108,7 @@
 								<Column ColumnSize="ColumnSize.IsHalf">
                                     <Alert Color="Color.Primary" Visible>
                                         <div class="form-group row">
-                                            <label class="col-form-label col-3 text-lg-right text-left">Fiche Type</label>
+                                            <label class="col-form-label col-3 text-lg-right text-left">Fiş Türü</label>
                                             <div class="col-9">
                                                 <Select Size="Size.Medium" TValue="FicheType" @bind-SelectedValue="@NewEntity.FicheType">
                                                     @foreach (FicheType TypeValue in Enum.GetValues(typeof(FicheType)))
@@ -122,21 +122,21 @@
                                         </div>
 
                                         <div class="form-group row">
-                                            <label class="col-form-label col-3 text-lg-right text-left">Description</label>
+                                            <label class="col-form-label col-3 text-lg-right text-left">Açıklama</label>
                                             <div class="col-9">
                                                 <TextEdit Size="Size.Medium" @bind-Text="NewEntity.Description" Class="form-control-lg form-control-solid" />
                                             </div>
 										</div>
 
                                         <div class="form-group row">
-                                            <label class="col-form-label col-3 text-lg-right text-left">Fiche No</label>
+                                            <label class="col-form-label col-3 text-lg-right text-left">Fiş No</label>
                                             <div class="col-9">
                                                 <TextEdit Size="Size.Medium" @bind-Text="NewEntity.FicheNo" Class="form-control-lg form-control-solid" />
                                             </div>
                                         </div>
 
                                         <div class="form-group row">
-                                            <label class="col-form-label col-3 text-lg-right text-left">Client</label>
+                                            <label class="col-form-label col-3 text-lg-right text-left">Müşteri - Müvekkil</label>
                                             <div class="col-9">
                                                 <Validation>
                                                     <ClientSearch Selected="selectedClient" SelectedChanged="@clientSelectedChanged" />
@@ -148,7 +148,7 @@
 								<Column ColumnSize="ColumnSize.IsHalf">
 									<Alert Color="Color.Primary" Visible>
 										<div class="form-group row">
-											<label class="col-form-label col-3 text-lg-right text-left">Currency</label>
+											<label class="col-form-label col-3 text-lg-right text-left">Döviz Tipi</label>
 											<div class="col-9">
 												<Select Size="Size.Medium" TValue="long" @bind-SelectedValue="@NewEntity.CurrencyId" Class="form-control-lg form-control-solid">
 													@foreach (var author in currencies)
@@ -161,7 +161,7 @@
 											</div>
 										</div>
 										<div class="form-group row">
-											<label class="col-form-label col-3 text-lg-right text-left">Fiche Date</label>
+											<label class="col-form-label col-3 text-lg-right text-left">Fiş Tarihi</label>
 											<div class="col-9">
 												<DateEdit Size="Size.Medium" TValue="DateTime" @bind-Date="NewEntity.FicheDate" Class="form-control-lg form-control-solid" />
 											</div>
@@ -175,7 +175,7 @@
 								<Alert Color="Color.Primary" Visible>
 									<Row Class="justify-content-between">
 										<Column ColumnSize="ColumnSize.IsAuto">
-											<h3>FicheLines</h3>
+											<h3>Fiş Satırları</h3>
 										</Column>
 										<Column ColumnSize="ColumnSize.IsAuto">
 											<Button Color="Color.Primary" @onclick="() => OpenCreateFisheLineDialog()">Yeni</Button>
@@ -190,28 +190,28 @@
                                             <DataGridColumns>
                                                 <DataGridCommandColumn TItem="FicheLineDto" NewCommandAllowed="false">
                                                     <DeleteCommandTemplate>
-                                                        <Button Color="Color.Danger" Clicked="@context.Clicked">Delete</Button>
+                                                        <Button Color="Color.Danger" Clicked="@context.Clicked">Sil</Button>
                                                     </DeleteCommandTemplate>
                                                     <EditCommandTemplate>
-                                                        <Button Color="Color.Light" Clicked="@context.Clicked">Edit</Button>
+                                                        <Button Color="Color.Light" Clicked="@context.Clicked">Düzenle</Button>
                                                     </EditCommandTemplate>
                                                     <SaveCommandTemplate>
-                                                        <Button Color="Color.Success" Clicked="@context.Clicked">Save</Button>
+                                                        <Button Color="Color.Success" Clicked="@context.Clicked">Kaydet</Button>
                                                     </SaveCommandTemplate>
                                                     <CancelCommandTemplate>
-                                                        <Button Color="Color.Warning" Clicked="@context.Clicked">Cancel</Button>
+                                                        <Button Color="Color.Warning" Clicked="@context.Clicked">İptal</Button>
                                                     </CancelCommandTemplate>
                                                 </DataGridCommandColumn>
                                                 <DataGridColumn TItem="FicheLineDto"
                                                                 Field="@nameof(FicheLineDto.FicheQuantity)"
-                                                                Caption="Item">
+                                                                Caption="Harcama Tipi">
                                                     <DisplayTemplate>
                                                         @context.Item.Name
                                                     </DisplayTemplate>
                                                 </DataGridColumn>
                                                 <DataGridColumn TItem="FicheLineDto"
                                                                 Field="@nameof(FicheLineDto.FicheQuantity)"
-                                                                Caption="Fiche Quantity"
+                                                                Caption="Adet"
                                                                 Editable>
                                                     <EditTemplate>
                                                         <NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
@@ -219,7 +219,7 @@
                                                 </DataGridColumn>
                                                 <DataGridColumn TItem="FicheLineDto"
                                                                 Field="@nameof(FicheLineDto.UnitPrice)"
-                                                                Caption="Unit Price"
+                                                                Caption="Birim Fiyat"
                                                                 Editable>
                                                     <EditTemplate>
                                                         <NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
@@ -227,7 +227,7 @@
                                                 </DataGridColumn>
                                                 <DataGridColumn TItem="FicheLineDto"
                                                                 Field="@nameof(FicheLineDto.Vat)"
-                                                                Caption="VAT"
+                                                                Caption="KDV"
                                                                 Editable>
                                                     <EditTemplate>
                                                         <NumericEdit TValue="decimal" Value="@((decimal)context.CellValue)" ValueChanged="@( v => context.CellValue = v)" />
@@ -273,8 +273,8 @@
 			<ModalBody>
 				<Tabs SelectedTab="@selectedTab" SelectedTabChanged="@OnSelectedTabChanged">
 					<Items>
-						<Tab Name="home">Home</Tab>
-						<Tab Name="gDetay">Detaylar</Tab>
+						<Tab Name="home">Bilgi</Tab>
+						<Tab Name="gDetay">Detay</Tab>
 					</Items>
 					<Content>
 						<TabPanel Name="home">
@@ -282,7 +282,7 @@
 								<Column ColumnSize="ColumnSize.IsHalf">
 									<Alert Color="Color.Primary" Visible>
 										<div class="form-group row">
-											<label class="col-form-label col-3 text-lg-right text-left">Evrak Tarihi</label>
+											<label class="col-form-label col-3 text-lg-right text-left">Fiş Türü</label>
 											<div class="col-9">
 												<Select TValue="FicheType" @bind-SelectedValue="@EditingEntity.FicheType">
 													@foreach (FicheType TypeValue in Enum.GetValues(typeof(FicheType)))

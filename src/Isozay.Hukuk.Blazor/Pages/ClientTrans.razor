@@ -10,6 +10,7 @@
 @using Isozay.Hukuk.Localization
 @using Microsoft.Extensions.Localization
 @using Volo.Abp.AspNetCore.Components.Web
+@using Blazorise.DataGrid
 @inject IStringLocalizer<HukukResource> L
 @inject AbpBlazorMessageLocalizerHelper<HukukResource> LH
 @inject Currencies.ICurrencyService currencyService
@@ -27,39 +28,39 @@
     </CardHeader>
 
     <CardBody>
-        <Validation>
-            <ClientSearch Selected="selectedClient" SelectedChanged="@clientSelectedChanged" />
-        </Validation>
+        <Row>
+            <Column>
+                <Validation>
+                    <ClientSearch Selected="selectedClient" SelectedChanged="@clientSelectedChanged" DisableCreate="true" />
+                </Validation>
+            </Column>
+            <Column>
+                @if (selectedClient != null)
+                {
+                    <Select TValue="string" SelectedValueChanged="@(value => UpdateData(value))">
+                        @foreach (var name in safeNameList)
+                        {
+                            <SelectItem @key="name" Value="name">@name</SelectItem>
+                        }
+                    </Select>
+                }
+            </Column>
+        </Row>
         @if (selectedClient != null)
         {
             <Check TValue="bool" Checked="childIncluded" CheckedChanged="@checkedChanged"> İlişkili müvekkil transferleri dahil edilsin </Check>
         }
         <DataGrid TItem="ClientTranDto"
-                  Data="clientTransList"
-                  TotalItems="TotalCount"
+                  Data="@clientTransList"
                   ShowPager="true"
-                  PageSize="PageSize"
-                  AggregateData="clientTransList">
-            @*<DataGridAggregates>
-                <DataGridAggregate TItem="ClientTranDto"
-                                   Field="@nameof(ClientTranDto.Description)"
-                                   Aggregate="DataGridAggregateType.Count">
-                    <DisplayTemplate>
-                        @($"Total Transaction: {context.Value}")
-                    </DisplayTemplate>
-                </DataGridAggregate>
-                <DataGridAggregate TItem="ClientTranDto"
-                                   Field="@nameof(ClientTranDto.Debt)"
-                                   Aggregate="DataGridAggregateType.Sum"
-                                   DisplayFormat="{0:C}"/>
-            </DataGridAggregates>*@
+                  PageSize="PageSize">
             <DataGridColumns>
                 <DataGridColumn TItem="ClientTranDto" Caption="Date">
                     <DisplayTemplate>
                         @context.TransactionDate.ToShortDateString()
                     </DisplayTemplate>
                 </DataGridColumn>
-                <DataGridColumn TItem="ClientTranDto" Caption="Fiche Number" Field="">
+                <DataGridColumn TItem="ClientTranDto" Caption="Fiche Number">
                     <DisplayTemplate>
                         @context.FicheNo
                     </DisplayTemplate>
@@ -97,14 +98,35 @@
             </DataGridColumns>
         </DataGrid>
     </CardBody>
+    <CardFooter>
+        <Row>
+            <Column>
+                <Label>Toplam Borç</Label>
+                <TextEdit Disabled="true" Text="@TotalDebt.ToString("#.##")" />
+            </Column>
+            <Column>
+                <Label>Toplam Alacak</Label>
+                <TextEdit Disabled="true" Text="@TotalCredit.ToString("#.##")" />
+            </Column>
+            <Column>
+                <Label>Toplam Bakiye</Label>
+                <TextEdit Disabled="true" Text="@TotalBalance.ToString("#.##")" />
+            </Column>
+        </Row>
+    </CardFooter>
 </Card>
 
 @code
 {
+    private string selectedSafeName = "Tümü";
     private bool childIncluded;
+    private List<string> safeNameList;
     private ClientDto selectedClient { get; set; }
     private List<ClientTranDto> clientTransList { get; set; }
     IReadOnlyList<CurrencyDto> currencies = Array.Empty<CurrencyDto>();
+    public decimal TotalDebt { get; set; } = 0;
+    public decimal TotalCredit { get; set; } = 0;
+    public decimal TotalBalance{ get; set; } = 0;
 
     public ClientTrans() // Constructor
     {
@@ -115,13 +137,38 @@
 
     private async void clientSelectedChanged(ClientDto dto)
     {
+        safeNameList = new List<string>();
         selectedClient = dto;
-        if (selectedClient != null) clientTransList = await AppService.GetClientTranDtoHistory(selectedClient.Id, childIncluded);
+        if (selectedClient != null)
+        {
+            clientTransList = await AppService.GetClientTranDtoHistory(selectedClient.Id, childIncluded);
+            UpdateCalculation();
+            safeNameList.Add(selectedSafeName);
+            clientTransList.Select(x => x.SafeName).Distinct().ToList().ForEach(x => safeNameList.Add(x));
+        }
         else
         {
             clientTransList = new List<ClientTranDto>();
             childIncluded = false;
+            TotalBalance = 0;
+            TotalCredit = 0;
+            TotalDebt = 0;
         }
+        StateHasChanged();
+    }
+
+    private void UpdateCalculation()
+    {
+        TotalDebt = clientTransList.Sum(x => x.Debt);
+        TotalCredit = clientTransList.Sum(x => x.Credit);
+        TotalBalance = TotalCredit - TotalDebt;
+    }
+
+    private async void UpdateData(string value)
+    {
+        selectedSafeName = value;
+        clientTransList = await AppService.GetClientTranDtoHistory(selectedClient.Id, childIncluded, selectedSafeName);
+        UpdateCalculation();
         StateHasChanged();
     }
 
@@ -134,6 +181,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        selectedSafeName = "Tümü";
         childIncluded = false;
         currencies = (await currencyService.GetListAsync());
         clientTransList = new List<ClientTranDto>();

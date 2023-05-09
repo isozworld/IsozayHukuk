@@ -33,4 +33,7 @@
     <ProjectReference Include="..\..\src\Isozay.Hukuk.HttpApi.Client\Isozay.Hukuk.HttpApi.Client.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Blazorise.DataGrid" />
+  </ItemGroup>
 </Project>

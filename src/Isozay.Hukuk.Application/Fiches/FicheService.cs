@@ -206,7 +206,7 @@ namespace Isozay.Hukuk.Fiches {
 		public async Task<IReadOnlyList<FicheDto>> Search(string searchText, long id)
 		{
             var r = await Repository.GetQueryableAsync();
-            var q = from fiche in r where fiche.Description.Contains(searchText) where fiche.ClientId == id select fiche;
+            var q = from fiche in r where fiche.Description.Contains(searchText) select fiche;
             var results = await AsyncExecuter.ToListAsync(q);
             return ObjectMapper.Map<List<Fiche>, List<FicheDto>>(results);
         }

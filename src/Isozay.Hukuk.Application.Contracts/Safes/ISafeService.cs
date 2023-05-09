@@ -14,11 +14,13 @@ namespace Isozay.Hukuk.Safes
 		PagedAndSortedResultRequestDto, //Used for paging/sorting
 		CreateUpdateSafeDto> //Used to create/update a book
 	{
-		public Task<IReadOnlyList<SafeDto>> Search (string searchText);
-		public Task<SafeTranDto> CreateSafeTran (CreateUpdateSafeTranDto s);
-        public Task<List<SafeTranDto>> GetSafeTransListAsync(long id);
-		public Task<string> getSafeValue(long id);
+		Task<IReadOnlyList<SafeDto>> Search (string searchText);
+		Task<SafeTranDto> MakeClientSafeDeposit(CreateUpdateSafeTranDto s);
+		Task<SafeTranDto> MakeClientSafeExpense(CreateUpdateSafeTranDto s);
+		Task<SafeTranDto> MakeSafeTransfer(CreateUpdateSafeTranDto s);
+        Task<List<SafeTranDto>> GetSafeTransListAsync(long id);
+		Task<string> getSafeValue(long id);
         Task<string> getSafeName(long? id);
-
+        
     }
 }

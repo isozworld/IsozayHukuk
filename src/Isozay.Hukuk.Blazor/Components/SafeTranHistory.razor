@@ -8,6 +8,7 @@
 
 @inject Volo.Abp.AspNetCore.Components.Messages.IUiMessageService Messages
 @inject Currencies.ICurrencyService currencyService
+@inject Fiches.IFicheService ficheService
 @inject Safes.ISafeService safeService
 @inject IJSRuntime JSRuntime
 
@@ -31,6 +32,11 @@
                         <DataGridColumn TItem="SafeTranDto" Caption="Client">
                             <DisplayTemplate>
                                 @setName(context)
+                            </DisplayTemplate>
+                        </DataGridColumn>
+                        <DataGridColumn TItem="SafeTranDto" Caption="Fiche">
+                            <DisplayTemplate>
+                                @context.Fiche.FicheNo
                             </DisplayTemplate>
                         </DataGridColumn>
                         <DataGridColumn TItem="SafeTranDto" Caption="Description">

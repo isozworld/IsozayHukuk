@@ -125,7 +125,7 @@
 	{
 		safeTranDto.IO = 'O';
 		safeTranDto.SafeId = selectedSafe.Id;
-		safeService.CreateSafeTran(safeTranDto);
+		safeService.MakeSafeTransfer(safeTranDto);
 
 		return OnClose.InvokeAsync(true);
 	}
