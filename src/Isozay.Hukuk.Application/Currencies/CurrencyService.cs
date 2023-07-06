@@ -21,11 +21,18 @@ namespace Isozay.Hukuk.Currencies
         {
             _repositorCurrency = repository;
         }
-        public  async Task<List<CurrencyDto>> GetListAsync()
+
+        public async Task<List<CurrencyDto>> GetListAsync()
         {
             var lst = await _repositorCurrency.GetListAsync();
            return lst.Select(x => ObjectMapper.Map<Currency, CurrencyDto>(x)).ToList();
         }
+
+        //public async Task<CurrencyDto> GetCurrency(long id)
+        //{
+        //    var rv = await _repositorCurrency.GetQueryableAsync();
+        //    return ObjectMapper.Map<Currency,CurrencyDto>(rv.Where(x => x.Id == id).First());
+        //}
 
  
     }

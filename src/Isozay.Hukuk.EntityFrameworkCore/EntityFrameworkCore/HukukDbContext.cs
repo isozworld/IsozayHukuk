@@ -62,6 +62,7 @@ namespace Isozay.Hukuk.EntityFrameworkCore
         public DbSet<Clients.ClientRelation> ClientRelations { get; set; }
         public DbSet<Fiches.Fiche> Fiches { get; set; }
         public DbSet<Fiches.FicheLine> FicheLines { get; set; }
+        public DbSet<Fiches.FicheInstallment> FicheInstallments { get; set; }
         public DbSet<Items.Item> Items { get; set; }
 
         public HukukDbContext(DbContextOptions<HukukDbContext> options)
@@ -136,6 +137,12 @@ namespace Isozay.Hukuk.EntityFrameworkCore
             builder.Entity<Fiches.FicheLine>(b =>
             {
                 b.ToTable(HukukConsts.DbTablePrefix + "FicheLines", HukukConsts.DbSchema);
+                b.ConfigureByConvention(); //auto configure for the base class props
+                //...
+            });
+            builder.Entity<Fiches.FicheInstallment>(b =>
+            {
+                b.ToTable(HukukConsts.DbTablePrefix + "FicheInstallments", HukukConsts.DbSchema);
                 b.ConfigureByConvention(); //auto configure for the base class props
                 //...
             });

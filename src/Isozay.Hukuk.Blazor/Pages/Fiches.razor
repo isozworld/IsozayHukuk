@@ -1,15 +1,17 @@
 ﻿@page "/fiches"
 @attribute [Authorize(HukukPermissions.Clients.Default)]
 @using Isozay.Hukuk.Clients
+@using Isozay.Hukuk.Safes 
 @using Isozay.Hukuk.Permissions
 @using Microsoft.AspNetCore.Authorization
 @using Volo.Abp.Application.Dtos
 @using Isozay.Hukuk.Fiches
 @using Isozay.Hukuk.Currencies
 
-@inject Currencies.ICurrencyService currencyService
+@inject ICurrencyService currencyService
 @inject IClientService clientService
 @inject IMessageService messageService
+@inject ISafeService safeService
 @inherits  AbpCrudPageBase<IFicheService,FicheDto, long, PagedAndSortedResultRequestDto, CreateUpdateFicheDto>
 @inject IJSRuntime JSRuntime
 <Card>
@@ -101,11 +103,12 @@
 					<Items>
 						<Tab Name="home">Bilgi</Tab>
 						<Tab Name="detay">Detay</Tab>
+                        <Tab Name="taksit">Vadeler</Tab>
 					</Items>
-					<Content>
-						<TabPanel Name="home">
-							<Row>
-								<Column ColumnSize="ColumnSize.IsHalf">
+                    <Content>
+                        <TabPanel Name="home">
+                            <Row>
+                                <Column ColumnSize="ColumnSize.IsHalf">
                                     <Alert Color="Color.Primary" Visible>
                                         <div class="form-group row">
                                             <label class="col-form-label col-3 text-lg-right text-left">Fiş Türü</label>
@@ -126,7 +129,7 @@
                                             <div class="col-9">
                                                 <TextEdit Size="Size.Medium" @bind-Text="NewEntity.Description" Class="form-control-lg form-control-solid" />
                                             </div>
-										</div>
+                                        </div>
 
                                         <div class="form-group row">
                                             <label class="col-form-label col-3 text-lg-right text-left">Fiş No</label>
@@ -144,49 +147,62 @@
                                             </div>
                                         </div>
                                     </Alert>
-								</Column>
-								<Column ColumnSize="ColumnSize.IsHalf">
-									<Alert Color="Color.Primary" Visible>
-										<div class="form-group row">
-											<label class="col-form-label col-3 text-lg-right text-left">Döviz Tipi</label>
-											<div class="col-9">
-												<Select Size="Size.Medium" TValue="long" @bind-SelectedValue="@NewEntity.CurrencyId" Class="form-control-lg form-control-solid">
-													@foreach (var author in currencies)
-													{
-														<SelectItem TValue="long" Value="@author.Id">
-															@author.Name
-														</SelectItem>
-													}
-												</Select>
-											</div>
-										</div>
-										<div class="form-group row">
-											<label class="col-form-label col-3 text-lg-right text-left">Fiş Tarihi</label>
-											<div class="col-9">
-												<DateEdit Size="Size.Medium" TValue="DateTime" @bind-Date="NewEntity.FicheDate" Class="form-control-lg form-control-solid" />
-											</div>
-										</div>
-									</Alert>
-								</Column>
-							</Row>
-						</TabPanel>
-						<TabPanel Name="detay">
-							<Row Class="justify-content-between">
-								<Alert Color="Color.Primary" Visible>
-									<Row Class="justify-content-between">
-										<Column ColumnSize="ColumnSize.IsAuto">
-											<h3>Fiş Satırları</h3>
-										</Column>
-										<Column ColumnSize="ColumnSize.IsAuto">
-											<Button Color="Color.Primary" @onclick="() => OpenCreateFisheLineDialog()">Yeni</Button>
-										</Column>
-									</Row>
-									<Row>
-										<DataGrid Data="NewEntity.FicheLine"
-												  TotalItems="TotalCount"
-												  ShowPager="true"
-												  Editable="true"
-												  PageSize="PageSize">
+                                </Column>
+                                <Column ColumnSize="ColumnSize.IsHalf">
+                                    <Alert Color="Color.Primary" Visible>
+                                        <div class="form-group row">
+                                            <label class="col-form-label col-3 text-lg-right text-left">Döviz Tipi</label>
+                                            <div class="col-9">
+                                                <Select Size="Size.Medium" TValue="long" @bind-SelectedValue="@NewEntity.CurrencyId" Class="form-control-lg form-control-solid">
+                                                    @foreach (var author in currencies)
+                                                    {
+                                                        <SelectItem TValue="long" Value="@author.Id">
+                                                            @author.Name
+                                                        </SelectItem>
+                                                    }
+                                                </Select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-form-label col-3 text-lg-right text-left">Kasa</label>
+                                            <div class="col-9">
+                                                <Select Size="Size.Medium" TValue="long" @bind-SelectedValue="@NewEntity.SafeId" Class="form-control-lg form-control-solid">
+                                                    @foreach (var safe in safes)
+                                                    {
+                                                        <SelectItem TValue="long" Value="@safe.Id">
+                                                            @safe.Name
+                                                        </SelectItem>
+                                                    }
+                                                </Select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-form-label col-3 text-lg-right text-left">Fiş Tarihi</label>
+                                            <div class="col-9">
+                                                <DateEdit Size="Size.Medium" TValue="DateTime" @bind-Date="NewEntity.FicheDate" Class="form-control-lg form-control-solid" />
+                                            </div>
+                                        </div>
+                                    </Alert>
+                                </Column>
+                            </Row>
+                        </TabPanel>
+                        <TabPanel Name="detay">
+                            <Row Class="justify-content-between">
+                                <Alert Color="Color.Primary" Visible>
+                                    <Row Class="justify-content-between">
+                                        <Column ColumnSize="ColumnSize.IsAuto">
+                                            <h3>Fiş Satırları</h3>
+                                        </Column>
+                                        <Column ColumnSize="ColumnSize.IsAuto">
+                                            <Button Color="Color.Primary" @onclick="() => OpenCreateFisheLineDialog()">Yeni</Button>
+                                        </Column>
+                                    </Row>
+                                    <Row>
+                                        <DataGrid Data="NewEntity.FicheLine"
+                                                  TotalItems="TotalCount"
+                                                  ShowPager="true"
+                                                  Editable="true"
+                                                  PageSize="PageSize">
                                             <DataGridColumns>
                                                 <DataGridCommandColumn TItem="FicheLineDto" NewCommandAllowed="false">
                                                     <DeleteCommandTemplate>
@@ -234,17 +250,76 @@
                                                     </EditTemplate>
                                                 </DataGridColumn>
                                             </DataGridColumns>
-										</DataGrid>
-									</Row>
-								</Alert>
-							</Row>
-							
-							@if (CreateFicheLineDialogOpen)
-							{
-								<AddFicheLine OnClick="CreateFicheLine" OnClose="@OnCreateFicheLineDialogClose"></AddFicheLine>
-							}
-						</TabPanel>
-					</Content>
+                                        </DataGrid>
+                                    </Row>
+                                </Alert>
+                            </Row>
+
+                            @if (CreateFicheLineDialogOpen)
+                            {
+                                <AddFicheLine OnClick="CreateFicheLine" OnClose="@OnCreateFicheLineDialogClose"></AddFicheLine>
+                            }
+                        </TabPanel>
+
+                        <TabPanel Name="taksit">
+                            <Row Class="justify-content-between">
+                                <Alert Color="Color.Primary" Visible>
+                                    <Row Class="justify-content-between">
+                                        <Column ColumnSize="ColumnSize.IsAuto">
+                                            <h3>Fiş Vadeleri</h3>
+                                        </Column>
+                                        <Column ColumnSize="ColumnSize.IsAuto">
+                                            @*<Button Color="Color.Primary" @onclick="() => OpenFicheInstallmentModal()">Yeni</Button>*@
+                                            <Select TValue="int" SelectedValue="@installmentMonths" SelectedValueChanged="OnSelectedValueChanged">
+                                                <SelectItem Value="0">Taksit Seç</SelectItem>
+                                                <SelectItem Value="1">1</SelectItem>
+                                                <SelectItem Value="2">2</SelectItem>
+                                                <SelectItem Value="3">3</SelectItem>
+                                                <SelectItem Value="4">4</SelectItem>
+                                                <SelectItem Value="5">5</SelectItem>
+                                                <SelectItem Value="6">6</SelectItem>
+                                                <SelectItem Value="7">7</SelectItem>
+                                                <SelectItem Value="8">8</SelectItem>
+                                                <SelectItem Value="9">9</SelectItem>
+                                                <SelectItem Value="10">10</SelectItem>
+                                                <SelectItem Value="11">11</SelectItem>
+                                                <SelectItem Value="12">12</SelectItem>
+                                            </Select>
+                                        </Column>
+                                    </Row>
+                                    <Row>
+                                        <DataGrid Data="ficheInstallmentList"
+                                                    TotalItems="TotalCount"
+                                                    ShowPager="true"
+                                                    PageSize="PageSize">
+                                            <DataGridColumns>
+                                                <DataGridCommandColumn TItem="FicheInstallmentDto" NewCommandAllowed="false">
+                                                    <DeleteCommandTemplate>
+                                                        <Button Color="Color.Danger" Clicked="@context.Clicked">Sil</Button>
+                                                    </DeleteCommandTemplate>
+                                                </DataGridCommandColumn>
+                                                <DataGridColumn TItem="FicheInstallmentDto"
+                                                                Field="@nameof(FicheInstallmentDto.Date)"
+                                                                Caption="Tarih"></DataGridColumn>
+                                                <DataGridColumn TItem="FicheInstallmentDto"
+                                                                Field="@nameof(FicheInstallmentDto.Amount)"
+                                                                Caption="Miktar"></DataGridColumn>
+                                                <DataGridColumn TItem="FicheInstallmentDto"
+                                                                Field="@nameof(FicheLineDto.Description)"
+                                                                Caption="Açıklama"></DataGridColumn>
+                                            </DataGridColumns>
+                                        </DataGrid>
+                                    </Row>
+                                </Alert>
+                            </Row>
+
+                            @if (FicheInstallmentModalOpen)
+                            {
+                                <AddFicheInstallment OnClick="CreateFicheInstallment" OnClose="OnFicheInstallmentModalClosed"></AddFicheInstallment>
+                            }
+                        </TabPanel>
+
+                    </Content>
 				</Tabs>
 			</ModalBody>
 			<ModalFooter>
@@ -275,6 +350,7 @@
 					<Items>
 						<Tab Name="home">Bilgi</Tab>
 						<Tab Name="gDetay">Detay</Tab>
+                        <Tab Name="gtaksit">Vadeler</Tab>
 					</Items>
 					<Content>
 						<TabPanel Name="home">
@@ -346,7 +422,7 @@
                                 <Alert Color="Color.Primary" Visible>
                                     <Row Class="justify-content-between">
                                         <Column ColumnSize="ColumnSize.IsAuto">
-                                            <h3>FicheLines</h3>
+                                            <h3>Fiş Satırları</h3>
                                         </Column>
                                         <Column ColumnSize="ColumnSize.IsAuto">
                                             <Button Color="Color.Primary" @onclick="() => OpenCreateFisheLineDialog()">Yeni</Button>
@@ -442,6 +518,65 @@
                                 <AddFicheLine OnClick="UpdateFicheLine" OnClose="@OnEditFicheLineDialogClose" ficheLine="@editingFicheLine"></AddFicheLine>
                             }
                         </TabPanel>
+                        <TabPanel Name="gtaksit">
+                            <Row Class="justify-content-between">
+                                <Alert Color="Color.Primary" Visible>
+                                    <Row Class="justify-content-between">
+                                        <Column ColumnSize="ColumnSize.IsAuto">
+                                            <h3>Fiş Vadeleri</h3>
+                                        </Column>
+                                        <Column ColumnSize="ColumnSize.IsAuto">
+                                            <Button Color="Color.Primary" @onclick="() => OpenFicheInstallmentModal()">Yeni</Button>
+                                        </Column>
+                                    </Row>
+                                    <Row>
+                                        <DataGrid Data="ficheInstallmentList"
+                                                  TotalItems="TotalCount"
+                                                  ShowPager="true"
+                                                  PageSize="PageSize">
+                                            <DataGridColumns>
+                                                <DataGridEntityActionsColumn TItem="FicheInstallmentDto">
+                                                    <DisplayTemplate>
+                                                        <EntityActions TItem="FicheInstallmentDto">
+                                                            <EntityAction TItem="FicheInstallmentDto"
+                                                                          Text="Sil"
+                                                                          Clicked="() => DeleteFicheInstallment(context)" />
+                                                            <EntityAction TItem="FicheInstallmentDto"
+                                                                          Text="Güncelle"
+                                                                          Clicked="() => OpenEditFicheInstallmentModal(context)" />
+                                                        </EntityActions>
+                                                    </DisplayTemplate>
+                                                </DataGridEntityActionsColumn>
+                                                <DataGridColumn TItem="FicheInstallmentDto"
+                                                                Field="@nameof(FicheInstallmentDto.Date)"
+                                                                Caption="Tarih"></DataGridColumn>
+                                                <DataGridColumn TItem="FicheInstallmentDto"
+                                                                Field="@nameof(FicheInstallmentDto.Amount)"
+                                                                Caption="Miktar">
+                                                    <DisplayTemplate>
+                                                        @context.Amount.ToString("G29")
+                                                    </DisplayTemplate>
+                                                </DataGridColumn>
+                                                <DataGridColumn TItem="FicheInstallmentDto"
+                                                                Field="@nameof(FicheLineDto.Description)"
+                                                                Caption="Açıklama">
+                                                </DataGridColumn>
+                                            </DataGridColumns>
+                                        </DataGrid>
+                                    </Row>
+                                </Alert>
+                            </Row>
+
+                            @if (FicheInstallmentModalOpen)
+                            {
+                                <AddFicheInstallment OnClick="CreateFicheInstallment" OnClose="OnFicheInstallmentModalClosed"></AddFicheInstallment>
+                            }
+
+                            @if (EditFicheInstallmentModalOpen)
+                            {
+                                <AddFicheInstallment ficheInstallment="@editingFicheInstallment" OnClick="UpdateFicheInstallment" OnClose="OnFicheInstallmentModalClosed"></AddFicheInstallment>
+                            }
+                        </TabPanel>
 					</Content>
 				</Tabs>
 			</ModalBody>
@@ -464,13 +599,20 @@
 @code
 {
     IReadOnlyList<CurrencyDto> currencies = Array.Empty<CurrencyDto>();
+    IReadOnlyList<SafeDto> safes = Array.Empty<SafeDto>();
     private  string selectedTab = "home";
     private ClientDto selectedClient { get; set; }
+    private List<FicheInstallmentDto> ficheInstallmentList { get; set; }
+    private List<FicheInstallmentDto> ToBeAddedFicheInstallmentList { get; set; }
+    private List<FicheInstallmentDto> ToBeUpdatedFicheInstallmentList { get; set; }
+    private List<long> ToBeDeletedFicheInstallmentList { get; set; }
     public List<FicheLineDto> FicheLineList { get; set; }
     private List<FicheLineDto> ToBeAddedFicheLineList { get; set; }
     private List<FicheLineDto> ToBeUpdatedFicheLineList { get; set; }
     private List<long> ToBeDeletedFicheLineList { get; set; }
     private bool Editing { get; set; }
+    private int installmentMonths { get; set; }
+    private long newSafeId { get; set; }
 
 
     // ---------- Page functionality and tools ----------
@@ -485,6 +627,7 @@
     {
         Editing = false;
         currencies = (await currencyService.GetListAsync());
+        safes = await safeService.GetSafeListAsync(SafeType.Bureaue);
         await base.OnInitializedAsync();
     }
 
@@ -503,11 +646,15 @@
     {
         Editing = true;
         selectedTab = "home";
+        ficheInstallmentList = await AppService.GetFicheInstallmentsAsync(EditingEntity.Id);
         FicheLineList = await AppService.GetListFichLineAsync(EditingEntity.Id);
         selectedClient = await clientService.GetAsync(EditingEntity.ClientId);
         ToBeAddedFicheLineList = new List<FicheLineDto>();
         ToBeUpdatedFicheLineList = new List<FicheLineDto>();
         ToBeDeletedFicheLineList = new List<long>();
+        ToBeAddedFicheInstallmentList = new List<FicheInstallmentDto>();
+        ToBeUpdatedFicheInstallmentList = new List<FicheInstallmentDto>();
+        ToBeDeletedFicheInstallmentList = new List<long>();
         StateHasChanged();
     }
 
@@ -517,17 +664,34 @@
         {
             Editing = false;
             EditingEntity.ClientId = selectedClient.Id;
-            ToBeDeletedFicheLineList.ForEach(x => { AppService.DeleteFicheLine(x); });
+            await AppService.DeleteFicheLine(ToBeDeletedFicheLineList);
+            await AppService.DeleteFicheInstallments(ToBeDeletedFicheInstallmentList);
+
+            ToBeAddedFicheInstallmentList.ForEach(x => {
+                x.CurrencyId = NewEntity.CurrencyId;
+                switch (EditingEntity.FicheType)
+                {
+                    case FicheType.Buying:
+                        x.IO = 'O';
+                        break;
+                    case FicheType.Selling:
+                        x.IO = 'I';
+                        break;
+                    case FicheType.BuyReturn:
+                        x.IO = 'I';
+                        break;
+                    case FicheType.SalesReturn:
+                        x.IO = 'O';
+                        break;
+                    default:
+                        break;
+                }
+            });
 
             if (!FicheLineList.IsNullOrEmpty())
             {
-                ToBeAddedFicheLineList.ForEach(x => {
-                    if (x.FicheId != 0)
-                    {
-                        x.FicheId = EditingEntity.Id;
-                        AppService.CreateFicheLineAsync(x);
-                    }
-                });
+                await AppService.CreateFicheLineManyAsync(ToBeAddedFicheLineList);
+                await AppService.CreateFicheInstallmentManyAsync(ToBeAddedFicheInstallmentList);
             }
 
             await UpdateEntityAsync();
@@ -557,6 +721,8 @@
 
     public void OnCreateModalOpening()
     {
+        //installmentMonths = 1;
+        ficheInstallmentList = new List<FicheInstallmentDto>();
         selectedTab = "home";
         selectedClient = null;
     }
@@ -573,6 +739,7 @@
     private void OnCreateFicheLineDialogClose()
     {
         CreateFicheLineDialogOpen = false;
+        StateHasChanged();
     }
 
     private void OnEditFicheLineDialogClose()
@@ -600,13 +767,11 @@
         OnEditFicheLineDialogClose();
         f.ItemId = f.Item.Id;
         ToBeUpdatedFicheLineList.Add(f);
-        Console.WriteLine("------------------------updated");
     }
 
     public void CreateFicheLine(FicheLineDto f)
     {
         if (Editing) {
-            Console.WriteLine("--------test2");
             f.FicheId = EditingEntity.Id;
             CreateFicheLineDialogOpen = false;
             if (FicheLineList == null)
@@ -617,12 +782,91 @@
         }
 
         else {
-            Console.WriteLine("--------test");
             CreateFicheLineDialogOpen = false;
             if (NewEntity.FicheLine == null)
                 NewEntity.FicheLine = new List<FicheLineDto> ();
             NewEntity.FicheLine.Add (f);
             StateHasChanged ();
+        }
+    }
+
+    public bool FicheInstallmentModalOpen { get; set; }
+    public bool EditFicheInstallmentModalOpen { get; set; }
+    private FicheInstallmentDto editingFicheInstallment { get; set; }
+
+    public void OpenFicheInstallmentModal()
+    {
+        ToBeUpdatedFicheInstallmentList = new List<FicheInstallmentDto>();
+        FicheInstallmentModalOpen = true;
+        StateHasChanged();
+    }
+
+    public void OnFicheInstallmentModalClosed()
+    {
+        FicheInstallmentModalOpen = false;
+        StateHasChanged();
+    }
+
+    public void OpenEditFicheInstallmentModal(FicheInstallmentDto f)
+    {
+        editingFicheInstallment = f;
+        EditFicheInstallmentModalOpen = true;
+        StateHasChanged();
+    }
+
+    public void OnEditFicheInstallmentModalClosed()
+    {
+        EditFicheInstallmentModalOpen = false;
+    }
+
+    public void UpdateFicheInstallment(FicheInstallmentDto f)
+    {
+        OnEditFicheLineDialogClose();
+        ToBeUpdatedFicheInstallmentList.Add(f);
+    }
+
+    private async void DeleteFicheInstallment(FicheInstallmentDto input)
+    {
+        if (await Message.Confirm("Silmek istediğinize emin misiniz?", "Uyarı"))
+        {
+            ficheInstallmentList.Remove(input);
+            ToBeDeletedFicheInstallmentList.Add(input.Id);
+            StateHasChanged();
+        }
+    }
+
+    private async void OnSelectedValueChanged(int value)
+    {
+        installmentMonths = value;
+
+        Console.WriteLine(installmentMonths);
+
+        ficheInstallmentList = await AppService.FillInstallments(installmentMonths, NewEntity.FicheDate);
+        Console.WriteLine(ficheInstallmentList.Count);
+        StateHasChanged();
+    }
+
+
+
+    public void CreateFicheInstallment (FicheInstallmentDto f)
+    {
+        if (Editing)
+        {
+            f.FicheId = EditingEntity.Id;
+            FicheInstallmentModalOpen = false;
+            if (ficheInstallmentList == null)
+                ficheInstallmentList = new List<FicheInstallmentDto>();
+            ficheInstallmentList.Add(f);
+            ToBeAddedFicheInstallmentList.Add(f);
+            StateHasChanged();
+        }
+        else
+        {
+            FicheInstallmentModalOpen = false;
+            if (ficheInstallmentList == null)
+                ficheInstallmentList = new List<FicheInstallmentDto>();
+            ficheInstallmentList.Add(f);
+            StateHasChanged();
         }
     }
 
@@ -636,7 +880,9 @@
 
         else
         {
+            NewEntity.FicheInstallments = ficheInstallmentList;
             NewEntity.ClientId = selectedClient.Id;
+            NewEntity.FicheInstallments.ForEach(x => x.CurrencyId = NewEntity.CurrencyId);
             CreateEntityAsync();
         }
 

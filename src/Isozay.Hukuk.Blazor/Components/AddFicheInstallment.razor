@@ -1,0 +1,91 @@
+﻿@using Isozay.Hukuk.Clients
+@using Isozay.Hukuk.Permissions
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.Application.Dtos
+@using Isozay.Hukuk.Fiches
+@using Isozay.Hukuk.Currencies
+@using Isozay.Hukuk.Items
+@inject Currencies.ICurrencyService currencyService
+@inject IClientService clientService
+@inject Volo.Abp.AspNetCore.Components.Messages.IUiMessageService Messages
+@using Volo.Abp.BlazoriseUI
+@inject IJSRuntime JSRuntime
+
+<Modal class="modal fade show" id="ClientCreate" style="display: block; background-color:rgba(10,10,10,.8)">
+    <ModalContent Centered>
+        <Form class="modal-content">
+            <ModalHeader>
+                <ModalTitle>Yeni Taksit</ModalTitle>
+                <CloseButton @onclick="ModalCancel" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations Model="@ficheInstallment" ValidateOnLoad="false">
+                    <Field>
+                        <FieldLabel>Taksit Miktarı</FieldLabel>
+                        <NumericEdit @bind-Value="Amount" />
+                    </Field>
+                    <Field>
+                        <FieldLabel>Tarih</FieldLabel>
+                        <DateEdit @bind-Date="Date" />
+                    </Field>
+                    <Field>
+                        <FieldLabel>Açıklama</FieldLabel>
+                        <TextEdit @bind-Text="Description" />
+                    </Field>
+                </Validations>
+            </ModalBody>
+            <ModalFooter class="modal-footer">
+                <Button Color="Blazorise.Color.Secondary"
+                        @onclick="ModalCancel">
+                    İptal
+                </Button>
+                <Button Color="Blazorise.Color.Primary"
+                        Type="@Blazorise.ButtonType.Submit"
+                        PreventDefaultOnSubmit="true"
+                        @onclick="@ModalOk">
+                    Kaydet
+                </Button>
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>
+
+@code {
+    [Parameter] public EventCallback<bool> OnClose { get; set; }
+    [Parameter] public EventCallback<FicheInstallmentDto> OnClick { get; set; }
+    [Parameter] public FicheInstallmentDto ficheInstallment { get; set; } = null;
+    [Parameter] public bool Editing { get; set; }
+    private decimal Amount { get; set; }
+    private DateTime Date { get; set; } = DateTime.Now;
+    private string Description { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        if (ficheInstallment != null)
+        {
+
+        }
+
+        else
+        {
+            await base.OnInitializedAsync();
+            ficheInstallment = new FicheInstallmentDto();
+        }
+    }
+
+    private Task ModalCancel()
+    {
+        return OnClose.InvokeAsync(false);
+    }
+
+    private Task ModalOk()
+    {
+        ficheInstallment.Amount = Amount;
+        ficheInstallment.Date = Date;
+        ficheInstallment.Description = Description;
+        Console.WriteLine(ficheInstallment.Amount);
+        return OnClick.InvokeAsync(ficheInstallment);
+    }
+}
+

@@ -16,11 +16,11 @@ namespace Isozay.Hukuk.Clients
             long, //Primary key of the book entity
             PagedAndSortedResultRequestDto, //Used for paging/sorting
             CreateUpdateClientDto> //Used to create/update a book
-           
+            
     {
         Task<IReadOnlyList<ClientDto>> Search(string searchText);
         Task<IReadOnlyList<ClientDto>> GetListSearchAsync(string searchText);
-        Task<ClientTranDto> CreateClientTran(FicheDto c);
+        //Task CreateClientTran(FicheDto c);
         Task<ClientTranDto> CreateClientTran(SafeTranDto c, char p);
         Task<List<ClientTranDto>> GetClientTranDtoHistory(long id, bool childIncluded, string selectedSafeName = "Tümü");
         Task<ClientRelationDto> CreateClientRelation(CreateUpdateClientDto c, long ParentId, string desc);

@@ -3,6 +3,7 @@ using System;
 using Isozay.Hukuk.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -11,9 +12,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Isozay.Hukuk.Migrations
 {
     [DbContext(typeof(HukukDbContext))]
-    partial class HukukDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230510205242_FicheInstallments2")]
+    partial class FicheInstallments2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -214,6 +216,9 @@ namespace Isozay.Hukuk.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("FicheId")
+                        .IsUnique();
+
                     b.ToTable("HuClientTrans", (string)null);
                 });
 
@@ -349,9 +354,6 @@ namespace Isozay.Hukuk.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("ExtraProperties")
                         .HasColumnType("longtext")
                         .HasColumnName("ExtraProperties");
@@ -379,8 +381,6 @@ namespace Isozay.Hukuk.Migrations
                         .HasColumnName("TenantId");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("FicheId");
 
                     b.ToTable("HuFicheInstallments", (string)null);
                 });
@@ -2581,6 +2581,13 @@ namespace Isozay.Hukuk.Migrations
                     b.ToTable("AbpTenantConnectionStrings", (string)null);
                 });
 
+            modelBuilder.Entity("Isozay.Hukuk.Clients.ClientTran", b =>
+                {
+                    b.HasOne("Isozay.Hukuk.Fiches.Fiche", null)
+                        .WithOne("ClientTran")
+                        .HasForeignKey("Isozay.Hukuk.Clients.ClientTran", "FicheId");
+                });
+
             modelBuilder.Entity("Isozay.Hukuk.Fiches.Fiche", b =>
                 {
                     b.HasOne("Isozay.Hukuk.Clients.Client", "Client")
@@ -2598,15 +2605,6 @@ namespace Isozay.Hukuk.Migrations
                     b.Navigation("Client");
 
                     b.Navigation("Currency");
-                });
-
-            modelBuilder.Entity("Isozay.Hukuk.Fiches.FicheInstallment", b =>
-                {
-                    b.HasOne("Isozay.Hukuk.Fiches.Fiche", null)
-                        .WithMany("FicheInstallments")
-                        .HasForeignKey("FicheId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Isozay.Hukuk.Fiches.FicheLine", b =>
@@ -2953,7 +2951,7 @@ namespace Isozay.Hukuk.Migrations
 
             modelBuilder.Entity("Isozay.Hukuk.Fiches.Fiche", b =>
                 {
-                    b.Navigation("FicheInstallments");
+                    b.Navigation("ClientTran");
 
                     b.Navigation("FicheLine");
                 });

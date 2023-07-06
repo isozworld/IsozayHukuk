@@ -1,23 +1,68 @@
 ﻿@page "/"
 @using Volo.Abp.AspNetCore.Components.Messages
 @using Volo.Abp.AspNetCore.Components.Notifications
-@inherits HukukComponentBase
+@using Hukuk.Fiches
+@using Hukuk.Currencies
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IFicheService ficheService
+@inject ICurrencyService currencyService
 @inject IUiNotificationService NotificationService
 @inject IUiMessageService MessageService
+@inherits AbpCrudPageBase<IFicheService, FicheDto, long, PagedAndSortedResultRequestDto, CreateUpdateFicheDto>
 
 <div class="container">
     <div class="p-5 text-center">
-        <Button onclick="@(async () => { await NotificationService.Success("Hello, World!"); await NotificationService.Warn("Something went wrong!"); })">
-            Show Notifications!
-        </Button>
+        <h1>Hoşgeldiniz</h1>
         <hr />
-        <Button onclick="@(() => { MessageService.Info("Hello, World!"); })">
-            Show Info!
-        </Button>
-        <br />
-        <Button onclick="@(() => { throw new Exception(); })">
-            Show Error!
-        </Button>
+        <Div>
+            <br/>
+            <CardTitle><h4>Yaklaşan Vadeler</h4></CardTitle>
+            <DataGrid TItem="FicheInstallmentDto"
+                      Data="FicheInstallments"
+                      Sortable="false">
+                <DataGridColumns>
+                    <DataGridColumn TItem="FicheInstallmentDto"
+                                    Field="@nameof(FicheInstallmentDto.Date)"
+                                    Caption="Tarih">
+                        <DisplayTemplate>
+                            @context.Date.ToShortDateString()
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    @*<DataGridColumn TItem="FicheInstallmentDto"
+                                    Field="@nameof(FicheInstallmentDto.ClientName)"
+                                    Caption="Şahıs"></DataGridColumn>*@
+                    <DataGridColumn TItem="FicheInstallmentDto"
+                                    Field="@nameof(FicheInstallmentDto.Amount)"
+                                    Caption="Miktar">
+                        <DisplayTemplate>
+                            @context.Amount.ToString("G29")
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                    @*<DataGridColumn TItem="FicheInstallmentDto"
+                                    Field="@nameof(FicheInstallmentDto.Currency)"
+                                    Caption="Döviz Tipi">
+                        <DisplayTemplate>
+                            @context.Currency.Name
+                        </DisplayTemplate>
+                    </DataGridColumn>*@
+                    <DataGridColumn TItem="FicheInstallmentDto"
+                                    Field="@nameof(FicheLineDto.Description)"
+                                    Caption="Açıklama">
+                    </DataGridColumn>
+                </DataGridColumns>
+            </DataGrid>
+        </Div>
+        <hr />
     </div>
 </div>
+
+@code {
+    List<FicheInstallmentDto> FicheInstallments { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        FicheInstallments = await AppService.GetSortedFicheInstallmentsAsync();
+        //FicheInstallments.ForEach(async x => x.Currency = await currencyService.GetCurrency(x.CurrencyId));
+        await base.OnInitializedAsync();
+    }
+}

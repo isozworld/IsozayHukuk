@@ -15,11 +15,12 @@ namespace Isozay.Hukuk.Fiches
         public string Description { get; set; }
         public CurrencyDto Currency { get; set; }
         public long CurrencyId { get; set; } = 1;
+        public long SafeId { get; set; }
         public ClientDto Client { get; set; }
         public long ClientId { get; set; }
         public long ClientTranId { get; set; }
         public ClientTranDto ClientTran { get; set; }
         public List<FicheLineDto> FicheLine { get; set; }
-
+        public List<FicheInstallmentDto> FicheInstallments { get; set; }
     }
 }

@@ -220,19 +220,6 @@
         DeletePolicyName = HukukPermissions.Clients.Delete;
     }
 
-    //private async void CreateClient()
-    //{
-    //    if (isRelated)
-    //    {
-    //        await AppService.CreateClientRelation(NewEntity, parentClient.Id, relationDescription);
-    //    }
-    //    else
-    //    {
-    //        await CreateEntityAsync();
-    //    }
-    //    await CloseCreateModalAsync();
-    //}
-
     private async void DeleteConfirmation(ClientDto context)
     {
         if (await ficheService.HasAnyFiches(context.Id))
@@ -255,7 +242,7 @@
 
     private void OnCreateDialogClose(bool accepted)
     {
-        isCreateModalOpen = false;
+        isCreateModalOpen = accepted;
         StateHasChanged();
     }
 

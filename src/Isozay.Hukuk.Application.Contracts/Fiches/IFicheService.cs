@@ -15,12 +15,20 @@ namespace Isozay.Hukuk.Fiches
 		CreateUpdateFicheDto> //Used to create/update a book
 	{
 		Task<List<FicheLineDto>> GetListFichLineAsync(long FicheId);
-		Task DeleteFicheLine (long FicheLineId);
-		Task<Task> CreateFicheLineAsync(FicheLineDto f);
-		Task<IReadOnlyList<FicheDto>> Search(string searchText, long id);
+		Task DeleteFicheLine (List<long> f);
+        Task DeleteFicheInstallments(List<long> f);
+        Task CreateFicheLineAsync(FicheLineDto f);
+		Task CreateFicheInstallmentAsync(FicheInstallmentDto f);
+        Task CreateFicheInstallmentManyAsync(List<FicheInstallmentDto> f);
+        Task CreateFicheLineManyAsync(List<FicheLineDto> f);
+        Task<IReadOnlyList<FicheDto>> Search(string searchText, long id);
         Task UpdateClientTranAsync(long ficheId);
 		Task<bool> HasAnyFiches(long id);
 		Task<string> getFicheNumber(long? id);
-		Task UpdateFicheLines(List<FicheLineDto> l);
+		Task UpdateFicheLines(List<FicheLineDto> f);
+        Task UpdateFicheInstallments(List<FicheInstallmentDto> f);
+        Task<List<FicheInstallmentDto>> GetFicheInstallmentsAsync(long id);
+		Task<List<FicheInstallmentDto>> GetSortedFicheInstallmentsAsync();
+        Task<List<FicheInstallmentDto>> FillInstallments(int months, DateTime initial);
     }
 }

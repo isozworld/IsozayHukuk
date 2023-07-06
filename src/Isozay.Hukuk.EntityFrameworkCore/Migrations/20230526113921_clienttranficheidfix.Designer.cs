@@ -3,6 +3,7 @@ using System;
 using Isozay.Hukuk.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -11,9 +12,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Isozay.Hukuk.Migrations
 {
     [DbContext(typeof(HukukDbContext))]
-    partial class HukukDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230526113921_clienttranficheidfix")]
+    partial class clienttranficheidfix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

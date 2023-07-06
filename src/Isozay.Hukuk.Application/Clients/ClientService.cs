@@ -83,47 +83,53 @@ namespace Isozay.Hukuk.Clients
         }
 
         [Authorize(HukukPermissions.Clients.Create)]
-        public async Task<ClientTranDto> CreateClientTran (FicheDto c)
-		{
-            var safes = (await _safeRepository.GetQueryableAsync()).Where(x => x.SafeType == SafeType.Bureaue);
+        public async Task CreateClientTran(FicheDto c)
+        {
 
-            var clientTranDto = new ClientTranDto
+
+            var clientTranList = new List<ClientTran>();
+
+            c.FicheInstallments.ForEach(x =>
             {
-                SafeId = safes.First().Id,
-                Amount = 0,
-                ClientId = c.ClientId,
-                CurrencyId = c.CurrencyId,
-                FicheType = c.FicheType,
-                FicheId = c.Id,
-                TrRate = 1,
-                Description = c.Description
-            };
+                var clientTranDto = new ClientTranDto
+                {
+                    SafeId = c.SafeId,
+                    Amount = x.Amount,
+                    ClientId = c.ClientId,
+                    CurrencyId = c.CurrencyId,
+                    FicheType = c.FicheType,
+                    FicheId = c.Id,
+                    FicheNo = c.FicheNo,
+                    TrRate = 1,
+                    Description = c.Description,
+                    TransactionDate = x.Date,
 
-            switch (c.FicheType)
-			{
-				case FicheType.Buying:
-					clientTranDto.IO = 'O';
-                    break;
-                case FicheType.Selling:
-                    clientTranDto.IO = 'I';
-                    break;
-                case FicheType.BuyReturn:
-                    clientTranDto.IO = 'I';
-                    break;
-                case FicheType.SalesReturn:
-                    clientTranDto.IO = 'O';
-                    break;
-                default:
-					break;
-			}
+                };
 
-			c.FicheLine.ForEach(x => { clientTranDto.Amount += x.UnitPrice * x.FicheQuantity; });
+                switch (c.FicheType)
+                {
+                    case FicheType.Buying:
+                        clientTranDto.IO = 'O';
+                        break;
+                    case FicheType.Selling:
+                        clientTranDto.IO = 'I';
+                        break;
+                    case FicheType.BuyReturn:
+                        clientTranDto.IO = 'I';
+                        break;
+                    case FicheType.SalesReturn:
+                        clientTranDto.IO = 'O';
+                        break;
+                    default:
+                        break;
+                }
 
-			var clientTran = ObjectMapper.Map<ClientTranDto, ClientTran>(clientTranDto);
-			await _clientTranRepository.InsertAsync(clientTran);
-			var rv = ObjectMapper.Map<ClientTran, ClientTranDto>(clientTran);
-			return rv;
-		}
+                var clientTran = ObjectMapper.Map<ClientTranDto, ClientTran>(clientTranDto);
+                clientTranList.Add(clientTran);
+            });
+
+            await _clientTranRepository.InsertManyAsync(clientTranList);
+        }
 
         [Authorize(HukukPermissions.Clients.Create)]
         public async Task<ClientRelationDto> CreateClientRelation(CreateUpdateClientDto c, long ParentId, string desc)

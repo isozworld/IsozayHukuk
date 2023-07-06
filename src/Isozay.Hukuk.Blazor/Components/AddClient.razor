@@ -172,16 +172,21 @@
         StateHasChanged();
     }
 
-    private Task ModalOk()
+    private async Task<Task> ModalOk()
     {
-        if (isRelated)
+        if (await AppService.isUsed(NewEntity.IdNumber))
         {
-            AppService.CreateClientRelation(NewEntity, parentClient.Id, relationDescription);
+            await Message.Warn("Bu kimlik numarası kullanımda.", "Uyarı!");
+            return OnClose.InvokeAsync(true);
+        }
+        else if (isRelated)
+        {
+            await AppService.CreateClientRelation(NewEntity, parentClient.Id, relationDescription);
             return ModalCancel();
         }
         else
         {
-            CreateEntityAsync();
+            await CreateEntityAsync();
             return ModalCancel();
         }
     }

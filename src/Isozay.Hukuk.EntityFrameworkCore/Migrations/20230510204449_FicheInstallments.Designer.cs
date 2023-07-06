@@ -3,6 +3,7 @@ using System;
 using Isozay.Hukuk.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -11,9 +12,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Isozay.Hukuk.Migrations
 {
     [DbContext(typeof(HukukDbContext))]
-    partial class HukukDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230510204449_FicheInstallments")]
+    partial class FicheInstallments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -214,6 +216,9 @@ namespace Isozay.Hukuk.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("FicheId")
+                        .IsUnique();
+
                     b.ToTable("HuClientTrans", (string)null);
                 });
 
@@ -343,14 +348,11 @@ namespace Isozay.Hukuk.Migrations
                         .HasColumnType("char(36)")
                         .HasColumnName("CreatorId");
 
-                    b.Property<long>("CurrencyId")
+                    b.Property<long?>("CurrencyId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("longtext");
 
                     b.Property<string>("ExtraProperties")
                         .HasColumnType("longtext")
@@ -380,7 +382,7 @@ namespace Isozay.Hukuk.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FicheId");
+                    b.HasIndex("CurrencyId");
 
                     b.ToTable("HuFicheInstallments", (string)null);
                 });
@@ -2581,6 +2583,13 @@ namespace Isozay.Hukuk.Migrations
                     b.ToTable("AbpTenantConnectionStrings", (string)null);
                 });
 
+            modelBuilder.Entity("Isozay.Hukuk.Clients.ClientTran", b =>
+                {
+                    b.HasOne("Isozay.Hukuk.Fiches.Fiche", null)
+                        .WithOne("ClientTran")
+                        .HasForeignKey("Isozay.Hukuk.Clients.ClientTran", "FicheId");
+                });
+
             modelBuilder.Entity("Isozay.Hukuk.Fiches.Fiche", b =>
                 {
                     b.HasOne("Isozay.Hukuk.Clients.Client", "Client")
@@ -2602,11 +2611,11 @@ namespace Isozay.Hukuk.Migrations
 
             modelBuilder.Entity("Isozay.Hukuk.Fiches.FicheInstallment", b =>
                 {
-                    b.HasOne("Isozay.Hukuk.Fiches.Fiche", null)
-                        .WithMany("FicheInstallments")
-                        .HasForeignKey("FicheId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("Isozay.Hukuk.Currencies.Currency", "Currency")
+                        .WithMany()
+                        .HasForeignKey("CurrencyId");
+
+                    b.Navigation("Currency");
                 });
 
             modelBuilder.Entity("Isozay.Hukuk.Fiches.FicheLine", b =>
@@ -2953,7 +2962,7 @@ namespace Isozay.Hukuk.Migrations
 
             modelBuilder.Entity("Isozay.Hukuk.Fiches.Fiche", b =>
                 {
-                    b.Navigation("FicheInstallments");
+                    b.Navigation("ClientTran");
 
                     b.Navigation("FicheLine");
                 });

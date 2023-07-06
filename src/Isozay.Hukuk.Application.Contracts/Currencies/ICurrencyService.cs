@@ -9,5 +9,6 @@ namespace Isozay.Hukuk.Currencies
     public  interface ICurrencyService:IApplicationService
     {
         Task<List<CurrencyDto>> GetListAsync();
+        //Task<CurrencyDto> GetCurrency(long id);
     }
 }

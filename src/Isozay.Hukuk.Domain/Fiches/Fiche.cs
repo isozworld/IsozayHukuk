@@ -18,11 +18,7 @@ namespace Isozay.Hukuk.Fiches
         public long CurrencyId { get;set; }
         public Client Client { get; set; }
         public long ClientId { get; set; }
-        public ClientTran ClientTran { get; set; }
         public List<FicheLine> FicheLine { get; set; }
-
-
-
-
+        public List<FicheInstallment> FicheInstallments { get; set; }
     }
 }

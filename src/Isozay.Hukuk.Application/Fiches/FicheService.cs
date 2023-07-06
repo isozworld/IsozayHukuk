@@ -29,15 +29,21 @@ namespace Isozay.Hukuk.Fiches {
 			CreateUpdateFicheDto>, IFicheService//Used to create/update a Client
 	{
 
+		private readonly IRepository<FicheInstallment, long> _ficheInstallmentRepository;
 		private readonly IRepository<FicheLine, long> _ficheLineRepository;
-        private readonly ClientService _clientService;
 		private readonly IRepository<ClientTran, long> _clientTranRepository;
+        private readonly IRepository<Client, long> _clientRepository;
 
         public FicheService (IRepository<Fiche, long> repository,
-		    IRepository<FicheLine, long> ficheLineRepository, ClientService clientService, IRepository<ClientTran, long> clientTranRepository)
+		    IRepository<FicheLine, long> ficheLineRepository,
+			IRepository<ClientTran, long> clientTranRepository,
+            IRepository<Client, long> clientRepository,
+            IRepository<FicheInstallment, long> ficheInstallmentRepository
+			)
 		: base (repository) {
-			_clientTranRepository = clientTranRepository;
-			_clientService = clientService;
+			_ficheInstallmentRepository = ficheInstallmentRepository;
+            _clientTranRepository = clientTranRepository;
+			_clientRepository = clientRepository;
 			_ficheLineRepository = ficheLineRepository;
 			GetPolicyName = HukukPermissions.Fiches.Default;
 			GetListPolicyName = HukukPermissions.Fiches.Default;
@@ -54,7 +60,6 @@ namespace Isozay.Hukuk.Fiches {
 			queryable = queryable
 				.Include (x => x.Client)
 				.Include (x => x.FicheLine).ThenInclude (y => y.Item)
-				.Include (x => x.ClientTran)
 				.Include (x => x.Currency)
 
 				.Skip (input.SkipCount)
@@ -65,7 +70,6 @@ namespace Isozay.Hukuk.Fiches {
 			var Dtos = queryResult.Select (x => {
 				var dto = ObjectMapper.Map<Fiche, FicheDto> (x);
 				dto.Client = ObjectMapper.Map<Client, ClientDto> (x.Client);
-				dto.ClientTran = ObjectMapper.Map<ClientTran, ClientTranDto> (x.ClientTran);
 				dto.FicheLine = ObjectMapper.Map<List<FicheLine>, List<FicheLineDto>> (x.FicheLine);
 				return dto;
 			}).ToList ();
@@ -120,8 +124,8 @@ namespace Isozay.Hukuk.Fiches {
 		[Authorize(HukukPermissions.Fiches.Delete)]
 		public override async Task DeleteAsync(long id)
 		{
-			var clientTran = (await _clientTranRepository.GetQueryableAsync()).Where(x => x.FicheId == id).First();
-			await _clientTranRepository.DeleteAsync(clientTran);
+			var clientTran = (await _clientTranRepository.GetQueryableAsync()).Where(x => x.FicheId == id);
+			await _clientTranRepository.DeleteManyAsync(clientTran);
 			await base.DeleteAsync(id);
 		}
 
@@ -140,8 +144,32 @@ namespace Isozay.Hukuk.Fiches {
 
 
         [Authorize (HukukPermissions.Fiches.Create)]
-		public override async Task<FicheDto> CreateAsync (CreateUpdateFicheDto input) { 
-			input.FicheLine.ForEach (x => { x.Item = null; });
+		public override async Task<FicheDto> CreateAsync (CreateUpdateFicheDto input) {
+			decimal amount = 0;
+			int installmentCount = input.FicheInstallments.Count;
+			input.FicheLine.ForEach (x => { x.Item = null; amount += x.FicheAmount; });
+
+			input.FicheInstallments.ForEach(x => {
+				x.CurrencyId = input.CurrencyId;
+				x.Amount = amount / installmentCount;
+                switch (input.FicheType)
+                {
+                    case FicheType.Buying:
+                        x.IO = 'O';
+                        break;
+                    case FicheType.Selling:
+                        x.IO = 'I';
+                        break;
+                    case FicheType.BuyReturn:
+                        x.IO = 'I';
+                        break;
+                    case FicheType.SalesReturn:
+                        x.IO = 'O';
+                        break;
+                    default:
+                        break;
+                }
+            });
 
 			var myfiche = ObjectMapper.Map<CreateUpdateFicheDto, Fiche> (input);
 
@@ -149,13 +177,74 @@ namespace Isozay.Hukuk.Fiches {
 
             var rvFiche = ObjectMapper.Map<Fiche, FicheDto> (rv);
 
-            rvFiche.FicheLine = new List<FicheLineDto> ();
+   //         rvFiche.FicheLine = new List<FicheLineDto> ();
 
-            rv.FicheLine.ForEach (x => { rvFiche.FicheLine.Add (ObjectMapper.Map<FicheLine, FicheLineDto> (x)); });
+			//rvFiche.FicheInstallments = new List<FicheInstallmentDto>();
 
-            await _clientService.CreateClientTran(rvFiche);
+   //         rv.FicheLine.ForEach (x => rvFiche.FicheLine.Add (ObjectMapper.Map<FicheLine, FicheLineDto> (x)));
+
+   //         rv.FicheInstallments.ForEach(x => rvFiche.FicheInstallments.Add(ObjectMapper.Map<FicheInstallment, FicheInstallmentDto>(x)));
+
+			//await createClientTrans(rvFiche);
 
             return rvFiche;
+		}
+
+		private async Task createClientTrans(FicheDto c)
+		{
+            var clientTranList = new List<ClientTran>();
+
+            c.FicheInstallments.ForEach(x =>
+            {
+                var clientTranDto = new ClientTranDto
+                {
+                    SafeId = c.SafeId,
+                    Amount = x.Amount,
+                    ClientId = c.ClientId,
+                    CurrencyId = c.CurrencyId,
+                    FicheType = c.FicheType,
+                    FicheId = c.Id,
+                    FicheNo = c.FicheNo,
+                    TrRate = 1,
+                    Description = c.Description,
+                    TransactionDate = x.Date,
+
+                };
+
+                switch (c.FicheType)
+                {
+                    case FicheType.Buying:
+                        clientTranDto.IO = 'O';
+                        break;
+                    case FicheType.Selling:
+                        clientTranDto.IO = 'I';
+                        break;
+                    case FicheType.BuyReturn:
+                        clientTranDto.IO = 'I';
+                        break;
+                    case FicheType.SalesReturn:
+                        clientTranDto.IO = 'O';
+                        break;
+                    default:
+                        break;
+                }
+
+                var clientTran = ObjectMapper.Map<ClientTranDto, ClientTran>(clientTranDto);
+                clientTranList.Add(clientTran);
+            });
+
+            await _clientTranRepository.InsertManyAsync(clientTranList);
+        }
+
+		public async Task<List<FicheInstallmentDto>> GetFicheInstallmentsAsync(long id)
+		{
+			var queryable = (await _ficheInstallmentRepository.GetQueryableAsync()).Where(x=>x.FicheId == id).ToList();
+			var rv = queryable.Select(x =>
+			{
+				var dto = ObjectMapper.Map<FicheInstallment, FicheInstallmentDto>(x);
+				return dto;
+			}).ToList();
+			return rv;
 		}
 
 		[Authorize (HukukPermissions.Fiches.Edit)]
@@ -180,12 +269,24 @@ namespace Isozay.Hukuk.Fiches {
 		}
 
 		[Authorize (Permissions.HukukPermissions.Fiches.Delete)]
-		public async Task DeleteFicheLine(long FicheLineId)
+		public async Task DeleteFicheLine(List<long> f)
 		{
-			await _ficheLineRepository.DeleteAsync(FicheLineId, true);
+			foreach (long a in f)
+			{
+                await _ficheLineRepository.DeleteAsync(a, true);
+            }
 		}
 
-		public async Task UpdateFicheLines(List<FicheLineDto> l)
+        [Authorize(Permissions.HukukPermissions.Fiches.Delete)]
+        public async Task DeleteFicheInstallments(List<long> f)
+        {
+            foreach (long a in f)
+            {
+                await _ficheInstallmentRepository.DeleteAsync(a, true);
+            }
+        }
+
+        public async Task UpdateFicheLines(List<FicheLineDto> l)
 		{
 			foreach (FicheLineDto f in l)
 			{
@@ -193,14 +294,44 @@ namespace Isozay.Hukuk.Fiches {
 			}
 		}
 
-		[Authorize (Permissions.HukukPermissions.Fiches.Edit)]
-		public async Task<Task> CreateFicheLineAsync(FicheLineDto f)
+        public async Task UpdateFicheInstallments(List<FicheInstallmentDto> l)
+        {
+            foreach (FicheInstallmentDto f in l)
+            {
+                await _ficheInstallmentRepository.UpdateAsync(ObjectMapper.Map<FicheInstallmentDto, FicheInstallment>(f));
+            }
+        }
+
+        [Authorize (Permissions.HukukPermissions.Fiches.Edit)]
+		public async Task CreateFicheLineAsync(FicheLineDto f)
 		{
 			f.Item = null;
 			f.Currency = null;
 			var ficheLine = ObjectMapper.Map<FicheLineDto, FicheLine>(f);
 			await _ficheLineRepository.InsertAsync(ficheLine);
-			return Task.CompletedTask;
+		}
+
+        public async Task CreateFicheInstallmentAsync(FicheInstallmentDto f)
+        {
+            f.Currency = null;
+            var ficheInstallment = ObjectMapper.Map<FicheInstallmentDto, FicheInstallment>(f);
+            await _ficheInstallmentRepository.InsertAsync(ficheInstallment);
+        }
+
+        public async Task CreateFicheInstallmentManyAsync(List<FicheInstallmentDto> f)
+        {
+            foreach (FicheInstallmentDto a in f)
+            {
+                await CreateFicheInstallmentAsync(a);
+            }
+        }
+
+        public async Task CreateFicheLineManyAsync(List<FicheLineDto> f)
+		{
+			foreach (FicheLineDto a in f)
+			{
+				await CreateFicheLineAsync(a);
+			}
 		}
 
 		public async Task<IReadOnlyList<FicheDto>> Search(string searchText, long id)
@@ -210,5 +341,37 @@ namespace Isozay.Hukuk.Fiches {
             var results = await AsyncExecuter.ToListAsync(q);
             return ObjectMapper.Map<List<Fiche>, List<FicheDto>>(results);
         }
+
+        public async Task<List<FicheInstallmentDto>> FillInstallments(int months, DateTime initial)
+		{
+			var rv = new List<FicheInstallmentDto>();
+			var prevDate = initial;
+			for (int i = 0; i < months; i++)
+			{
+				
+				var r = new FicheInstallmentDto { Date = prevDate.AddMonths(1), Description = $"{i+1}. taksit" };
+				prevDate = r.Date;
+                Console.WriteLine($"---------------------------{prevDate}");
+                rv.Add(r);
+			}
+            Console.WriteLine(rv.Count);
+            return rv;
+		}
+
+
+        public async Task<List<FicheInstallmentDto>> GetSortedFicheInstallmentsAsync()
+		{
+			var clients = ObjectMapper.Map<List<Client>, List<ClientDto>>((await _clientRepository.GetQueryableAsync()).ToList());
+			var rv = ObjectMapper.Map<List<FicheInstallment>, List<FicheInstallmentDto>>
+				((await _ficheInstallmentRepository.GetQueryableAsync()).ToList());
+			//var r = (await _ficheInstallmentRepository.GetQueryableAsync()).OrderBy(x => x.Date).ToList();
+			//var rv = ObjectMapper.Map<List<FicheInstallment>, List<FicheInstallmentDto>>(r);
+
+			//rv.ForEach(x => x.ClientName = clients.Where(c => c.Id == x.Fiche.ClientId).First().Name);
+
+			//return rv;
+			return rv;
+
+		}
     }
 }

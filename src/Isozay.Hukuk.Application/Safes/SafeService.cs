@@ -49,6 +49,15 @@ namespace Isozay.Hukuk.Safes {
 			DeletePolicyName = HukukPermissions.Safes.Create;
 		}
 
+		public async Task<List<SafeDto>> GetSafeListAsync(SafeType t)
+		{
+			var safes = (await Repository.GetQueryableAsync()).Where(x => x.SafeType == t).ToList();
+			var rv = new List<SafeDto>();
+			safes.ForEach(x => { rv.Add(ObjectMapper.Map<Safe, SafeDto>(x)); });
+			return rv;
+		}
+
+
 		[DisableAuditing]
 		public override async Task<PagedResultDto<SafeDto>> GetListAsync (PagedAndSortedResultRequestDto input) {
 			var query = await Repository.GetQueryableAsync ();
